@@ -1,4 +1,4 @@
-import type { TeamMember } from '@/types';
+import type { Project, TeamMember } from '@/types';
 
 /**
  * Local overlay for team members added from the dashboard UI.
@@ -33,4 +33,31 @@ export function saveLocalMembers(members: TeamMember[]): void {
 export function newLocalMemberId(name: string): string {
   const slug = name.toLowerCase().trim().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
   return `tm-local-${slug || 'member'}-${Date.now().toString(36)}`;
+}
+
+// --- Projects / campaigns overlay -------------------------------------------
+const PROJECTS_KEY = 'mdd-local-projects';
+
+export function loadLocalProjects(): Project[] {
+  try {
+    const raw = localStorage.getItem(PROJECTS_KEY);
+    if (!raw) return [];
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed) ? (parsed as Project[]).map((p) => ({ ...p, local: true })) : [];
+  } catch {
+    return [];
+  }
+}
+
+export function saveLocalProjects(projects: Project[]): void {
+  try {
+    localStorage.setItem(PROJECTS_KEY, JSON.stringify(projects));
+  } catch {
+    /* ignore */
+  }
+}
+
+export function newLocalProjectId(name: string): string {
+  const slug = name.toLowerCase().trim().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+  return `prj-local-${slug || 'campaign'}-${Date.now().toString(36)}`;
 }

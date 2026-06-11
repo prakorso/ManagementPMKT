@@ -7,6 +7,7 @@ import { LoadingScreen } from '@/components/ui/LoadingScreen';
 // the initial bundle — the overview loads fast and chart code arrives on demand.
 const Homepage = lazy(() => import('@/pages/Homepage').then((m) => ({ default: m.Homepage })));
 const TeamManagement = lazy(() => import('@/pages/TeamManagement').then((m) => ({ default: m.TeamManagement })));
+const MemberDetail = lazy(() => import('@/pages/MemberDetail').then((m) => ({ default: m.MemberDetail })));
 const ObjectiveTracker = lazy(() => import('@/pages/ObjectiveTracker').then((m) => ({ default: m.ObjectiveTracker })));
 const PerformanceReporting = lazy(() =>
   import('@/pages/PerformanceReporting').then((m) => ({ default: m.PerformanceReporting })),
@@ -33,6 +34,14 @@ export default function App() {
             element={
               <Suspense fallback={<LoadingScreen />}>
                 <TeamManagement />
+              </Suspense>
+            }
+          />
+          <Route
+            path="team/:memberId"
+            element={
+              <Suspense fallback={<LoadingScreen />}>
+                <MemberDetail />
               </Suspense>
             }
           />

@@ -105,6 +105,9 @@ export class GoogleSheetsDataSource implements DataSource {
       performance: perfRows.map(toPerformance),
       assessments: asmRows.map(toAssessment),
       readiness: rdyRows.map(toReadiness),
+      // Projects are managed in-app for now (created/assigned by the manager and
+      // kept in a local overlay). A "Projects" sheet tab / DB table comes later.
+      projects: [],
     };
 
     // If every tab is empty, the sheet hasn't been populated yet — signal a

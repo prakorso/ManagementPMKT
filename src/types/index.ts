@@ -210,6 +210,8 @@ export interface DashboardData {
   performance: PerformanceSnapshot[];
   assessments: Assessment[];
   readiness: ReadinessMetric[];
+  /** Campaigns/projects assigned to team members. */
+  projects: Project[];
 }
 
 // -----------------------------------------------------------------------------
@@ -223,13 +225,28 @@ export interface DashboardData {
 
 export type ProjectStatus = 'active' | 'paused' | 'completed';
 
+/** Whether a campaign is tracking to plan. */
+export type CampaignTrack = 'on-track' | 'off-track' | 'at-risk';
+
 export interface Project {
   id: string;
   name: string;
   client?: string;
   status?: ProjectStatus;
   /** Team members handling this project. */
-  ownerIds?: string[];
+  ownerIds: string[];
+  /** Overall on/off-track status (metrics refined later). */
+  track: CampaignTrack;
+  // Representative performance metrics (optional; the metric set is refined later).
+  leads?: number;
+  leadsTarget?: number;
+  cpl?: number;
+  cplTarget?: number;
+  spend?: number;
+  spendTarget?: number;
   startDate?: string;
   endDate?: string;
+  notes?: string;
+  /** True when created in-browser (not yet persisted to the sheet). */
+  local?: boolean;
 }

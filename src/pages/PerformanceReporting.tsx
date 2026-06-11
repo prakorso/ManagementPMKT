@@ -11,39 +11,53 @@ import {
   XAxis,
   YAxis,
 } from 'recharts';
-import { AlertTriangle, ClipboardCheck, Lightbulb } from 'lucide-react';
+import { AlertTriangle, CheckCircle2, ClipboardCheck, Lightbulb, Megaphone, Plus, XCircle } from 'lucide-react';
 import { useData } from '@/context/DataContext';
 import { LoadingScreen } from '@/components/ui/LoadingScreen';
 import { ErrorState } from '@/components/ui/ErrorState';
 import { PageHeader } from '@/components/ui/PageHeader';
 import { Card, CardHeader } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
+import { Button } from '@/components/ui/Button';
+import { StatCard } from '@/components/ui/StatCard';
+import { EmptyState } from '@/components/ui/EmptyState';
 import { Segmented } from '@/components/ui/Segmented';
 import { ChartTooltip } from '@/components/charts/ChartTooltip';
 import { useChartColors } from '@/components/charts/useChartColors';
-import { kpiResults, latestMonthly, monthlySeries, weeklySeries, type KpiResult } from '@/utils/calculations';
+import { CampaignCard } from '@/components/projects/CampaignCard';
+import { AddCampaignModal } from '@/components/projects/AddCampaignModal';
+import {
+  campaignTrackSummary,
+  kpiResults,
+  latestMonthly,
+  monthlySeries,
+  weeklySeries,
+  type KpiResult,
+} from '@/utils/calculations';
 import { formatDelta, formatIDR, formatIDRCompact, formatNumber, formatPercent } from '@/utils/format';
 import type { PerformanceSnapshot } from '@/types';
 
 type TrendView = 'monthly' | 'weekly';
 
 export function PerformanceReporting() {
-  const { data, loading, error } = useData();
+  const { data, loading, error, addProject, updateProject, removeProject } = useData();
   const colors = useChartColors();
   const [view, setView] = useState<TrendView>('monthly');
+  const [campaignModal, setCampaignModal] = useState(false);
 
   if (loading) return <LoadingScreen />;
   if (error || !data) return <ErrorState message={error ?? 'No data available.'} />;
 
-  const { performance } = data;
+  const { performance, projects, teamMembers } = data;
   const latest = latestMonthly(performance);
   const series = view === 'monthly' ? monthlySeries(performance) : weeklySeries(performance);
+  const campaigns = campaignTrackSummary(projects);
 
   return (
     <div className="space-y-6">
       <PageHeader
         title="Performance Reporting"
-        description="Dev Biz performance — Leads, CPL, Budget, Valid Rate and Conversion Rate against target."
+        description="Campaign health and Dev Biz KPIs — how many campaigns are on/off-track, plus Leads, CPL & rates vs target."
       >
         <Segmented
           value={view}
@@ -54,6 +68,44 @@ export function PerformanceReporting() {
           ]}
         />
       </PageHeader>
+
+      {/* Campaigns — on/off-track */}
+      <div className="space-y-4">
+        <div className="flex items-center justify-between gap-3">
+          <h2 className="flex items-center gap-2 text-sm font-semibold text-slate-800 dark:text-slate-100">
+            <Megaphone size={16} className="text-brand-500" /> Campaigns
+          </h2>
+          <Button size="sm" onClick={() => setCampaignModal(true)}>
+            <Plus size={15} /> Add Campaign
+          </Button>
+        </div>
+
+        <div className="grid gap-4 sm:grid-cols-3">
+          <StatCard label="On Track" value={campaigns.onTrack} icon={<CheckCircle2 size={18} />} iconTone="success" hint={`of ${campaigns.total} campaigns`} />
+          <StatCard label="At Risk" value={campaigns.atRisk} icon={<AlertTriangle size={18} />} iconTone="warning" hint="need attention" />
+          <StatCard label="Off Track" value={campaigns.offTrack} icon={<XCircle size={18} />} iconTone="danger" hint="behind target" />
+        </div>
+
+        {projects.length === 0 ? (
+          <EmptyState
+            icon={<Megaphone size={28} />}
+            title="No campaigns yet"
+            description="Add a campaign and assign the member(s) handling it to track on/off-track here."
+          />
+        ) : (
+          <div className="grid gap-4 lg:grid-cols-2 xl:grid-cols-3">
+            {projects.map((project) => (
+              <CampaignCard
+                key={project.id}
+                project={project}
+                members={teamMembers}
+                onUpdate={updateProject}
+                onRemove={removeProject}
+              />
+            ))}
+          </div>
+        )}
+      </div>
 
       {/* KPI cards (latest month) */}
       {latest && (
@@ -150,6 +202,13 @@ export function PerformanceReporting() {
 
       {/* Notes */}
       {latest && <PerformanceNotes snapshot={latest} />}
+
+      <AddCampaignModal
+        open={campaignModal}
+        onClose={() => setCampaignModal(false)}
+        onAdd={addProject}
+        members={teamMembers}
+      />
     </div>
   );
 }

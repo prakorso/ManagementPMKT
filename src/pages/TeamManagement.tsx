@@ -1,4 +1,5 @@
 import { useState, type ReactNode } from 'react';
+import { Link } from 'react-router-dom';
 import {
   CalendarCheck,
   CalendarClock,
@@ -174,16 +175,18 @@ function MemberCard({
     <Card className="flex flex-col">
       {/* Header */}
       <div className="flex items-start justify-between gap-3">
-        <div className="flex items-center gap-3">
+        <Link to={`/team/${member.id}`} className="group flex items-center gap-3">
           <Avatar name={member.name} size="lg" />
           <div>
             <div className="flex items-center gap-2">
-              <h3 className="text-base font-semibold text-slate-900 dark:text-white">{member.name}</h3>
+              <h3 className="text-base font-semibold text-slate-900 group-hover:text-brand-600 dark:text-white dark:group-hover:text-brand-300">
+                {member.name}
+              </h3>
               {member.local && <Badge tone="info">Local</Badge>}
             </div>
             <p className="text-xs text-muted">{member.role}</p>
           </div>
-        </div>
+        </Link>
         <Badge tone={healthTone[member.health]}>{healthLabel[member.health]}</Badge>
       </div>
 

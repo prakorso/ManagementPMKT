@@ -8,11 +8,16 @@ import {
   useState,
   type ReactNode,
 } from 'react';
-import type { DashboardData, TeamMember } from '@/types';
+import type { DashboardData, Project, TeamMember } from '@/types';
 import { createDataSource } from '@/data';
 import { SeedDataSource } from '@/data/SeedDataSource';
 import { config } from '@/config';
-import { loadLocalMembers, saveLocalMembers } from '@/data/localStore';
+import {
+  loadLocalMembers,
+  loadLocalProjects,
+  saveLocalMembers,
+  saveLocalProjects,
+} from '@/data/localStore';
 import { appendRecord, getWriteUrl, memberToSheetRecord, setWriteUrl } from '@/data/sheetsWrite';
 
 interface DataContextValue {
@@ -28,6 +33,12 @@ interface DataContextValue {
   addTeamMember: (member: TeamMember) => void;
   /** Removes a locally-held team member (sheet rows are edited in the sheet). */
   removeTeamMember: (id: string) => void;
+  /** Creates a campaign/project (kept in the local overlay). */
+  addProject: (project: Project) => void;
+  /** Patches a campaign/project (works on seed/sheet ones via a local override). */
+  updateProject: (id: string, patch: Partial<Project>) => void;
+  /** Removes a locally-created campaign/project. */
+  removeProject: (id: string) => void;
   /** True when an Apps Script write-back URL is configured. */
   writeEnabled: boolean;
   /** Saves/clears the write-back URL (persisted in this browser). */
@@ -40,6 +51,7 @@ const DataContext = createContext<DataContextValue | undefined>(undefined);
 export function DataProvider({ children }: { children: ReactNode }) {
   const [baseData, setBaseData] = useState<DashboardData | null>(null);
   const [localMembers, setLocalMembers] = useState<TeamMember[]>(() => loadLocalMembers());
+  const [localProjects, setLocalProjects] = useState<Project[]>(() => loadLocalProjects());
   const [loading, setLoading] = useState(true);
   const [warning, setWarning] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -126,17 +138,61 @@ export function DataProvider({ children }: { children: ReactNode }) {
     });
   }, []);
 
+  const addProject = useCallback((project: Project) => {
+    setLocalProjects((prev) => {
+      const next = [...prev, { ...project, local: true }];
+      saveLocalProjects(next);
+      return next;
+    });
+  }, []);
+
+  const updateProject = useCallback((id: string, patch: Partial<Project>) => {
+    setLocalProjects((prev) => {
+      const existing = prev.find((p) => p.id === id);
+      let next: Project[];
+      if (existing) {
+        next = prev.map((p) => (p.id === id ? { ...p, ...patch } : p));
+      } else {
+        const fromBase = baseData?.projects.find((p) => p.id === id);
+        if (!fromBase) return prev;
+        next = [...prev, { ...fromBase, ...patch, local: true }];
+      }
+      saveLocalProjects(next);
+      return next;
+    });
+  }, [baseData]);
+
+  const removeProject = useCallback((id: string) => {
+    setLocalProjects((prev) => {
+      const next = prev.filter((p) => p.id !== id);
+      saveLocalProjects(next);
+      return next;
+    });
+  }, []);
+
   const configureWriteUrl = useCallback((url: string) => {
     setWriteUrl(url);
     setWriteUrlState(url.trim());
   }, []);
 
-  // Merge sheet/seed data with the local member overlay.
+  // Merge sheet/seed data with the local overlays.
   const data = useMemo<DashboardData | null>(() => {
     if (!baseData) return null;
-    if (localMembers.length === 0) return baseData;
-    return { ...baseData, teamMembers: [...baseData.teamMembers, ...localMembers] };
-  }, [baseData, localMembers]);
+    const teamMembers =
+      localMembers.length === 0 ? baseData.teamMembers : [...baseData.teamMembers, ...localMembers];
+
+    // Projects: local entries override base ones by id (so edits stick), and
+    // local-only projects are appended.
+    let projects = baseData.projects;
+    if (localProjects.length > 0) {
+      const localById = new Map(localProjects.map((p) => [p.id, p]));
+      const overridden = baseData.projects.map((p) => localById.get(p.id) ?? p);
+      const extra = localProjects.filter((p) => !baseData.projects.some((b) => b.id === p.id));
+      projects = [...overridden, ...extra];
+    }
+
+    return { ...baseData, teamMembers, projects };
+  }, [baseData, localMembers, localProjects]);
 
   const value = useMemo(
     () => ({
@@ -148,11 +204,28 @@ export function DataProvider({ children }: { children: ReactNode }) {
       refresh: () => void load(),
       addTeamMember,
       removeTeamMember,
+      addProject,
+      updateProject,
+      removeProject,
       writeEnabled: !!writeUrl,
       configureWriteUrl,
       writeUrl,
     }),
-    [data, loading, warning, error, sourceName, load, addTeamMember, removeTeamMember, writeUrl, configureWriteUrl],
+    [
+      data,
+      loading,
+      warning,
+      error,
+      sourceName,
+      load,
+      addTeamMember,
+      removeTeamMember,
+      addProject,
+      updateProject,
+      removeProject,
+      writeUrl,
+      configureWriteUrl,
+    ],
   );
 
   return <DataContext.Provider value={value}>{children}</DataContext.Provider>;

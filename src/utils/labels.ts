@@ -1,8 +1,10 @@
 import type {
   ActionItemStatus,
+  CampaignTrack,
   HealthStatus,
   MeetingCategory,
   ObjectiveStatus,
+  ProjectStatus,
   ReadinessArea,
 } from '@/types';
 import type { Tone } from '@/components/ui/Badge';
@@ -57,6 +59,24 @@ export const meetingCategoryTone: Record<MeetingCategory, Tone> = {
   'client-meeting': 'success',
   'pmkt-meeting': 'warning',
   'assessment-discussion': 'neutral',
+};
+
+export const campaignTrackLabel: Record<CampaignTrack, string> = {
+  'on-track': 'On Track',
+  'off-track': 'Off Track',
+  'at-risk': 'At Risk',
+};
+
+export const campaignTrackTone: Record<CampaignTrack, Tone> = {
+  'on-track': 'success',
+  'off-track': 'danger',
+  'at-risk': 'warning',
+};
+
+export const projectStatusLabel: Record<ProjectStatus, string> = {
+  active: 'Active',
+  paused: 'Paused',
+  completed: 'Completed',
 };
 
 export const readinessAreaLabel: Record<ReadinessArea, string> = {

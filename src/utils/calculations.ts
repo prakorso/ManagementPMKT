@@ -6,6 +6,7 @@ import type {
   MonthNumber,
   Objective,
   PerformanceSnapshot,
+  Project,
   ReadinessArea,
   ReadinessMetric,
   TeamMember,
@@ -286,6 +287,23 @@ export function kpiResults(snapshot: PerformanceSnapshot): KpiResult[] {
       'percent',
     ),
   ];
+}
+
+// -----------------------------------------------------------------------------
+// Campaigns / projects
+// -----------------------------------------------------------------------------
+
+export function projectsForMember(projects: Project[], memberId: string): Project[] {
+  return projects.filter((p) => p.ownerIds.includes(memberId));
+}
+
+export function campaignTrackSummary(projects: Project[]) {
+  return {
+    total: projects.length,
+    onTrack: projects.filter((p) => p.track === 'on-track').length,
+    offTrack: projects.filter((p) => p.track === 'off-track').length,
+    atRisk: projects.filter((p) => p.track === 'at-risk').length,
+  };
 }
 
 // -----------------------------------------------------------------------------

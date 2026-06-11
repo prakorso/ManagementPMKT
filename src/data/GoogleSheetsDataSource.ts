@@ -17,7 +17,6 @@ import type {
   TeamMember,
 } from '@/types';
 import type { DataSource } from './DataSource';
-import { parseCsvToRecords } from './csv';
 import { seedData } from './seedData';
 
 type Row = Record<string, string>;
@@ -35,16 +34,33 @@ interface GoogleSheetsOptions {
   };
 }
 
+// --- Minimal shape of a gviz response -------------------------------------
+interface GvizCell {
+  v: string | number | boolean | null;
+  f?: string;
+}
+interface GvizResponse {
+  status: string;
+  errors?: { detailed_message?: string; message?: string }[];
+  table: {
+    cols: { id?: string; label?: string }[];
+    rows: { c: (GvizCell | null)[] }[];
+  };
+}
+
 /**
- * Reads the dashboard dataset from a public Google Sheet using the read-only
- * CSV (gviz) export — no API key, no backend, works from a static Netlify build.
+ * Reads the dashboard dataset from a public Google Sheet using the gviz
+ * endpoint loaded as JSONP (a `<script>` tag with a `responseHandler`
+ * callback). This deliberately avoids `fetch()` so there are **no CORS
+ * constraints** — it works from any static host for any sheet shared
+ * "Anyone with the link". No API key and no backend required.
  *
- * Each entity lives on its own tab; row 1 holds the column headers. The expected
- * columns mirror the field names in `src/types`. See `docs/GOOGLE_SHEETS.md`.
+ * Each entity lives on its own tab; row 1 holds the column headers (matched
+ * tolerantly to the field names in `src/types`). See `docs/GOOGLE_SHEETS.md`.
  *
- * The spreadsheet is the data-entry surface in phase 1; this adapter only reads.
- * Swapping to a database later means writing a new `DataSource` with the same
- * `fetchAll()` contract — no UI changes required.
+ * The spreadsheet is the data-entry surface in phase 1; this adapter only
+ * reads. Swapping to a database later means writing a new `DataSource` with the
+ * same `fetchAll()` contract — no UI changes required.
  */
 export class GoogleSheetsDataSource implements DataSource {
   readonly name = 'Google Sheets';
@@ -54,19 +70,16 @@ export class GoogleSheetsDataSource implements DataSource {
     this.opts = opts;
   }
 
-  private tabUrl(tab: string): string {
+  private async fetchTab(tab: string): Promise<Row[]> {
     const id = encodeURIComponent(this.opts.sheetId);
     const sheet = encodeURIComponent(tab);
-    return `https://docs.google.com/spreadsheets/d/${id}/gviz/tq?tqx=out:csv&sheet=${sheet}`;
-  }
-
-  private async fetchTab(tab: string): Promise<Row[]> {
-    const res = await fetch(this.tabUrl(tab));
-    if (!res.ok) {
-      throw new Error(`Failed to load tab "${tab}" (HTTP ${res.status}). Is the sheet shared publicly?`);
+    const url = `https://docs.google.com/spreadsheets/d/${id}/gviz/tq?headers=1&sheet=${sheet}`;
+    const response = await loadGvizJsonp(url);
+    if (response.status === 'error') {
+      const detail = response.errors?.[0]?.detailed_message ?? response.errors?.[0]?.message ?? 'unknown error';
+      throw new Error(`Tab "${tab}" could not be read (${detail}). Is the sheet shared publicly and the tab named correctly?`);
     }
-    const text = await res.text();
-    return parseCsvToRecords(text);
+    return tableToRecords(response);
   }
 
   async fetchAll(): Promise<DashboardData> {
@@ -81,7 +94,7 @@ export class GoogleSheetsDataSource implements DataSource {
       this.fetchTab(tabs.readiness),
     ]);
 
-    return {
+    const data: DashboardData = {
       // Program profile is configuration, not tabular data — keep it from seed
       // until a settings surface exists.
       program: seedData.program as ProgramInfo,
@@ -93,7 +106,82 @@ export class GoogleSheetsDataSource implements DataSource {
       assessments: asmRows.map(toAssessment),
       readiness: rdyRows.map(toReadiness),
     };
+
+    // If every tab is empty, the sheet hasn't been populated yet — signal a
+    // (recoverable) error so the app falls back to seed data with a clear hint.
+    const isEmpty =
+      data.teamMembers.length === 0 &&
+      data.objectives.length === 0 &&
+      data.actionItems.length === 0 &&
+      data.meetings.length === 0 &&
+      data.performance.length === 0 &&
+      data.assessments.length === 0 &&
+      data.readiness.length === 0;
+    if (isEmpty) {
+      throw new Error('The connected Google Sheet has no data yet — import your data into its tabs.');
+    }
+
+    return data;
   }
+}
+
+// -----------------------------------------------------------------------------
+// JSONP loader + gviz table parsing
+// -----------------------------------------------------------------------------
+
+let jsonpCounter = 0;
+
+/** Loads a gviz URL via a script tag and resolves the parsed response. */
+function loadGvizJsonp(url: string): Promise<GvizResponse> {
+  return new Promise((resolve, reject) => {
+    const callbackName = `__gviz_cb_${Date.now()}_${jsonpCounter++}`;
+    const script = document.createElement('script');
+
+    const cleanup = () => {
+      clearTimeout(timer);
+      delete (window as unknown as Record<string, unknown>)[callbackName];
+      script.remove();
+    };
+
+    const timer = setTimeout(() => {
+      cleanup();
+      reject(new Error('Timed out loading the Google Sheet (check your connection / sheet sharing).'));
+    }, 15000);
+
+    (window as unknown as Record<string, unknown>)[callbackName] = (response: GvizResponse) => {
+      cleanup();
+      resolve(response);
+    };
+
+    script.onerror = () => {
+      cleanup();
+      reject(new Error('Failed to load the Google Sheet. Make sure it is shared "Anyone with the link".'));
+    };
+
+    script.src = `${url}&tqx=responseHandler:${callbackName}`;
+    document.body.appendChild(script);
+  });
+}
+
+/** Converts a gviz response (with header row) into keyed string records. */
+function tableToRecords(response: GvizResponse): Row[] {
+  const { cols, rows } = response.table;
+  const headers = cols.map((c, i) => {
+    const label = (c.label ?? '').trim();
+    return label || c.id || `col${i}`;
+  });
+
+  return rows
+    .map((row) => {
+      const record: Row = {};
+      headers.forEach((header, i) => {
+        const cell = row.c[i];
+        const value = cell == null || cell.v == null ? '' : cell.v;
+        record[header] = typeof value === 'string' ? value.trim() : String(value);
+      });
+      return record;
+    })
+    .filter((record) => Object.values(record).some((v) => v !== ''));
 }
 
 // -----------------------------------------------------------------------------
@@ -104,7 +192,6 @@ export class GoogleSheetsDataSource implements DataSource {
 function pick(row: Row, ...keys: string[]): string {
   for (const key of keys) {
     if (row[key] != null && row[key] !== '') return row[key];
-    // tolerant lookup: ignore case and non-alphanumerics
     const norm = normKey(key);
     for (const actual of Object.keys(row)) {
       if (normKey(actual) === norm && row[actual] !== '') return row[actual];

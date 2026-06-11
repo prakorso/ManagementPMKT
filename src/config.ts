@@ -1,9 +1,9 @@
 /**
  * Runtime configuration, resolved from Vite environment variables.
  *
- * Everything has a safe default so the app runs on bundled seed data with no
- * configuration at all. To connect Google Sheets, set the variables in `.env`
- * (see `.env.example`).
+ * Defaults are baked in so the deployed dashboard reads the connected Google
+ * Sheet with no env setup. Any value can still be overridden via `.env`
+ * (locally) or Netlify environment variables.
  */
 
 export type DataSourceKind = 'seed' | 'google-sheets';
@@ -27,18 +27,25 @@ interface AppConfig {
 
 const env = import.meta.env;
 
+/** The connected Google Sheet ("Management PMKT"). Override with VITE_GOOGLE_SHEET_ID. */
+const DEFAULT_SHEET_ID = '1pNTvOYJ__opmJGUaiVe-fAFRzZwyt2jeqfBDfXha5-Y';
+
+function resolveSheetId(): string {
+  return (env.VITE_GOOGLE_SHEET_ID ?? '').toString().trim() || DEFAULT_SHEET_ID;
+}
+
 function resolveDataSource(): DataSourceKind {
   const raw = (env.VITE_DATA_SOURCE ?? '').toString().toLowerCase().trim();
-  if (raw === 'google-sheets' && env.VITE_GOOGLE_SHEET_ID) {
-    return 'google-sheets';
-  }
-  return 'seed';
+  if (raw === 'seed') return 'seed';
+  if (raw === 'google-sheets') return 'google-sheets';
+  // No explicit choice: use Google Sheets whenever a sheet id is available.
+  return resolveSheetId() ? 'google-sheets' : 'seed';
 }
 
 export const config: AppConfig = {
   dataSource: resolveDataSource(),
   googleSheets: {
-    sheetId: (env.VITE_GOOGLE_SHEET_ID ?? '').toString().trim(),
+    sheetId: resolveSheetId(),
     tabs: {
       teamMembers: env.VITE_TAB_TEAM_MEMBERS ?? 'TeamMembers',
       objectives: env.VITE_TAB_OBJECTIVES ?? 'Objectives',

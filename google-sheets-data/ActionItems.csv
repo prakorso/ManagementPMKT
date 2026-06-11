@@ -1,0 +1,13 @@
+id,title,owner,teamMemberId,status,dueDate,createdDate,source,delegated
+ai-1,Share QA checklist template with Rafif,Panji Prakorso,tm-rafif,In Progress,2026-06-13,2026-06-06,1:1 with Rafif,FALSE
+ai-2,Review Adib’s daily plan & deadline tracker,Panji Prakorso,tm-adib,Open,2026-06-16,2026-06-09,1:1 with Adib,FALSE
+ai-3,Yolanda to draft channel strategy proposal,Yolanda,tm-yolanda,In Progress,2026-06-18,2026-06-05,1:1 with Yolanda,TRUE
+ai-4,Wawan to revamp weekly report insight section,Wawan,tm-wawan,In Progress,2026-06-15,2026-06-05,1:1 with Wawan,TRUE
+ai-5,Reivan to rebuild forecast model with CPL bands,Reivan,tm-reivan,Open,2026-06-20,2026-06-09,Performance check-in,TRUE
+ai-6,Finalize Mid Year Sale creative variations,Adib,tm-adib,Open,2026-06-14,2026-06-04,PMKT meeting,TRUE
+ai-7,Prepare Cluster Reopening post-mortem deck,Panji Prakorso,,Open,2026-06-17,2026-06-02,Assessment discussion,FALSE
+ai-8,Submit May team performance report,Panji Prakorso,,Done,2026-06-03,2026-05-30,Reporting cadence,FALSE
+ai-9,Migrate daily PMKT notes into dashboard,Panji Prakorso,,Done,2026-05-28,2026-05-20,Self,FALSE
+ai-10,Coaching plan write-up for all reports,Panji Prakorso,,In Progress,2026-06-13,2026-05-25,Month 3 objective,FALSE
+ai-11,Delegate budget pacing checks to Wawan,Wawan,tm-wawan,Done,2026-05-10,2026-05-02,Delegation plan,TRUE
+ai-12,Set up KPR Promo tracking with Reivan,Reivan,tm-reivan,Done,2026-05-08,2026-05-01,Delegation plan,TRUE

@@ -1,0 +1,12 @@
+id,area,name,month1,month2,month3,weight
+rdy-1,People Management,Weekly 1:1 Completion,80,90,95,
+rdy-2,People Management,Coaching Completion,55,70,80,
+rdy-3,People Management,Action Item Completion,60,72,78,
+rdy-4,Reporting,Report Submission,70,88,92,
+rdy-5,Reporting,Report Quality,55,68,76,
+rdy-6,Assessment,Forecast Accuracy,50,65,74,
+rdy-7,Assessment,Assessment Participation,40,75,85,
+rdy-8,Stakeholder Management,Client Meeting Participation,35,60,72,
+rdy-9,Stakeholder Management,PMKT Presentation,45,80,85,
+rdy-10,Delegation,Tasks Delegated,50,70,80,
+rdy-11,Delegation,Tasks Completed by Team,55,68,77,

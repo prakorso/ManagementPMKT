@@ -1,0 +1,13 @@
+id,periodType,period,label,leads,leadsTarget,cpl,cplTarget,budget,budgetTarget,validRate,validRateTarget,conversionRate,conversionRateTarget,keyInsight,actionPlan,risk
+perf-m-03,monthly,2026-03,Mar,762,800,47000,45000,35814000,36000000,76,80,9.5,11,,,
+perf-m-04,monthly,2026-04,Apr,934,900,45000,45000,42030000,40500000,79,80,10.2,11,,,
+perf-m-05,monthly,2026-05,May,1128,1050,43000,44000,48504000,46200000,82,81,12.4,12,,,
+perf-m-06,monthly,2026-06,Jun (MTD),742,720,41500,43000,30793000,30960000,83,82,12.8,12,Lead volume and quality are both up while CPL keeps falling — Mid Year Sale creatives and tighter retargeting are compounding.,Shift 15% budget into the top-performing cluster; scale winning creatives; hold a creative refresh before fatigue sets in.,Creative production is a single point of failure on Adib — deadline slips could stall the scale-up.
+perf-w-1,weekly,2026-04-21,Apr 21,212,225,45500,45000,9646000,10125000,78,80,10.1,11,,,
+perf-w-2,weekly,2026-04-28,Apr 28,224,230,44800,45000,10035000,10350000,79,80,10.6,11,,,
+perf-w-3,weekly,2026-05-05,May 5,245,250,44000,44000,10780000,11000000,80,81,11.3,12,,,
+perf-w-4,weekly,2026-05-12,May 12,258,255,43200,44000,11146000,11220000,81,81,11.8,12,,,
+perf-w-5,weekly,2026-05-19,May 19,271,260,42800,43500,11599000,11310000,82,81,12.2,12,,,
+perf-w-6,weekly,2026-05-26,May 26,279,265,42500,43500,11858000,11528000,82,82,12.5,12,,,
+perf-w-7,weekly,2026-06-02,Jun 2,286,270,41800,43000,11955000,11610000,83,82,12.7,12,,,
+perf-w-8,weekly,2026-06-09,Jun 9,298,275,41200,43000,12278000,11825000,84,82,13,12,,,

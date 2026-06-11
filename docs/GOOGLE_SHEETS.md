@@ -1,8 +1,14 @@
 # Connecting Google Sheets
 
 The dashboard can read its data from a single Google Sheet — **no API key and no backend
-required**. It uses Google's public CSV export, so the only requirement is that the sheet is
-shared with *Anyone with the link (Viewer)*.
+required**. It reads via Google's gviz endpoint loaded as JSONP (a `<script>` tag), so there
+are **no CORS issues** from a static host; the only requirement is that the sheet is shared
+with *Anyone with the link* (Viewer is enough).
+
+> **Already connected.** This project is pre-wired to the "Management PMKT" sheet
+> (`1pNTvOYJ__opmJGUaiVe-fAFRzZwyt2jeqfBDfXha5-Y`). To use a *different* sheet, set
+> `VITE_GOOGLE_SHEET_ID` (see step 3). The quickest way to populate the tabs is to import the
+> generated workbook — see [`../google-sheets-data/README.md`](../google-sheets-data/README.md).
 
 In this phase the spreadsheet is your **data-entry surface**: you maintain rows in the sheet,
 and the dashboard reads and visualises them.

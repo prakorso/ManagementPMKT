@@ -69,12 +69,11 @@ export function Homepage() {
       <Card padded={false} className="overflow-hidden">
         <div className="grid gap-6 p-6 sm:p-8 lg:grid-cols-[1fr_auto] lg:items-center">
           <div>
-            <p className="text-sm font-medium text-brand-600 dark:text-brand-300">Welcome back, {program.managerName}</p>
-            <h1 className="mt-1 text-2xl font-bold tracking-tight text-slate-900 dark:text-white">
+            <h1 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-white">
               Your manager development at a glance
             </h1>
             <p className="mt-2 max-w-xl text-sm text-muted">
-              Transitioning from {program.previousRole} to {program.currentRole} · {program.team}
+              A snapshot of your progress, team, objectives and readiness this cycle.
             </p>
 
             <div className="mt-5 max-w-md">

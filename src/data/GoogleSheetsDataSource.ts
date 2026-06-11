@@ -253,6 +253,8 @@ function toTeamMember(row: Row): TeamMember {
     developmentProgress: num(row, 'developmentProgress', 'development progress'),
     health: normalizeHealth(pick(row, 'health', 'health status')),
     coachingFocus: pick(row, 'coachingFocus', 'coaching focus') || undefined,
+    reportingUrl: pick(row, 'reportingUrl', 'reporting url', 'reporting sheet') || undefined,
+    oneOnOneDocUrl: pick(row, 'oneOnOneDocUrl', 'one on one doc', '1:1 doc', '1on1 doc') || undefined,
   };
 }
 

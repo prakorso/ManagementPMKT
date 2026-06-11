@@ -56,6 +56,7 @@ export interface ProgramInfo {
 export interface TeamMember {
   id: string;
   name: string;
+  /** Job title / role shown under the member's name. */
   role: string;
   strengths: string[];
   developmentAreas: string[];
@@ -67,6 +68,14 @@ export interface TeamMember {
   developmentProgress: number;
   health: HealthStatus;
   coachingFocus?: string;
+  /** Link to the member's reporting sheet (filled by the member/manager). */
+  reportingUrl?: string;
+  /** Link to the member's 1:1 doc (e.g. a shared Google Doc). */
+  oneOnOneDocUrl?: string;
+  /** True when added in-browser (not yet persisted to the sheet). */
+  local?: boolean;
+  /** Batch 2: projects this member is assigned to handle. */
+  projectIds?: string[];
 }
 
 // -----------------------------------------------------------------------------
@@ -199,4 +208,26 @@ export interface DashboardData {
   performance: PerformanceSnapshot[];
   assessments: Assessment[];
   readiness: ReadinessMetric[];
+}
+
+// -----------------------------------------------------------------------------
+// Batch 2 (planned) — multi-project support.
+//
+// These optional types let the schema grow toward per-project objective/
+// performance tracking and a campaign overview without breaking phase-1 data.
+// Team members get assigned `projectIds` (above); objectives, performance
+// snapshots and assessments will gain an optional `projectId`. See ROADMAP.md.
+// -----------------------------------------------------------------------------
+
+export type ProjectStatus = 'active' | 'paused' | 'completed';
+
+export interface Project {
+  id: string;
+  name: string;
+  client?: string;
+  status?: ProjectStatus;
+  /** Team members handling this project. */
+  ownerIds?: string[];
+  startDate?: string;
+  endDate?: string;
 }

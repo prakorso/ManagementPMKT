@@ -72,6 +72,8 @@ Restart `npm run dev` (or redeploy on Netlify with the env vars set).
 | `developmentProgress` | 0–100 | `82` |
 | `health` | `On Track` / `Watch` / `At Risk` | `On Track` |
 | `coachingFocus` | text | `Stretch toward channel strategy` |
+| `reportingUrl` | url (optional) | `https://docs.google.com/spreadsheets/d/…` |
+| `oneOnOneDocUrl` | url (optional) | `https://docs.google.com/document/d/…` |
 
 ### Objectives
 

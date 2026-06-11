@@ -38,6 +38,8 @@ export const seedData: DashboardData = {
       developmentProgress: 82,
       health: 'on-track',
       coachingFocus: 'Stretch toward channel strategy & leading QA reviews.',
+      reportingUrl: 'https://docs.google.com/spreadsheets/d/example-yolanda-reporting',
+      oneOnOneDocUrl: 'https://docs.google.com/document/d/example-yolanda-1on1',
     },
     {
       id: 'tm-wawan',

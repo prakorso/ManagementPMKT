@@ -48,10 +48,11 @@ const txt = (v) => (v == null ? '' : v);
 const tabs = [
   {
     name: 'TeamMembers',
-    headers: ['id', 'name', 'role', 'strengths', 'developmentAreas', 'lastOneOnOne', 'nextOneOnOne', 'developmentProgress', 'health', 'coachingFocus'],
+    headers: ['id', 'name', 'role', 'strengths', 'developmentAreas', 'lastOneOnOne', 'nextOneOnOne', 'developmentProgress', 'health', 'coachingFocus', 'reportingUrl', 'oneOnOneDocUrl'],
     rows: seedData.teamMembers.map((m) => [
       m.id, m.name, m.role, listc(m.strengths), listc(m.developmentAreas),
       txt(m.lastOneOnOne), txt(m.nextOneOnOne), m.developmentProgress, HEALTH[m.health], txt(m.coachingFocus),
+      txt(m.reportingUrl), txt(m.oneOnOneDocUrl),
     ]),
   },
   {

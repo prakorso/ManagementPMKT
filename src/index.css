@@ -1,0 +1,54 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    @apply bg-surface-subtle text-slate-800 antialiased;
+    @apply dark:bg-surface-dark dark:text-slate-100;
+    font-feature-settings: 'cv11', 'ss01';
+  }
+
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: rgb(148 163 184 / 0.5) transparent;
+  }
+
+  *::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  *::-webkit-scrollbar-thumb {
+    @apply rounded-full bg-slate-300/60 dark:bg-slate-600/60;
+  }
+
+  *::-webkit-scrollbar-thumb:hover {
+    @apply bg-slate-400/70 dark:bg-slate-500/70;
+  }
+
+  :focus-visible {
+    @apply outline-none ring-2 ring-brand-500 ring-offset-2 ring-offset-white dark:ring-offset-surface-dark;
+  }
+}
+
+@layer components {
+  /* Card surface shared across the app */
+  .card {
+    @apply rounded-2xl border border-slate-200/80 bg-white shadow-card transition-colors;
+    @apply dark:border-slate-700/60 dark:bg-surface-dark-elevated;
+  }
+
+  .card-pad {
+    @apply p-5 sm:p-6;
+  }
+
+  /* Muted secondary text */
+  .text-muted {
+    @apply text-slate-500 dark:text-slate-400;
+  }
+}

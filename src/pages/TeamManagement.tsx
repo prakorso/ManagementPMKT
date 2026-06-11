@@ -10,6 +10,7 @@ import {
   Lightbulb,
   MessageSquareQuote,
   Plus,
+  RefreshCw,
   Sparkles,
   Trash2,
   TrendingUp,
@@ -25,6 +26,7 @@ import { Avatar } from '@/components/ui/Avatar';
 import { ProgressBar } from '@/components/ui/ProgressBar';
 import { Button } from '@/components/ui/Button';
 import { AddMemberModal } from '@/components/team/AddMemberModal';
+import { SheetSyncModal } from '@/components/team/SheetSyncModal';
 import {
   actionItemCompletionRate,
   averageDevelopmentProgress,
@@ -35,8 +37,9 @@ import { healthLabel, healthTone } from '@/utils/labels';
 import type { ActionItem, Meeting, TeamMember } from '@/types';
 
 export function TeamManagement() {
-  const { data, loading, error, addTeamMember, removeTeamMember } = useData();
+  const { data, loading, error, addTeamMember, removeTeamMember, writeEnabled } = useData();
   const [modalOpen, setModalOpen] = useState(false);
+  const [syncOpen, setSyncOpen] = useState(false);
 
   if (loading) return <LoadingScreen />;
   if (error || !data) return <ErrorState message={error ?? 'No data available.'} />;
@@ -54,6 +57,10 @@ export function TeamManagement() {
         title="Team Management"
         description="Manage your direct reports — strengths, development areas, 1:1 cadence, follow-ups and coaching."
       >
+        <Button variant="secondary" onClick={() => setSyncOpen(true)}>
+          <RefreshCw size={15} /> Sheet sync
+          {writeEnabled && <span className="ml-0.5 h-1.5 w-1.5 rounded-full bg-emerald-500" />}
+        </Button>
         <Button onClick={() => setModalOpen(true)}>
           <Plus size={16} /> Add Member
         </Button>
@@ -96,12 +103,14 @@ export function TeamManagement() {
             actionItems={actionItems}
             meetings={meetings}
             now={now}
+            writeEnabled={writeEnabled}
             onRemove={member.local ? () => removeTeamMember(member.id) : undefined}
           />
         ))}
       </div>
 
       <AddMemberModal open={modalOpen} onClose={() => setModalOpen(false)} onAdd={addTeamMember} />
+      <SheetSyncModal open={syncOpen} onClose={() => setSyncOpen(false)} />
     </div>
   );
 }
@@ -135,12 +144,14 @@ function MemberCard({
   actionItems,
   meetings,
   now,
+  writeEnabled,
   onRemove,
 }: {
   member: TeamMember;
   actionItems: ActionItem[];
   meetings: Meeting[];
   now: Date;
+  writeEnabled?: boolean;
   onRemove?: () => void;
 }) {
   const [copied, setCopied] = useState(false);
@@ -297,7 +308,9 @@ function MemberCard({
       {/* Local member controls */}
       {member.local && onRemove && (
         <div className="mt-4 flex items-center justify-between gap-2 border-t border-slate-200/70 pt-3 dark:border-slate-700/60">
-          <span className="text-[11px] text-muted">Saved in this browser. Add to your sheet to share it.</span>
+          <span className="text-[11px] text-muted">
+            {writeEnabled ? 'Saving to your sheet…' : 'Saved in this browser. Add to your sheet to share it.'}
+          </span>
           <div className="flex items-center gap-1.5">
             <Button variant="secondary" size="sm" onClick={copyRow}>
               <Copy size={13} /> {copied ? 'Copied!' : 'Copy sheet row'}

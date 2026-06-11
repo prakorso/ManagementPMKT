@@ -13,6 +13,7 @@ import { createDataSource } from '@/data';
 import { SeedDataSource } from '@/data/SeedDataSource';
 import { config } from '@/config';
 import { loadLocalMembers, saveLocalMembers } from '@/data/localStore';
+import { appendRecord, getWriteUrl, memberToSheetRecord, setWriteUrl } from '@/data/sheetsWrite';
 
 interface DataContextValue {
   data: DashboardData | null;
@@ -23,10 +24,15 @@ interface DataContextValue {
   error: string | null;
   sourceName: string;
   refresh: () => void;
-  /** Adds a team member to the local overlay (persisted in this browser). */
+  /** Adds a team member: writes to the sheet when write-back is configured. */
   addTeamMember: (member: TeamMember) => void;
-  /** Removes a locally-added team member (sheet members can't be removed here). */
+  /** Removes a locally-held team member (sheet rows are edited in the sheet). */
   removeTeamMember: (id: string) => void;
+  /** True when an Apps Script write-back URL is configured. */
+  writeEnabled: boolean;
+  /** Saves/clears the write-back URL (persisted in this browser). */
+  configureWriteUrl: (url: string) => void;
+  writeUrl: string;
 }
 
 const DataContext = createContext<DataContextValue | undefined>(undefined);
@@ -38,6 +44,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
   const [warning, setWarning] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [sourceName, setSourceName] = useState<string>('');
+  const [writeUrl, setWriteUrlState] = useState<string>(() => getWriteUrl());
   const primarySource = useRef(createDataSource());
 
   const load = useCallback(async () => {
@@ -73,13 +80,43 @@ export function DataProvider({ children }: { children: ReactNode }) {
     void load();
   }, [load]);
 
-  const addTeamMember = useCallback((member: TeamMember) => {
+  // Once a locally-added member shows up in the sheet data (same id), drop the
+  // in-browser copy so it isn't rendered twice.
+  useEffect(() => {
+    if (!baseData) return;
+    const sheetIds = new Set(baseData.teamMembers.map((m) => m.id));
     setLocalMembers((prev) => {
-      const next = [...prev, { ...member, local: true }];
-      saveLocalMembers(next);
-      return next;
+      const next = prev.filter((m) => !sheetIds.has(m.id));
+      if (next.length !== prev.length) {
+        saveLocalMembers(next);
+        return next;
+      }
+      return prev;
     });
-  }, []);
+  }, [baseData]);
+
+  const addTeamMember = useCallback(
+    (member: TeamMember) => {
+      // Optimistically show it right away.
+      setLocalMembers((prev) => {
+        const next = [...prev, { ...member, local: true }];
+        saveLocalMembers(next);
+        return next;
+      });
+      // Persist to the sheet when write-back is configured, then re-read so the
+      // member becomes a normal sheet row.
+      if (getWriteUrl()) {
+        void appendRecord(config.googleSheets.tabs.teamMembers, memberToSheetRecord(member))
+          .then(() => {
+            setTimeout(() => void load(), 2500);
+          })
+          .catch(() => {
+            /* stays as a local member; the "Copy sheet row" fallback remains */
+          });
+      }
+    },
+    [load],
+  );
 
   const removeTeamMember = useCallback((id: string) => {
     setLocalMembers((prev) => {
@@ -87,6 +124,11 @@ export function DataProvider({ children }: { children: ReactNode }) {
       saveLocalMembers(next);
       return next;
     });
+  }, []);
+
+  const configureWriteUrl = useCallback((url: string) => {
+    setWriteUrl(url);
+    setWriteUrlState(url.trim());
   }, []);
 
   // Merge sheet/seed data with the local member overlay.
@@ -106,8 +148,11 @@ export function DataProvider({ children }: { children: ReactNode }) {
       refresh: () => void load(),
       addTeamMember,
       removeTeamMember,
+      writeEnabled: !!writeUrl,
+      configureWriteUrl,
+      writeUrl,
     }),
-    [data, loading, warning, error, sourceName, load, addTeamMember, removeTeamMember],
+    [data, loading, warning, error, sourceName, load, addTeamMember, removeTeamMember, writeUrl, configureWriteUrl],
   );
 
   return <DataContext.Provider value={value}>{children}</DataContext.Provider>;

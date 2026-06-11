@@ -12,6 +12,8 @@ interface AppConfig {
   dataSource: DataSourceKind;
   googleSheets: {
     sheetId: string;
+    /** Optional Apps Script Web App URL for write-back (append rows). */
+    writeUrl: string;
     /** Tab names inside the spreadsheet, one per entity collection. */
     tabs: {
       teamMembers: string;
@@ -46,6 +48,7 @@ export const config: AppConfig = {
   dataSource: resolveDataSource(),
   googleSheets: {
     sheetId: resolveSheetId(),
+    writeUrl: (env.VITE_SHEETS_WRITE_URL ?? '').toString().trim(),
     tabs: {
       teamMembers: env.VITE_TAB_TEAM_MEMBERS ?? 'TeamMembers',
       objectives: env.VITE_TAB_OBJECTIVES ?? 'Objectives',

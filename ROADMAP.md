@@ -31,11 +31,13 @@ attach their reporting sheet / 1:1 Google Doc, and have it persist for everyone
 
 Two ways to get there, smallest first:
 
-1. **Google Apps Script write endpoint (lightest).**
-   - Deploy a small Apps Script Web App bound to the same spreadsheet that
-     accepts `POST` (append/update a row) and is called from the dashboard.
-   - Swap the localStorage overlay in `src/data/localStore.ts` for calls to that
-     endpoint. No new infra; data stays in the sheet everyone already shares.
+1. **Google Apps Script write endpoint — ✅ implemented (append).**
+   - A Web App bound to the spreadsheet accepts `POST` and appends a row; the
+     dashboard calls it from **Team Management → Sheet sync**. Setup:
+     [`apps-script/README.md`](apps-script/README.md).
+   - Today this powers **Add Member** (writes to the `TeamMembers` tab). Next:
+     extend to member self-service edits (1:1 updates, action items) and a small
+     edit/update path (not just append).
    - Access control = who you share the dashboard URL + sheet with.
 
 2. **Supabase / database + auth (robust, recommended long-term).**

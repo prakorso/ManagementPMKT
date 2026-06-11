@@ -22,8 +22,10 @@ export function Sidebar({ onNavigate }: SidebarProps) {
           </svg>
         </span>
         <div className="min-w-0">
-          <p className="truncate text-sm font-bold text-slate-900 dark:text-white">Manager OS</p>
-          <p className="truncate text-xs text-muted">Development Dashboard</p>
+          <p className="text-[13px] font-bold leading-tight text-slate-900 dark:text-white">
+            Performance Development Management
+          </p>
+          <p className="truncate text-xs text-muted">Team Dashboard</p>
         </div>
       </div>
 

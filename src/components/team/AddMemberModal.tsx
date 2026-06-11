@@ -1,5 +1,5 @@
 import { useState, type ReactNode } from 'react';
-import type { HealthStatus, TeamMember } from '@/types';
+import type { TeamMember } from '@/types';
 import { Modal } from '@/components/ui/Modal';
 import { Button } from '@/components/ui/Button';
 import { newLocalMemberId } from '@/data/localStore';
@@ -13,24 +13,7 @@ interface AddMemberModalProps {
 const inputClass =
   'w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-800 outline-none placeholder:text-slate-400 focus:border-brand-400 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100';
 
-const emptyForm = {
-  name: '',
-  role: '',
-  strengths: '',
-  developmentAreas: '',
-  health: 'on-track' as HealthStatus,
-  developmentProgress: '0',
-  nextOneOnOne: '',
-  coachingFocus: '',
-  reportingUrl: '',
-  oneOnOneDocUrl: '',
-};
-
-const splitList = (value: string): string[] =>
-  value
-    .split(/[\n,]/)
-    .map((s) => s.trim())
-    .filter(Boolean);
+const emptyForm = { name: '', role: '', email: '', nextOneOnOne: '' };
 
 export function AddMemberModal({ open, onClose, onAdd }: AddMemberModalProps) {
   const [form, setForm] = useState({ ...emptyForm });
@@ -49,20 +32,17 @@ export function AddMemberModal({ open, onClose, onAdd }: AddMemberModalProps) {
       setError('Name is required.');
       return;
     }
-    const progress = Math.max(0, Math.min(100, Number(form.developmentProgress) || 0));
     const member: TeamMember = {
       id: newLocalMemberId(form.name),
       name: form.name.trim(),
       role: form.role.trim() || 'Team Member',
-      strengths: splitList(form.strengths),
-      developmentAreas: splitList(form.developmentAreas),
+      email: form.email.trim() || undefined,
+      strengths: [],
+      developmentAreas: [],
       lastOneOnOne: null,
       nextOneOnOne: form.nextOneOnOne || null,
-      developmentProgress: progress,
-      health: form.health,
-      coachingFocus: form.coachingFocus.trim() || undefined,
-      reportingUrl: form.reportingUrl.trim() || undefined,
-      oneOnOneDocUrl: form.oneOnOneDocUrl.trim() || undefined,
+      developmentProgress: 0,
+      health: 'on-track',
       local: true,
     };
     onAdd(member);
@@ -74,7 +54,7 @@ export function AddMemberModal({ open, onClose, onAdd }: AddMemberModalProps) {
       open={open}
       onClose={close}
       title="Add Team Member"
-      description="Add a new direct report — e.g. a new recruit. Saved in this browser."
+      description="Just the basics for a new recruit — strengths, development areas and progress come from your 1:1s and weekly updates."
       footer={
         <>
           <Button variant="ghost" onClick={close}>
@@ -91,78 +71,31 @@ export function AddMemberModal({ open, onClose, onAdd }: AddMemberModalProps) {
           </p>
         )}
 
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-          <Field label="Name" required>
-            <input className={inputClass} value={form.name} onChange={(e) => set('name', e.target.value)} placeholder="e.g. Sinta" />
-          </Field>
-          <Field label="Title / Role">
-            <input
-              className={inputClass}
-              value={form.role}
-              onChange={(e) => set('role', e.target.value)}
-              placeholder="e.g. Performance Marketing Specialist"
-            />
-          </Field>
-        </div>
-
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-          <Field label="Health">
-            <select className={inputClass} value={form.health} onChange={(e) => set('health', e.target.value as HealthStatus)}>
-              <option value="on-track">On Track</option>
-              <option value="watch">Watch</option>
-              <option value="at-risk">At Risk</option>
-            </select>
-          </Field>
-          <Field label="Development Progress (%)">
-            <input
-              type="number"
-              min={0}
-              max={100}
-              className={inputClass}
-              value={form.developmentProgress}
-              onChange={(e) => set('developmentProgress', e.target.value)}
-            />
-          </Field>
-        </div>
-
-        <Field label="Strengths" hint="Separate with commas or new lines">
-          <textarea
-            className={`${inputClass} min-h-[60px] resize-y`}
-            value={form.strengths}
-            onChange={(e) => set('strengths', e.target.value)}
-            placeholder="Meta Ads, Data analysis"
-          />
+        <Field label="Name" required>
+          <input className={inputClass} value={form.name} onChange={(e) => set('name', e.target.value)} placeholder="e.g. Sinta" />
         </Field>
 
-        <Field label="Development Areas" hint="Separate with commas or new lines">
-          <textarea
-            className={`${inputClass} min-h-[60px] resize-y`}
-            value={form.developmentAreas}
-            onChange={(e) => set('developmentAreas', e.target.value)}
-            placeholder="Campaign QA, Independence"
-          />
-        </Field>
-
-        <Field label="Coaching Focus">
+        <Field label="Title / Role">
           <input
             className={inputClass}
-            value={form.coachingFocus}
-            onChange={(e) => set('coachingFocus', e.target.value)}
-            placeholder="What to develop this cycle"
+            value={form.role}
+            onChange={(e) => set('role', e.target.value)}
+            placeholder="e.g. Performance Marketing Specialist"
           />
         </Field>
 
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-          <Field label="Next 1:1 date">
-            <input type="date" className={inputClass} value={form.nextOneOnOne} onChange={(e) => set('nextOneOnOne', e.target.value)} />
-          </Field>
-          <Field label="Reporting sheet URL">
-            <input className={inputClass} value={form.reportingUrl} onChange={(e) => set('reportingUrl', e.target.value)} placeholder="https://…" />
-          </Field>
-        </div>
+        <Field label="Email" hint="Used later to give them access to their own view">
+          <input
+            type="email"
+            className={inputClass}
+            value={form.email}
+            onChange={(e) => set('email', e.target.value)}
+            placeholder="name@company.com"
+          />
+        </Field>
 
-        <Field label="1:1 doc URL">
-          <input className={inputClass} value={form.oneOnOneDocUrl} onChange={(e) => set('oneOnOneDocUrl', e.target.value)} placeholder="https://docs.google.com/…" />
+        <Field label="Next 1:1 date">
+          <input type="date" className={inputClass} value={form.nextOneOnOne} onChange={(e) => set('nextOneOnOne', e.target.value)} />
         </Field>
       </div>
     </Modal>

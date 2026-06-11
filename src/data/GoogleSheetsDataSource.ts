@@ -246,6 +246,7 @@ function toTeamMember(row: Row): TeamMember {
     id: pick(row, 'id') || `tm-${slug(pick(row, 'name'))}`,
     name: pick(row, 'name'),
     role: pick(row, 'role'),
+    email: pick(row, 'email') || undefined,
     strengths: list(row, 'strengths'),
     developmentAreas: list(row, 'developmentAreas', 'development areas'),
     lastOneOnOne: dateOrNull(row, 'lastOneOnOne', 'last 1:1', 'last1on1'),

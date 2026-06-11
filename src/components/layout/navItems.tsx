@@ -23,6 +23,6 @@ export const navItems: NavItem[] = [
   { to: '/objectives', label: 'Objective Tracker', icon: ListChecks },
   { to: '/performance', label: 'Performance', icon: TrendingUp },
   { to: '/assessments', label: 'Assessment Tracker', icon: Crosshair },
-  { to: '/notes', label: 'Meeting & Coaching', icon: NotebookPen },
+  { to: '/notes', label: 'Meetings Update', icon: NotebookPen },
   { to: '/readiness', label: 'Manager Readiness', icon: Gauge },
 ];

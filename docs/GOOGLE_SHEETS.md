@@ -65,6 +65,7 @@ Restart `npm run dev` (or redeploy on Netlify with the env vars set).
 | `id` | text (unique) | `tm-yolanda` |
 | `name` | text | `Yolanda` |
 | `role` | text | `Performance Marketing Specialist` |
+| `email` | text (optional) | `yolanda@company.com` |
 | `strengths` | list | `Meta Ads|Data analysis` |
 | `developmentAreas` | list | `Strategic planning|Mentoring` |
 | `lastOneOnOne` | date | `2026-06-05` |

@@ -58,6 +58,8 @@ export interface TeamMember {
   name: string;
   /** Job title / role shown under the member's name. */
   role: string;
+  /** Work email — used to match a signed-in user to this member (access control). */
+  email?: string;
   strengths: string[];
   developmentAreas: string[];
   /** ISO date of the most recent completed 1:1, or null if none yet. */

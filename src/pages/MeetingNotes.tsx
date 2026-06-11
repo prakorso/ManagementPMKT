@@ -86,8 +86,8 @@ export function MeetingNotes() {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Meeting & Coaching Notes"
-        description="A searchable repository of every 1:1, check-in, client meeting, PMKT stand-up and assessment discussion."
+        title="Meetings Update"
+        description="A searchable log of meeting & coaching updates — 1:1s, check-ins, client meetings, PMKT stand-ups and assessment discussions."
       />
 
       {/* Toolbar */}

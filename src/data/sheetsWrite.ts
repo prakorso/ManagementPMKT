@@ -45,6 +45,7 @@ export function memberToSheetRecord(m: TeamMember): Record<string, string> {
     id: m.id,
     name: m.name,
     role: m.role,
+    email: m.email ?? '',
     strengths: m.strengths.join(' | '),
     developmentAreas: m.developmentAreas.join(' | '),
     lastOneOnOne: m.lastOneOnOne ?? '',

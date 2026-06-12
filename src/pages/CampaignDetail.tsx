@@ -1,5 +1,5 @@
 import { useState, type ReactNode } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { Link, Navigate, useParams } from 'react-router-dom';
 import { ArrowLeft, ClipboardList, MessageSquare, NotebookPen, Plus, UserPlus } from 'lucide-react';
 import { useData } from '@/context/DataContext';
 import { useSession } from '@/context/SessionContext';
@@ -57,6 +57,9 @@ export function CampaignDetail() {
   const nm = (id?: string) => (id ? members.find((m) => m.id === id)?.name ?? '—' : '—');
   const isOwner = !!session?.memberId && (a.ownerId === session.memberId || (a.supportingIds ?? []).includes(session.memberId));
   const canExecute = canManage || isOwner;
+
+  // Members can only open campaigns assigned to them.
+  if (session?.role === 'member' && !isOwner) return <Navigate to="/projects" replace />;
 
   const patch = (p: Partial<CampaignAssignment>) => updateAssignment(campaign.name, p);
 

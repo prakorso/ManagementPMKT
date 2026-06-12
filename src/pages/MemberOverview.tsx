@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { CalendarClock, ClipboardList, FolderKanban, Megaphone, TrendingUp } from 'lucide-react';
+import { CalendarClock, ClipboardList, Megaphone, TrendingUp } from 'lucide-react';
 import { useData } from '@/context/DataContext';
 import { useSession } from '@/context/SessionContext';
 import { LoadingScreen } from '@/components/ui/LoadingScreen';
@@ -9,11 +9,9 @@ import { StatCard } from '@/components/ui/StatCard';
 import { Badge } from '@/components/ui/Badge';
 import { ProgressBar } from '@/components/ui/ProgressBar';
 import { EmptyState } from '@/components/ui/EmptyState';
-import { CampaignCard } from '@/components/projects/CampaignCard';
-import { ProjectCard } from '@/components/projects/ProjectCard';
-import { ProjectDetailModal } from '@/components/projects/ProjectDetailModal';
+import { AssignedCampaignCard } from '@/components/projects/AssignedCampaignCard';
 import { ObjectiveDetailModal } from '@/components/objectives/ObjectiveDetailModal';
-import { campaignsOf, campaignTrackSummary, memberProjects, projectsForMember } from '@/utils/calculations';
+import { lgpHealthSummary } from '@/utils/calculations';
 import { formatDate, formatPercent, relativeDays } from '@/utils/format';
 import {
   actionStatusLabel,
@@ -25,10 +23,9 @@ import {
 } from '@/utils/labels';
 
 export function MemberOverview() {
-  const { data, loading, error, updateProject, updateActionItem } = useData();
+  const { data, loading, error, updateActionItem, assignments } = useData();
   const { session } = useSession();
   const [selectedObjId, setSelectedObjId] = useState<string | null>(null);
-  const [selectedProjId, setSelectedProjId] = useState<string | null>(null);
 
   if (loading) return <LoadingScreen />;
   if (error || !data) return <ErrorState message={error ?? 'No data available.'} />;
@@ -39,52 +36,29 @@ export function MemberOverview() {
   }
 
   const now = new Date();
-  const campaigns = campaignsOf(projectsForMember(data.projects, member.id));
-  const campaignSummary = campaignTrackSummary(campaigns);
-  const myProjects = memberProjects(data.projects, member.id);
+  const myCampaigns = data.lgpCampaigns.filter((c) => {
+    const a = assignments[c.name];
+    return !!a && (a.ownerId === member.id || (a.supportingIds ?? []).includes(member.id));
+  });
+  const campaignSummary = lgpHealthSummary(myCampaigns);
   const actionItems = data.actionItems.filter((i) => i.teamMemberId === member.id);
   const openTasks = actionItems.filter((i) => i.status !== 'done');
   const meetings = data.meetings.filter((m) => m.teamMemberId === member.id).sort((a, b) => b.date.localeCompare(a.date));
   const myObjectives = data.objectives.filter((o) => o.ownerId === member.id && !o.archived);
   const selectedObj = selectedObjId ? data.objectives.find((o) => o.id === selectedObjId) ?? null : null;
-  const selectedProj = selectedProjId ? data.projects.find((p) => p.id === selectedProjId) ?? null : null;
 
   return (
     <div className="space-y-6">
       <div>
         <h1 className="text-xl font-bold tracking-tight text-slate-900 dark:text-white sm:text-2xl">Your Overview</h1>
-        <p className="mt-1 text-sm text-muted">Your objectives, campaigns and tasks at a glance.</p>
+        <p className="mt-1 text-sm text-muted">Your campaigns, objectives and tasks at a glance.</p>
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <StatCard
-          label="My Performance"
-          value={formatPercent(member.developmentProgress)}
-          icon={<TrendingUp size={18} />}
-          iconTone="brand"
-          hint="Development progress"
-        />
-        <StatCard
-          label="My Campaigns"
-          value={campaigns.length}
-          icon={<Megaphone size={18} />}
-          iconTone="info"
-          hint={`${campaignSummary.onTrack} on track · ${campaignSummary.offTrack} off track`}
-        />
-        <StatCard
-          label="Pending Tasks"
-          value={openTasks.length}
-          icon={<ClipboardList size={18} />}
-          iconTone="warning"
-          hint={`${actionItems.length - openTasks.length} done`}
-        />
-        <StatCard
-          label="Next 1:1"
-          value={member.nextOneOnOne ? relativeDays(member.nextOneOnOne, now) : '—'}
-          icon={<CalendarClock size={18} />}
-          iconTone="success"
-          hint={member.nextOneOnOne ? formatDate(member.nextOneOnOne) : 'Not scheduled'}
-        />
+        <StatCard label="My Performance" value={formatPercent(member.developmentProgress)} icon={<TrendingUp size={18} />} iconTone="brand" hint="Development progress" />
+        <StatCard label="My Campaigns" value={myCampaigns.length} icon={<Megaphone size={18} />} iconTone="info" hint={`${campaignSummary.onTrack} on track · ${campaignSummary.offTrack} off track`} />
+        <StatCard label="Pending Tasks" value={openTasks.length} icon={<ClipboardList size={18} />} iconTone="warning" hint={`${actionItems.length - openTasks.length} done`} />
+        <StatCard label="Next 1:1" value={member.nextOneOnOne ? relativeDays(member.nextOneOnOne, now) : '—'} icon={<CalendarClock size={18} />} iconTone="success" hint={member.nextOneOnOne ? formatDate(member.nextOneOnOne) : 'Not scheduled'} />
       </div>
 
       {/* My objectives */}
@@ -96,11 +70,7 @@ export function MemberOverview() {
           <ul className="space-y-3">
             {myObjectives.map((o) => (
               <li key={o.id}>
-                <button
-                  type="button"
-                  onClick={() => setSelectedObjId(o.id)}
-                  className="w-full rounded-xl border border-slate-200/70 p-3 text-left transition-colors hover:border-slate-300 dark:border-slate-700/60 dark:hover:border-slate-600"
-                >
+                <button type="button" onClick={() => setSelectedObjId(o.id)} className="w-full rounded-xl border border-slate-200/70 p-3 text-left transition-colors hover:border-slate-300 dark:border-slate-700/60 dark:hover:border-slate-600">
                   <div className="flex items-center justify-between gap-2">
                     <span className="text-sm font-medium text-slate-800 dark:text-slate-100">{o.title}</span>
                     <Badge tone={objectiveStatusTone[o.status]}>{objectiveStatusLabel[o.status]}</Badge>
@@ -124,33 +94,17 @@ export function MemberOverview() {
           </h3>
         </div>
         <div className="p-5">
-          {campaigns.length === 0 ? (
-            <EmptyState icon={<Megaphone size={28} />} title="No campaigns assigned yet" />
+          {myCampaigns.length === 0 ? (
+            <EmptyState icon={<Megaphone size={28} />} title="No campaigns assigned yet" description="Your manager will assign campaigns to you." />
           ) : (
-            <div className="grid gap-4 lg:grid-cols-2">
-              {campaigns.map((project) => (
-                <CampaignCard key={project.id} project={project} members={data.teamMembers} onUpdate={updateProject} hideOwners />
+            <div className="grid gap-3 lg:grid-cols-2">
+              {myCampaigns.map((c) => (
+                <AssignedCampaignCard key={c.name} campaign={c} owner={member.name} />
               ))}
             </div>
           )}
         </div>
       </Card>
-
-      {/* My projects */}
-      {myProjects.length > 0 && (
-        <Card padded={false}>
-          <div className="border-b border-slate-200/80 p-5 dark:border-slate-700/60">
-            <h3 className="flex items-center gap-2 text-sm font-semibold text-slate-900 dark:text-slate-100">
-              <FolderKanban size={16} className="text-brand-500" /> My Projects
-            </h3>
-          </div>
-          <div className="grid gap-3 p-5 lg:grid-cols-2">
-            {myProjects.map((p) => (
-              <ProjectCard key={p.id} project={p} members={data.teamMembers} onClick={() => setSelectedProjId(p.id)} />
-            ))}
-          </div>
-        </Card>
-      )}
 
       <div className="grid gap-4 lg:grid-cols-2">
         {/* Tasks */}
@@ -163,15 +117,8 @@ export function MemberOverview() {
               {actionItems.map((item) => (
                 <li key={item.id} className="flex items-center justify-between gap-2 text-sm">
                   <label className="flex min-w-0 cursor-pointer items-center gap-2">
-                    <input
-                      type="checkbox"
-                      className="accent-brand-600"
-                      checked={item.status === 'done'}
-                      onChange={() => updateActionItem(item.id, { status: item.status === 'done' ? 'open' : 'done' })}
-                    />
-                    <span className={`truncate ${item.status === 'done' ? 'text-muted line-through' : 'text-slate-700 dark:text-slate-200'}`}>
-                      {item.title}
-                    </span>
+                    <input type="checkbox" className="accent-brand-600" checked={item.status === 'done'} onChange={() => updateActionItem(item.id, { status: item.status === 'done' ? 'open' : 'done' })} />
+                    <span className={`truncate ${item.status === 'done' ? 'text-muted line-through' : 'text-slate-700 dark:text-slate-200'}`}>{item.title}</span>
                   </label>
                   <div className="flex flex-none items-center gap-2">
                     {item.dueDate && <span className="text-[11px] text-muted">{relativeDays(item.dueDate, now)}</span>}
@@ -205,20 +152,7 @@ export function MemberOverview() {
       </div>
 
       {selectedObj && (
-        <ObjectiveDetailModal
-          key={selectedObj.id}
-          objective={selectedObj}
-          members={data.teamMembers}
-          onClose={() => setSelectedObjId(null)}
-        />
-      )}
-      {selectedProj && (
-        <ProjectDetailModal
-          key={selectedProj.id}
-          project={selectedProj}
-          members={data.teamMembers}
-          onClose={() => setSelectedProjId(null)}
-        />
+        <ObjectiveDetailModal key={selectedObj.id} objective={selectedObj} members={data.teamMembers} onClose={() => setSelectedObjId(null)} />
       )}
     </div>
   );

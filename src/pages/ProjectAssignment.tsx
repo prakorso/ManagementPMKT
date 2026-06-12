@@ -1,63 +1,81 @@
-import { useState } from 'react';
-import { CheckCircle2, FolderKanban, Loader, Plus } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { AlertTriangle, CheckCircle2, FolderKanban, XCircle } from 'lucide-react';
 import { useData } from '@/context/DataContext';
+import { useSession } from '@/context/SessionContext';
 import { LoadingScreen } from '@/components/ui/LoadingScreen';
 import { ErrorState } from '@/components/ui/ErrorState';
 import { PageHeader } from '@/components/ui/PageHeader';
 import { StatCard } from '@/components/ui/StatCard';
-import { Button } from '@/components/ui/Button';
 import { EmptyState } from '@/components/ui/EmptyState';
-import { ProjectCard } from '@/components/projects/ProjectCard';
-import { CreateProjectModal } from '@/components/projects/CreateProjectModal';
-import { ProjectDetailModal } from '@/components/projects/ProjectDetailModal';
-import { deliveryProjectsOf, projectAssignmentSummary } from '@/utils/calculations';
+import { AssignedCampaignCard } from '@/components/projects/AssignedCampaignCard';
+import { lgpHealthSummary } from '@/utils/calculations';
 
 export function ProjectAssignment() {
-  const { data, loading, error, addProject } = useData();
-  const [modalOpen, setModalOpen] = useState(false);
-  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const { data, loading, error, assignments } = useData();
+  const { session } = useSession();
 
   if (loading) return <LoadingScreen />;
   if (error || !data) return <ErrorState message={error ?? 'No data available.'} />;
 
-  const projects = deliveryProjectsOf(data.projects);
-  const summary = projectAssignmentSummary(data.projects);
-  const selected = selectedId ? data.projects.find((p) => p.id === selectedId) ?? null : null;
+  const isMember = session?.role === 'member';
+  const me = session?.memberId;
+
+  // Assigned campaigns = LGP campaigns that have an owner. Members see only theirs.
+  const assigned = data.lgpCampaigns.filter((c) => {
+    const a = assignments[c.name];
+    if (!a?.ownerId) return false;
+    if (!isMember) return true;
+    return a.ownerId === me || (a.supportingIds ?? []).includes(me ?? '');
+  });
+
+  const summary = lgpHealthSummary(assigned);
+  const ownerName = (campaignName: string) => {
+    const id = assignments[campaignName]?.ownerId;
+    return id ? data.teamMembers.find((m) => m.id === id)?.name : undefined;
+  };
 
   return (
     <div className="space-y-6">
       <PageHeader
         title="Project Assignment"
-        description="Delegate and track projects — assign owners, monitor progress, status and blockers."
-      >
-        <Button onClick={() => setModalOpen(true)}>
-          <Plus size={16} /> Create Project
-        </Button>
-      </PageHeader>
+        description={
+          isMember
+            ? 'Campaigns assigned to you — open one to manage tasks, updates and KPIs.'
+            : 'Campaigns assigned to the team. Assign more from the Campaign Hub.'
+        }
+      />
 
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <StatCard label="Total Projects" value={summary.total} icon={<FolderKanban size={18} />} iconTone="brand" />
-        <StatCard label="Active" value={summary.active} icon={<Loader size={18} />} iconTone="info" hint={`${summary.blocked} blocked`} />
-        <StatCard label="Overdue" value={summary.overdue} icon={<FolderKanban size={18} />} iconTone="danger" hint="past due date" />
-        <StatCard label="Completed" value={summary.completed} icon={<CheckCircle2 size={18} />} iconTone="success" />
+        <StatCard label="Assigned" value={summary.total} icon={<FolderKanban size={18} />} iconTone="brand" />
+        <StatCard label="On Track" value={summary.onTrack} icon={<CheckCircle2 size={18} />} iconTone="success" />
+        <StatCard label="At Risk" value={summary.atRisk} icon={<AlertTriangle size={18} />} iconTone="warning" />
+        <StatCard label="Off Track" value={summary.offTrack} icon={<XCircle size={18} />} iconTone="danger" />
       </div>
 
-      {projects.length === 0 ? (
+      {assigned.length === 0 ? (
         <EmptyState
           icon={<FolderKanban size={28} />}
-          title="No projects yet"
-          description="Create a project and assign the member(s) responsible to start tracking delegation."
+          title={isMember ? 'No campaigns assigned to you yet' : 'No campaigns assigned yet'}
+          description={
+            isMember ? 'Your manager will assign campaigns to you here.' : 'Open the Campaign Hub and assign a campaign to an owner.'
+          }
         />
       ) : (
         <div className="grid gap-3 lg:grid-cols-2 xl:grid-cols-3">
-          {projects.map((project) => (
-            <ProjectCard key={project.id} project={project} members={data.teamMembers} onClick={() => setSelectedId(project.id)} />
+          {assigned.map((c) => (
+            <AssignedCampaignCard key={c.name} campaign={c} owner={ownerName(c.name)} />
           ))}
         </div>
       )}
 
-      <CreateProjectModal open={modalOpen} onClose={() => setModalOpen(false)} onCreate={addProject} members={data.teamMembers} />
-      {selected && <ProjectDetailModal key={selected.id} project={selected} members={data.teamMembers} onClose={() => setSelectedId(null)} />}
+      {!isMember && (
+        <p className="text-xs text-muted">
+          Need to assign more?{' '}
+          <Link to="/campaigns" className="font-medium text-brand-600 hover:underline dark:text-brand-300">
+            Go to Campaign Hub →
+          </Link>
+        </p>
+      )}
     </div>
   );
 }

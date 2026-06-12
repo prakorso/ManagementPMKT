@@ -55,7 +55,7 @@ export default function App() {
             }
           />
           <Route path="campaigns" element={<Guard path="/campaigns"><CampaignHub /></Guard>} />
-          <Route path="campaigns/:name" element={<Guard path="/campaigns"><CampaignDetail /></Guard>} />
+          <Route path="campaigns/:name" element={<Guard path="/campaigns/:name"><CampaignDetail /></Guard>} />
           <Route path="performance" element={<Guard path="/performance"><PerformanceReporting /></Guard>} />
           <Route path="objectives" element={<Guard path="/objectives"><ObjectiveTracker /></Guard>} />
           <Route path="team" element={<Guard path="/team"><TeamManagement /></Guard>} />

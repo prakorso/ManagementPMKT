@@ -27,7 +27,7 @@ export const ROUTE_ACCESS: Record<string, Role[]> = {
   '/performance': ['manager', 'team-lead', 'vp'],
   '/objectives': ['manager', 'vp'],
   '/team': ['manager', 'team-lead', 'vp'],
-  '/projects': ['manager', 'team-lead', 'vp'],
+  '/projects': ['manager', 'team-lead', 'member', 'vp'],
   '/notes': ['manager', 'team-lead', 'vp'],
   '/assessments': ['manager', 'vp'],
   '/readiness': ['manager', 'vp'],

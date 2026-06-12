@@ -4,6 +4,7 @@ import type {
   HealthStatus,
   MeetingCategory,
   ObjectiveStatus,
+  Priority,
   ProjectStatus,
   ReadinessArea,
 } from '@/types';
@@ -12,13 +13,31 @@ import type { Tone } from '@/components/ui/Badge';
 export const objectiveStatusLabel: Record<ObjectiveStatus, string> = {
   'not-started': 'Not Started',
   'in-progress': 'In Progress',
+  'on-track': 'On Track',
+  'at-risk': 'At Risk',
+  'off-track': 'Off Track',
   completed: 'Completed',
 };
 
 export const objectiveStatusTone: Record<ObjectiveStatus, Tone> = {
   'not-started': 'neutral',
-  'in-progress': 'warning',
-  completed: 'success',
+  'in-progress': 'info',
+  'on-track': 'success',
+  'at-risk': 'warning',
+  'off-track': 'danger',
+  completed: 'brand',
+};
+
+export const priorityLabel: Record<Priority, string> = {
+  low: 'Low',
+  medium: 'Medium',
+  high: 'High',
+};
+
+export const priorityTone: Record<Priority, Tone> = {
+  low: 'neutral',
+  medium: 'warning',
+  high: 'danger',
 };
 
 export const actionStatusLabel: Record<ActionItemStatus, string> = {

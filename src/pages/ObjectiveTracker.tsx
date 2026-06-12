@@ -1,126 +1,145 @@
-import { CircleDashed, CircleDot, CheckCircle2, Target } from 'lucide-react';
+import { useMemo, useState } from 'react';
+import { AlertTriangle, CheckCircle2, ListChecks, Plus, XCircle } from 'lucide-react';
 import { useData } from '@/context/DataContext';
 import { LoadingScreen } from '@/components/ui/LoadingScreen';
 import { ErrorState } from '@/components/ui/ErrorState';
 import { PageHeader } from '@/components/ui/PageHeader';
-import { Card } from '@/components/ui/Card';
 import { StatCard } from '@/components/ui/StatCard';
 import { Badge } from '@/components/ui/Badge';
+import { Button } from '@/components/ui/Button';
 import { ProgressBar } from '@/components/ui/ProgressBar';
-import {
-  monthProgress,
-  objectiveStatusCounts,
-  objectivesForMonth,
-  overallObjectiveProgress,
-} from '@/utils/calculations';
-import { objectiveStatusLabel, objectiveStatusTone } from '@/utils/labels';
-import { formatPercent } from '@/utils/format';
-import type { MonthNumber, Objective, ObjectiveStatus } from '@/types';
+import { EmptyState } from '@/components/ui/EmptyState';
+import { CreateObjectiveModal } from '@/components/objectives/CreateObjectiveModal';
+import { ObjectiveDetailModal } from '@/components/objectives/ObjectiveDetailModal';
+import { objectiveStatusLabel, objectiveStatusTone, priorityLabel, priorityTone } from '@/utils/labels';
+import { formatDate, relativeDays } from '@/utils/format';
+import type { Objective, ObjectiveStatus } from '@/types';
 
-const MONTH_THEMES: Record<MonthNumber, { title: string; focus: string }> = {
-  1: { title: 'Month 1', focus: 'Foundations & cadence' },
-  2: { title: 'Month 2', focus: 'Scaling habits' },
-  3: { title: 'Month 3', focus: 'Independent operation' },
-};
+type StatusFilter = 'all' | ObjectiveStatus;
+type OwnerFilter = 'all' | 'team' | string;
 
-const statusIcon: Record<ObjectiveStatus, typeof CircleDot> = {
-  'not-started': CircleDashed,
-  'in-progress': CircleDot,
-  completed: CheckCircle2,
-};
+const selectClass =
+  'rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 outline-none focus:border-brand-400 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200';
+
+const STATUSES: ObjectiveStatus[] = ['not-started', 'in-progress', 'on-track', 'at-risk', 'off-track', 'completed'];
 
 export function ObjectiveTracker() {
-  const { data, loading, error } = useData();
+  const { data, loading, error, addObjective } = useData();
+  const [createOpen, setCreateOpen] = useState(false);
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [statusFilter, setStatusFilter] = useState<StatusFilter>('all');
+  const [ownerFilter, setOwnerFilter] = useState<OwnerFilter>('all');
+  const [showArchived, setShowArchived] = useState(false);
+
+  const memberName = useMemo(() => {
+    const map = new Map<string, string>();
+    data?.teamMembers.forEach((m) => map.set(m.id, m.name));
+    return map;
+  }, [data]);
+
   if (loading) return <LoadingScreen />;
   if (error || !data) return <ErrorState message={error ?? 'No data available.'} />;
 
-  const { objectives } = data;
-  const counts = objectiveStatusCounts(objectives);
-  const overall = overallObjectiveProgress(objectives);
-  const months: MonthNumber[] = [1, 2, 3];
+  const all = data.objectives.filter((o) => (showArchived ? true : !o.archived));
+  const counts = {
+    onTrack: all.filter((o) => o.status === 'on-track' || o.status === 'in-progress').length,
+    atRisk: all.filter((o) => o.status === 'at-risk').length,
+    offTrack: all.filter((o) => o.status === 'off-track').length,
+    completed: all.filter((o) => o.status === 'completed').length,
+  };
+
+  const filtered = all
+    .filter((o) => (statusFilter === 'all' ? true : o.status === statusFilter))
+    .filter((o) => {
+      if (ownerFilter === 'all') return true;
+      if (ownerFilter === 'team') return !o.ownerId;
+      return o.ownerId === ownerFilter;
+    })
+    .sort((a, b) => (a.dueDate ?? '9999').localeCompare(b.dueDate ?? '9999'));
+
+  const selected = selectedId ? data.objectives.find((o) => o.id === selectedId) ?? null : null;
 
   return (
     <div className="space-y-6">
-      <PageHeader
-        title="Objective Tracker"
-        description="Every objective from your 3-month development plan, with live progress across Month 1, 2 and 3."
-      />
+      <PageHeader title="Objective Tracker" description="Create, assign, track and review objectives across the team.">
+        <Button onClick={() => setCreateOpen(true)}>
+          <Plus size={16} /> Create Objective
+        </Button>
+      </PageHeader>
 
-      {/* Summary */}
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <StatCard
-          label="Overall Progress"
-          value={formatPercent(overall)}
-          icon={<Target size={18} />}
-          iconTone="brand"
-          footer={<ProgressBar value={overall} autoTone size="sm" />}
-        />
-        <StatCard label="Completed" value={`${counts.completed}/${counts.total}`} icon={<CheckCircle2 size={18} />} iconTone="success" hint="objectives done" />
-        <StatCard label="In Progress" value={counts.inProgress} icon={<CircleDot size={18} />} iconTone="warning" hint="currently active" />
-        <StatCard label="Not Started" value={counts.notStarted} icon={<CircleDashed size={18} />} iconTone="neutral" hint="not yet begun" />
+        <StatCard label="On Track" value={counts.onTrack} icon={<CheckCircle2 size={18} />} iconTone="success" />
+        <StatCard label="At Risk" value={counts.atRisk} icon={<AlertTriangle size={18} />} iconTone="warning" />
+        <StatCard label="Off Track" value={counts.offTrack} icon={<XCircle size={18} />} iconTone="danger" />
+        <StatCard label="Completed" value={counts.completed} icon={<ListChecks size={18} />} iconTone="brand" />
       </div>
 
-      {/* Month columns */}
-      <div className="grid gap-4 lg:grid-cols-3">
-        {months.map((month) => {
-          const items = objectivesForMonth(objectives, month);
-          const progress = monthProgress(objectives, month);
-          const theme = MONTH_THEMES[month];
-          return (
-            <Card key={month} className="flex flex-col" padded={false}>
-              <div className="border-b border-slate-200/80 p-5 dark:border-slate-700/60">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h3 className="text-sm font-bold text-slate-900 dark:text-white">{theme.title}</h3>
-                    <p className="text-xs text-muted">{theme.focus}</p>
-                  </div>
-                  <span className="text-2xl font-bold tracking-tight text-slate-900 dark:text-white">{progress}%</span>
-                </div>
-                <ProgressBar value={progress} autoTone className="mt-3" />
-              </div>
-
-              <ul className="flex-1 space-y-3 p-5">
-                {items.map((obj) => (
-                  <ObjectiveItem key={obj.id} objective={obj} />
-                ))}
-              </ul>
-            </Card>
-          );
-        })}
+      {/* Filters */}
+      <div className="flex flex-wrap items-center gap-3">
+        <select className={selectClass} value={statusFilter} onChange={(e) => setStatusFilter(e.target.value as StatusFilter)}>
+          <option value="all">All statuses</option>
+          {STATUSES.map((s) => (
+            <option key={s} value={s}>
+              {objectiveStatusLabel[s]}
+            </option>
+          ))}
+        </select>
+        <select className={selectClass} value={ownerFilter} onChange={(e) => setOwnerFilter(e.target.value)}>
+          <option value="all">All owners</option>
+          <option value="team">Team / Manager</option>
+          {data.teamMembers.map((m) => (
+            <option key={m.id} value={m.id}>
+              {m.name}
+            </option>
+          ))}
+        </select>
+        <label className="flex items-center gap-2 text-xs text-muted">
+          <input type="checkbox" checked={showArchived} onChange={(e) => setShowArchived(e.target.checked)} />
+          Show archived
+        </label>
+        <span className="ml-auto text-xs text-muted">{filtered.length} objectives</span>
       </div>
+
+      {/* List */}
+      {filtered.length === 0 ? (
+        <EmptyState icon={<ListChecks size={28} />} title="No objectives match" description="Adjust filters or create a new objective." />
+      ) : (
+        <div className="grid gap-3 lg:grid-cols-2">
+          {filtered.map((obj) => (
+            <ObjectiveCard key={obj.id} objective={obj} ownerName={obj.ownerId ? memberName.get(obj.ownerId) : undefined} onClick={() => setSelectedId(obj.id)} />
+          ))}
+        </div>
+      )}
+
+      <CreateObjectiveModal open={createOpen} onClose={() => setCreateOpen(false)} onCreate={addObjective} members={data.teamMembers} />
+      {selected && <ObjectiveDetailModal key={selected.id} objective={selected} members={data.teamMembers} onClose={() => setSelectedId(null)} />}
     </div>
   );
 }
 
-function ObjectiveItem({ objective }: { objective: Objective }) {
-  const Icon = statusIcon[objective.status];
-  const iconColor =
-    objective.status === 'completed'
-      ? 'text-emerald-500'
-      : objective.status === 'in-progress'
-        ? 'text-amber-500'
-        : 'text-slate-400';
-
+function ObjectiveCard({ objective, ownerName, onClick }: { objective: Objective; ownerName?: string; onClick: () => void }) {
   return (
-    <li className="rounded-xl border border-slate-200/70 p-3.5 transition-colors hover:border-slate-300 dark:border-slate-700/60 dark:hover:border-slate-600">
+    <button
+      type="button"
+      onClick={onClick}
+      className="card card-pad w-full text-left transition-shadow hover:shadow-card-hover"
+    >
       <div className="flex items-start justify-between gap-2">
-        <div className="flex items-start gap-2">
-          <Icon size={16} className={`mt-0.5 flex-none ${iconColor}`} />
-          <div>
-            <p className="text-sm font-medium text-slate-800 dark:text-slate-100">{objective.title}</p>
-            {objective.description && <p className="mt-0.5 text-xs text-muted">{objective.description}</p>}
-          </div>
+        <div className="min-w-0">
+          <p className="text-sm font-semibold text-slate-900 dark:text-slate-100">{objective.title}</p>
+          <p className="mt-0.5 text-xs text-muted">{ownerName ?? 'Team / Manager'}</p>
         </div>
+        <Badge tone={objectiveStatusTone[objective.status]}>{objectiveStatusLabel[objective.status]}</Badge>
       </div>
       <div className="mt-3 flex items-center gap-3">
         <ProgressBar value={objective.progress} autoTone size="sm" className="flex-1" />
-        <span className="w-9 flex-none text-right text-xs font-semibold text-slate-700 dark:text-slate-200">
-          {objective.progress}%
-        </span>
+        <span className="w-9 flex-none text-right text-xs font-semibold text-slate-700 dark:text-slate-200">{objective.progress}%</span>
       </div>
-      <div className="mt-2.5">
-        <Badge tone={objectiveStatusTone[objective.status]}>{objectiveStatusLabel[objective.status]}</Badge>
+      <div className="mt-2.5 flex items-center gap-2">
+        {objective.priority && <Badge tone={priorityTone[objective.priority]}>{priorityLabel[objective.priority]}</Badge>}
+        {objective.archived && <Badge tone="neutral">Archived</Badge>}
+        {objective.dueDate && <span className="ml-auto text-[11px] text-muted">Due {relativeDays(objective.dueDate)} · {formatDate(objective.dueDate)}</span>}
       </div>
-    </li>
+    </button>
   );
 }

@@ -1,14 +1,17 @@
-id,month,title,description,status,progress,dueDate
-obj-m1-1,1,Weekly 1:1 with every direct report,Establish a consistent weekly 1:1 cadence with all 5 reports.,Completed,100,2026-04-13
-obj-m1-2,1,First Weekly Report,Produce and submit the first manager-owned weekly team report.,Completed,100,2026-03-28
-obj-m1-3,1,Delegation,Delegate recurring execution tasks and define ownership clearly.,Completed,100,2026-04-13
-obj-m1-4,1,Campaign QA Process,Stand up a repeatable pre-launch campaign QA process for the team.,Completed,100,2026-04-10
-obj-m1-5,1,Daily PMKT Meeting,Run a short daily Performance Marketing stand-up.,Completed,100,2026-04-13
-obj-m2-1,2,PMKT Presentation,Lead a Performance Marketing presentation to stakeholders.,Completed,100,2026-05-02
-obj-m2-2,2,Performance Check-in,Run structured monthly performance check-ins per report.,Completed,100,2026-05-13
-obj-m2-3,2,Independent Client Sync,Handle client syncs without senior supervision.,In Progress,70,2026-05-13
-obj-m2-4,2,Assessment Participation,Actively participate in project assessments & forecasting.,Completed,100,2026-05-10
-obj-m3-1,3,Independent Operations,Run team operations end-to-end with minimal escalation.,In Progress,65,2026-06-13
-obj-m3-2,3,Client Meeting Leadership,Lead client meetings as the primary owner.,In Progress,50,2026-06-13
-obj-m3-3,3,Assessment Completion,Own a full assessment cycle from forecast to actual review.,In Progress,60,2026-06-13
-obj-m3-4,3,Coaching Documentation,Document coaching notes & development plans for every report.,In Progress,75,2026-06-13
+id,month,title,description,ownerId,status,progress,priority,startDate,dueDate,successMetrics,managerFeedback,risks,nextAction
+obj-m1-1,1,Weekly 1:1 with every direct report,Establish a consistent weekly 1:1 cadence with all 5 reports.,,Completed,100,,,2026-04-13,,,,
+obj-m1-2,1,First Weekly Report,Produce and submit the first manager-owned weekly team report.,,Completed,100,,,2026-03-28,,,,
+obj-m1-3,1,Delegation,Delegate recurring execution tasks and define ownership clearly.,,Completed,100,,,2026-04-13,,,,
+obj-m1-4,1,Campaign QA Process,Stand up a repeatable pre-launch campaign QA process for the team.,,Completed,100,,,2026-04-10,,,,
+obj-m1-5,1,Daily PMKT Meeting,Run a short daily Performance Marketing stand-up.,,Completed,100,,,2026-04-13,,,,
+obj-m2-1,2,PMKT Presentation,Lead a Performance Marketing presentation to stakeholders.,,Completed,100,,,2026-05-02,,,,
+obj-m2-2,2,Performance Check-in,Run structured monthly performance check-ins per report.,,Completed,100,,,2026-05-13,,,,
+obj-m2-3,2,Independent Client Sync,Handle client syncs without senior supervision.,,In Progress,70,,,2026-05-13,,,,
+obj-m2-4,2,Assessment Participation,Actively participate in project assessments & forecasting.,,Completed,100,,,2026-05-10,,,,
+obj-m3-1,3,Independent Operations,Run team operations end-to-end with minimal escalation.,,In Progress,65,,,2026-06-13,,,,
+obj-m3-2,3,Client Meeting Leadership,Lead client meetings as the primary owner.,,In Progress,50,,,2026-06-13,,,,
+obj-m3-3,3,Assessment Completion,Own a full assessment cycle from forecast to actual review.,,In Progress,60,,,2026-06-13,,,,
+obj-m3-4,3,Coaching Documentation,Document coaching notes & development plans for every report.,,In Progress,75,,,2026-06-13,,,,
+obj-yolanda-roas,,Lift retargeting ROAS to 4.0,Improve Meta retargeting efficiency across Dev Biz campaigns.,tm-yolanda,On Track,70,high,2026-05-15,2026-06-30,Retargeting ROAS ≥ 4.0; CPL within target band.,Strong momentum — keep scaling the winning audiences.,,Test 3 new lookalike audiences this week.
+obj-reivan-kpr-cpl,,Bring KPR Promo CPL under Rp 50.000,Optimise KPR Promo targeting & creative to hit the CPL target.,tm-reivan,At Risk,45,high,2026-05-01,2026-06-20,CPL ≤ Rp 50.000 sustained for 2 weeks.,,Narrow audience is driving CPL up.,Broaden audience and test new hooks.
+obj-rafif-qa,,Adopt a personal campaign QA checklist,Build the habit of pre-launch QA to cut launch errors.,tm-rafif,Off Track,25,medium,2026-05-20,2026-06-15,Zero QA misses for 3 consecutive launches.,,Still rushing launches; 2 misses last week.,Pair with Yolanda on the next QA cycle.

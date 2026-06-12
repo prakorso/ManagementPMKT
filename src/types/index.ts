@@ -11,7 +11,15 @@
 // Shared enums / unions
 // -----------------------------------------------------------------------------
 
-export type ObjectiveStatus = 'not-started' | 'in-progress' | 'completed';
+export type ObjectiveStatus =
+  | 'not-started'
+  | 'in-progress'
+  | 'on-track'
+  | 'at-risk'
+  | 'off-track'
+  | 'completed';
+
+export type Priority = 'low' | 'medium' | 'high';
 
 export type MonthNumber = 1 | 2 | 3;
 
@@ -87,18 +95,39 @@ export interface TeamMember {
 // Objectives (3-month development plan)
 // -----------------------------------------------------------------------------
 
+/** A timestamped progress update / history-log entry on an objective. */
+export interface ObjectiveUpdate {
+  id: string;
+  date: string;
+  note: string;
+  progress?: number;
+  author?: string;
+}
+
 export interface Objective {
   id: string;
-  month: MonthNumber;
+  /** Legacy 3-month plan grouping (optional in v2). */
+  month?: MonthNumber;
   title: string;
   description?: string;
+  /** Assigned member id; undefined = manager/team-level objective. */
+  ownerId?: string;
   status: ObjectiveStatus;
   /** Completion percentage 0–100. */
   progress: number;
-  /** ISO due date (optional). */
+  priority?: Priority;
+  startDate?: string;
+  /** ISO due/end date. */
   dueDate?: string;
-  /** Latest progress update note (added from the dashboard). */
-  update?: string;
+  successMetrics?: string;
+  managerFeedback?: string;
+  risks?: string;
+  nextAction?: string;
+  /** Progress updates / history log (most recent appended). */
+  updates?: ObjectiveUpdate[];
+  archived?: boolean;
+  /** True when created/edited in-browser (local overlay). */
+  local?: boolean;
 }
 
 // -----------------------------------------------------------------------------

@@ -91,5 +91,10 @@ const ASSESSMENTS_KEY = 'mdd-local-assessments';
 export const loadLocalObjectives = (): Objective[] => loadOverlay<Objective>(OBJECTIVES_KEY);
 export const saveLocalObjectives = (items: Objective[]): void => saveOverlay(OBJECTIVES_KEY, items);
 
+export function newLocalObjectiveId(title: string): string {
+  const slug = title.toLowerCase().trim().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+  return `obj-local-${slug.slice(0, 24) || 'objective'}-${Date.now().toString(36)}`;
+}
+
 export const loadLocalAssessments = (): Assessment[] => loadOverlay<Assessment>(ASSESSMENTS_KEY);
 export const saveLocalAssessments = (items: Assessment[]): void => saveOverlay(ASSESSMENTS_KEY, items);

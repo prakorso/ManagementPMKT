@@ -10,6 +10,7 @@ import type {
   Objective,
   ObjectiveStatus,
   PerformanceSnapshot,
+  Priority,
   PeriodType,
   ProgramInfo,
   ReadinessArea,
@@ -263,14 +264,22 @@ function toTeamMember(row: Row): TeamMember {
 }
 
 function toObjective(row: Row): Objective {
+  const monthRaw = pick(row, 'month');
   return {
     id: pick(row, 'id'),
-    month: clampMonth(num(row, 'month')),
+    month: monthRaw ? clampMonth(num(row, 'month')) : undefined,
     title: pick(row, 'title'),
     description: pick(row, 'description') || undefined,
+    ownerId: pick(row, 'ownerId', 'owner id', 'owner') || undefined,
     status: normalizeObjectiveStatus(pick(row, 'status')),
     progress: num(row, 'progress'),
-    dueDate: pick(row, 'dueDate', 'due date') || undefined,
+    priority: normalizePriority(pick(row, 'priority')),
+    startDate: pick(row, 'startDate', 'start date') || undefined,
+    dueDate: pick(row, 'dueDate', 'due date', 'endDate', 'end date') || undefined,
+    successMetrics: pick(row, 'successMetrics', 'success metrics') || undefined,
+    managerFeedback: pick(row, 'managerFeedback', 'manager feedback') || undefined,
+    risks: pick(row, 'risks') || undefined,
+    nextAction: pick(row, 'nextAction', 'next action') || undefined,
   };
 }
 
@@ -365,8 +374,19 @@ function clampMonth(n: number): MonthNumber {
 function normalizeObjectiveStatus(value: string): ObjectiveStatus {
   const s = slug(value);
   if (s === 'completed' || s === 'complete' || s === 'done') return 'completed';
+  if (s === 'on-track' || s === 'ontrack') return 'on-track';
+  if (s === 'at-risk' || s === 'atrisk') return 'at-risk';
+  if (s === 'off-track' || s === 'offtrack') return 'off-track';
   if (s === 'in-progress' || s === 'inprogress' || s === 'ongoing') return 'in-progress';
   return 'not-started';
+}
+
+function normalizePriority(value: string): Priority | undefined {
+  const s = slug(value);
+  if (s === 'high' || s === 'urgent' || s === 'p1') return 'high';
+  if (s === 'low' || s === 'p3') return 'low';
+  if (s === 'medium' || s === 'med' || s === 'p2') return 'medium';
+  return undefined;
 }
 
 function normalizeActionStatus(value: string): ActionItemStatus {

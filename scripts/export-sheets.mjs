@@ -22,7 +22,14 @@ const outDir = join(here, '..', 'google-sheets-data');
 mkdirSync(outDir, { recursive: true });
 
 // --- label maps ---
-const OBJ_STATUS = { 'not-started': 'Not Started', 'in-progress': 'In Progress', completed: 'Completed' };
+const OBJ_STATUS = {
+  'not-started': 'Not Started',
+  'in-progress': 'In Progress',
+  'on-track': 'On Track',
+  'at-risk': 'At Risk',
+  'off-track': 'Off Track',
+  completed: 'Completed',
+};
 const ACT_STATUS = { open: 'Open', 'in-progress': 'In Progress', done: 'Done' };
 const HEALTH = { 'on-track': 'On Track', watch: 'Watch', 'at-risk': 'At Risk' };
 const MEETING = {
@@ -57,8 +64,11 @@ const tabs = [
   },
   {
     name: 'Objectives',
-    headers: ['id', 'month', 'title', 'description', 'status', 'progress', 'dueDate'],
-    rows: seedData.objectives.map((o) => [o.id, o.month, o.title, txt(o.description), OBJ_STATUS[o.status], o.progress, txt(o.dueDate)]),
+    headers: ['id', 'month', 'title', 'description', 'ownerId', 'status', 'progress', 'priority', 'startDate', 'dueDate', 'successMetrics', 'managerFeedback', 'risks', 'nextAction'],
+    rows: seedData.objectives.map((o) => [
+      o.id, txt(o.month), o.title, txt(o.description), txt(o.ownerId), OBJ_STATUS[o.status], o.progress,
+      txt(o.priority), txt(o.startDate), txt(o.dueDate), txt(o.successMetrics), txt(o.managerFeedback), txt(o.risks), txt(o.nextAction),
+    ]),
   },
   {
     name: 'ActionItems',

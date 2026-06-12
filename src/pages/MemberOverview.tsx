@@ -6,11 +6,19 @@ import { ErrorState } from '@/components/ui/ErrorState';
 import { Card, CardHeader } from '@/components/ui/Card';
 import { StatCard } from '@/components/ui/StatCard';
 import { Badge } from '@/components/ui/Badge';
+import { ProgressBar } from '@/components/ui/ProgressBar';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { CampaignCard } from '@/components/projects/CampaignCard';
 import { campaignTrackSummary, projectsForMember } from '@/utils/calculations';
 import { formatDate, formatPercent, relativeDays } from '@/utils/format';
-import { actionStatusLabel, actionStatusTone, meetingCategoryLabel, meetingCategoryTone } from '@/utils/labels';
+import {
+  actionStatusLabel,
+  actionStatusTone,
+  meetingCategoryLabel,
+  meetingCategoryTone,
+  objectiveStatusLabel,
+  objectiveStatusTone,
+} from '@/utils/labels';
 
 export function MemberOverview() {
   const { data, loading, error, updateProject } = useData();
@@ -30,6 +38,7 @@ export function MemberOverview() {
   const actionItems = data.actionItems.filter((i) => i.teamMemberId === member.id);
   const openTasks = actionItems.filter((i) => i.status !== 'done');
   const meetings = data.meetings.filter((m) => m.teamMemberId === member.id).sort((a, b) => b.date.localeCompare(a.date));
+  const myObjectives = data.objectives.filter((o) => o.ownerId === member.id && !o.archived);
 
   return (
     <div className="space-y-6">
@@ -68,6 +77,29 @@ export function MemberOverview() {
           hint={member.nextOneOnOne ? formatDate(member.nextOneOnOne) : 'Not scheduled'}
         />
       </div>
+
+      {/* My objectives */}
+      <Card>
+        <CardHeader title="My Objectives" subtitle={`${myObjectives.length} active`} />
+        {myObjectives.length === 0 ? (
+          <p className="text-sm text-muted">No objectives assigned yet.</p>
+        ) : (
+          <ul className="space-y-3">
+            {myObjectives.map((o) => (
+              <li key={o.id} className="rounded-xl border border-slate-200/70 p-3 dark:border-slate-700/60">
+                <div className="flex items-center justify-between gap-2">
+                  <span className="text-sm font-medium text-slate-800 dark:text-slate-100">{o.title}</span>
+                  <Badge tone={objectiveStatusTone[o.status]}>{objectiveStatusLabel[o.status]}</Badge>
+                </div>
+                <div className="mt-2 flex items-center gap-3">
+                  <ProgressBar value={o.progress} autoTone size="sm" className="flex-1" />
+                  <span className="w-9 flex-none text-right text-xs font-semibold text-slate-700 dark:text-slate-200">{o.progress}%</span>
+                </div>
+              </li>
+            ))}
+          </ul>
+        )}
+      </Card>
 
       {/* My campaigns */}
       <Card padded={false}>

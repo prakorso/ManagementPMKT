@@ -81,12 +81,19 @@ Restart `npm run dev` (or redeploy on Netlify with the env vars set).
 | Column | Type | Example |
 | --- | --- | --- |
 | `id` | text | `obj-m1-1` |
-| `month` | `1` / `2` / `3` | `1` |
-| `title` | text | `Weekly 1:1 with every direct report` |
-| `description` | text | `Establish a weekly 1:1 cadence` |
-| `status` | `Not Started` / `In Progress` / `Completed` | `Completed` |
-| `progress` | 0–100 | `100` |
-| `dueDate` | date | `2026-04-13` |
+| `month` | `1` / `2` / `3` (optional) | `1` |
+| `title` | text | `Lift retargeting ROAS to 4.0` |
+| `description` | text | `Improve Meta retargeting efficiency` |
+| `ownerId` | text (→ TeamMembers.id, optional) | `tm-yolanda` |
+| `status` | `Not Started` / `In Progress` / `On Track` / `At Risk` / `Off Track` / `Completed` | `On Track` |
+| `progress` | 0–100 | `70` |
+| `priority` | `Low` / `Medium` / `High` (optional) | `High` |
+| `startDate` | date (optional) | `2026-05-15` |
+| `dueDate` | date (optional) | `2026-06-30` |
+| `successMetrics` | text (optional) | `ROAS ≥ 4.0` |
+| `managerFeedback` | text (optional) | `Strong momentum` |
+| `risks` | text (optional) | `Narrow audience` |
+| `nextAction` | text (optional) | `Test 3 lookalikes` |
 
 ### ActionItems
 

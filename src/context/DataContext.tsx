@@ -8,14 +8,16 @@ import {
   useState,
   type ReactNode,
 } from 'react';
-import type { DashboardData, Project, TeamMember } from '@/types';
+import type { DashboardData, Objective, Project, TeamMember } from '@/types';
 import { createDataSource } from '@/data';
 import { SeedDataSource } from '@/data/SeedDataSource';
 import { config } from '@/config';
 import {
   loadLocalMembers,
+  loadLocalObjectives,
   loadLocalProjects,
   saveLocalMembers,
+  saveLocalObjectives,
   saveLocalProjects,
 } from '@/data/localStore';
 import { appendRecord, getWriteUrl, memberToSheetRecord, setWriteUrl } from '@/data/sheetsWrite';
@@ -39,6 +41,10 @@ interface DataContextValue {
   updateProject: (id: string, patch: Partial<Project>) => void;
   /** Removes a locally-created campaign/project. */
   removeProject: (id: string) => void;
+  /** Creates an objective (local overlay). */
+  addObjective: (objective: Objective) => void;
+  /** Patches an objective (seed/sheet ones via a local override). */
+  updateObjective: (id: string, patch: Partial<Objective>) => void;
   /** True when an Apps Script write-back URL is configured. */
   writeEnabled: boolean;
   /** Saves/clears the write-back URL (persisted in this browser). */
@@ -48,10 +54,20 @@ interface DataContextValue {
 
 const DataContext = createContext<DataContextValue | undefined>(undefined);
 
+/** Merges a local overlay over base data: overlay entries override by id, extras append. */
+function mergeOverlay<T extends { id: string }>(base: T[], overlay: T[]): T[] {
+  if (overlay.length === 0) return base;
+  const byId = new Map(overlay.map((o) => [o.id, o]));
+  const overridden = base.map((b) => byId.get(b.id) ?? b);
+  const extra = overlay.filter((o) => !base.some((b) => b.id === o.id));
+  return [...overridden, ...extra];
+}
+
 export function DataProvider({ children }: { children: ReactNode }) {
   const [baseData, setBaseData] = useState<DashboardData | null>(null);
   const [localMembers, setLocalMembers] = useState<TeamMember[]>(() => loadLocalMembers());
   const [localProjects, setLocalProjects] = useState<Project[]>(() => loadLocalProjects());
+  const [localObjectives, setLocalObjectives] = useState<Objective[]>(() => loadLocalObjectives());
   const [loading, setLoading] = useState(true);
   const [warning, setWarning] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -170,6 +186,30 @@ export function DataProvider({ children }: { children: ReactNode }) {
     });
   }, []);
 
+  const addObjective = useCallback((objective: Objective) => {
+    setLocalObjectives((prev) => {
+      const next = [...prev, { ...objective, local: true }];
+      saveLocalObjectives(next);
+      return next;
+    });
+  }, []);
+
+  const updateObjective = useCallback((id: string, patch: Partial<Objective>) => {
+    setLocalObjectives((prev) => {
+      const existing = prev.find((o) => o.id === id);
+      let next: Objective[];
+      if (existing) {
+        next = prev.map((o) => (o.id === id ? { ...o, ...patch } : o));
+      } else {
+        const fromBase = baseData?.objectives.find((o) => o.id === id);
+        if (!fromBase) return prev;
+        next = [...prev, { ...fromBase, ...patch, local: true }];
+      }
+      saveLocalObjectives(next);
+      return next;
+    });
+  }, [baseData]);
+
   const configureWriteUrl = useCallback((url: string) => {
     setWriteUrl(url);
     setWriteUrlState(url.trim());
@@ -183,16 +223,11 @@ export function DataProvider({ children }: { children: ReactNode }) {
 
     // Projects: local entries override base ones by id (so edits stick), and
     // local-only projects are appended.
-    let projects = baseData.projects;
-    if (localProjects.length > 0) {
-      const localById = new Map(localProjects.map((p) => [p.id, p]));
-      const overridden = baseData.projects.map((p) => localById.get(p.id) ?? p);
-      const extra = localProjects.filter((p) => !baseData.projects.some((b) => b.id === p.id));
-      projects = [...overridden, ...extra];
-    }
+    const projects = mergeOverlay(baseData.projects, localProjects);
+    const objectives = mergeOverlay(baseData.objectives, localObjectives);
 
-    return { ...baseData, teamMembers, projects };
-  }, [baseData, localMembers, localProjects]);
+    return { ...baseData, teamMembers, projects, objectives };
+  }, [baseData, localMembers, localProjects, localObjectives]);
 
   const value = useMemo(
     () => ({
@@ -207,6 +242,8 @@ export function DataProvider({ children }: { children: ReactNode }) {
       addProject,
       updateProject,
       removeProject,
+      addObjective,
+      updateObjective,
       writeEnabled: !!writeUrl,
       configureWriteUrl,
       writeUrl,
@@ -223,6 +260,8 @@ export function DataProvider({ children }: { children: ReactNode }) {
       addProject,
       updateProject,
       removeProject,
+      addObjective,
+      updateObjective,
       writeUrl,
       configureWriteUrl,
     ],

@@ -246,6 +246,39 @@ export interface DashboardData {
   readiness: ReadinessMetric[];
   /** Campaigns/projects assigned to team members. */
   projects: Project[];
+  /** Campaign KPIs synced from the LGP analytics engine. */
+  lgpCampaigns: LgpCampaign[];
+}
+
+// -----------------------------------------------------------------------------
+// LGP campaign KPIs (synced from the LGP analytics engine — see docs/LGP_SYNC.md)
+// -----------------------------------------------------------------------------
+
+export interface LgpPeriod {
+  period: string;
+  raw: number;
+  submitted: number;
+  interest: number;
+  svs: number;
+  svd: number;
+  spend: number;
+  cpl: number;
+}
+
+export interface LgpCampaign {
+  name: string;
+  products?: string;
+  startDate: string;
+  endDate: string;
+  targets: { leads: number; visit: number; book: number; bookingValue: number };
+  funnel: { raw: number; submitted: number; interest: number; svs: number; svd: number; booking: number };
+  contribution: { pmkt: number; organic: number; socmed: number; other: number };
+  ads: { spend: number; meta: number; google: number; tiktok: number };
+  cost: { cpl: number; cpSubmit: number; cpInterest: number; cpSvd: number; cpBooking: number };
+  health: { score: number; status: CampaignTrack };
+  lastLead?: string | null;
+  monthly: LgpPeriod[];
+  weekly: LgpPeriod[];
 }
 
 // -----------------------------------------------------------------------------

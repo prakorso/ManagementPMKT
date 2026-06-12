@@ -3,6 +3,7 @@ import type {
   ActionItem,
   Assessment,
   DashboardData,
+  LgpCampaign,
   MonthNumber,
   Objective,
   PerformanceSnapshot,
@@ -321,6 +322,52 @@ export function memberProjects(projects: Project[], memberId: string): Project[]
   return deliveryProjectsOf(projects).filter(
     (p) => p.ownerIds.includes(memberId) || (p.assignedMemberIds ?? []).includes(memberId),
   );
+}
+
+// -----------------------------------------------------------------------------
+// LGP campaigns
+// -----------------------------------------------------------------------------
+
+export interface LgpKpiTile {
+  key: string;
+  label: string;
+  current: number;
+  target: number;
+  achievement: number; // %
+  status: 'on-track' | 'at-risk' | 'off-track';
+}
+
+function tileStatus(achievement: number): LgpKpiTile['status'] {
+  if (achievement >= 100) return 'on-track';
+  if (achievement >= 80) return 'at-risk';
+  return 'off-track';
+}
+
+/** Funnel KPI tiles for a campaign (current vs target; LGP thresholds for Sub/Int). */
+export function lgpKpiTiles(c: LgpCampaign): LgpKpiTile[] {
+  const f = c.funnel;
+  const t = c.targets;
+  const tile = (key: string, label: string, current: number, target: number): LgpKpiTile => {
+    const achievement = target > 0 ? round((current / target) * 100) : 0;
+    return { key, label, current, target, achievement, status: tileStatus(achievement) };
+  };
+  return [
+    tile('raw', 'RAW Leads', f.raw, t.leads),
+    tile('submitted', 'Submitted', f.submitted, Math.round(f.raw * 0.9)),
+    tile('interest', 'Interest', f.interest, Math.round(f.raw * 0.25)),
+    tile('svs', 'SVS', f.svs, Math.round(f.raw * 0.07)),
+    tile('svd', 'SVD', f.svd, t.visit > 0 ? t.visit : Math.round(f.raw * 0.05)),
+    tile('booking', 'Booking', f.booking, t.book),
+  ];
+}
+
+export function lgpHealthSummary(campaigns: LgpCampaign[]) {
+  return {
+    total: campaigns.length,
+    onTrack: campaigns.filter((c) => c.health.status === 'on-track').length,
+    atRisk: campaigns.filter((c) => c.health.status === 'at-risk').length,
+    offTrack: campaigns.filter((c) => c.health.status === 'off-track').length,
+  };
 }
 
 export function projectAssignmentSummary(projects: Project[], now: Date = new Date()) {

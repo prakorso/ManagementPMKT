@@ -19,6 +19,7 @@ import type {
 } from '@/types';
 import type { DataSource } from './DataSource';
 import { seedData } from './seedData';
+import { lgpCampaigns } from './lgpData';
 
 type Row = Record<string, string>;
 
@@ -109,6 +110,7 @@ export class GoogleSheetsDataSource implements DataSource {
       // Projects are managed in-app for now (created/assigned by the manager and
       // kept in a local overlay). A "Projects" sheet tab / DB table comes later.
       projects: [],
+      lgpCampaigns,
     };
 
     // If every tab is empty, the sheet hasn't been populated yet — signal a

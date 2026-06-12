@@ -7,6 +7,7 @@ import {
   NotebookPen,
   Gauge,
   FolderKanban,
+  Megaphone,
   Settings,
   type LucideIcon,
 } from 'lucide-react';
@@ -29,6 +30,7 @@ export const navSections: NavSection[] = [
   {
     title: 'Performance',
     items: [
+      { to: '/campaigns', label: 'Campaign Hub', icon: Megaphone },
       { to: '/performance', label: 'Campaign Performance', icon: TrendingUp },
       { to: '/objectives', label: 'Objective Tracker', icon: ListChecks },
     ],

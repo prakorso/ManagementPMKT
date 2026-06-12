@@ -1,4 +1,5 @@
 import type { DashboardData } from '@/types';
+import { lgpCampaigns } from './lgpData';
 
 /**
  * Bundled seed dataset.
@@ -1015,4 +1016,6 @@ export const seedData: DashboardData = {
       dueDate: '2026-07-15',
     },
   ],
+
+  lgpCampaigns,
 };

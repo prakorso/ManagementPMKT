@@ -306,11 +306,46 @@ export function campaignTrackSummary(projects: Project[]) {
   };
 }
 
+/** Marketing campaigns (kind !== 'project'). */
+export function campaignsOf(projects: Project[]): Project[] {
+  return projects.filter((p) => p.kind !== 'project');
+}
+
+/** Delegated projects (kind === 'project'). */
+export function deliveryProjectsOf(projects: Project[]): Project[] {
+  return projects.filter((p) => p.kind === 'project');
+}
+
+/** Delegated projects a member owns or supports. */
+export function memberProjects(projects: Project[], memberId: string): Project[] {
+  return deliveryProjectsOf(projects).filter(
+    (p) => p.ownerIds.includes(memberId) || (p.assignedMemberIds ?? []).includes(memberId),
+  );
+}
+
+export function projectAssignmentSummary(projects: Project[], now: Date = new Date()) {
+  const items = deliveryProjectsOf(projects);
+  const overdue = items.filter((p) => {
+    if (p.projectStatus === 'completed' || p.projectStatus === 'cancelled') return false;
+    const raw = p.dueDate ?? p.endDate;
+    if (!raw) return false;
+    const d = parseISO(raw);
+    return isValid(d) && isBefore(d, now);
+  }).length;
+  return {
+    total: items.length,
+    active: items.filter((p) => p.projectStatus === 'in-progress' || p.projectStatus === 'not-started').length,
+    blocked: items.filter((p) => p.projectStatus === 'blocked').length,
+    completed: items.filter((p) => p.projectStatus === 'completed').length,
+    overdue,
+  };
+}
+
 const TRACK_SCORE: Record<string, number> = { 'on-track': 100, 'at-risk': 60, 'off-track': 20 };
 
 /** Campaign health score (0–100) across a member's campaigns, or null if none. */
 export function memberCampaignHealth(projects: Project[], memberId: string): number | null {
-  const mine = projectsForMember(projects, memberId);
+  const mine = campaignsOf(projectsForMember(projects, memberId));
   if (!mine.length) return null;
   return round(avg(mine.map((p) => TRACK_SCORE[p.track] ?? 60)));
 }
@@ -405,11 +440,11 @@ export function recentActivities(data: DashboardData, limit = 8): ActivityItem[]
   data.meetings.forEach((m) =>
     items.push({ id: `act-mtg-${m.id}`, date: m.date, kind: 'meeting', title: m.title, subtitle: m.summary }),
   );
-  data.projects
-    .filter((p) => p.status === 'completed' && p.endDate)
-    .forEach((p) =>
-      items.push({ id: `act-prj-${p.id}`, date: p.endDate as string, kind: 'project', title: `${p.name} completed` }),
-    );
+  data.projects.forEach((p) => {
+    const done = p.kind === 'project' ? p.projectStatus === 'completed' : p.status === 'completed';
+    const date = p.dueDate ?? p.endDate;
+    if (done && date) items.push({ id: `act-prj-${p.id}`, date, kind: 'project', title: `${p.name} completed` });
+  });
   data.objectives
     .filter((o) => o.status === 'completed' && o.dueDate)
     .forEach((o) =>

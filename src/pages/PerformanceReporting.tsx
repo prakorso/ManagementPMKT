@@ -28,6 +28,7 @@ import { useChartColors } from '@/components/charts/useChartColors';
 import { CampaignCard } from '@/components/projects/CampaignCard';
 import { AddCampaignModal } from '@/components/projects/AddCampaignModal';
 import {
+  campaignsOf,
   campaignTrackSummary,
   kpiResults,
   latestMonthly,
@@ -54,7 +55,8 @@ export function PerformanceReporting() {
   const { performance, projects, teamMembers } = data;
   const latest = latestMonthly(performance);
   const series = view === 'monthly' ? monthlySeries(performance) : weeklySeries(performance);
-  const campaigns = campaignTrackSummary(projects);
+  const campaignList = campaignsOf(projects);
+  const campaigns = campaignTrackSummary(campaignList);
 
   return (
     <div className="space-y-6">
@@ -89,7 +91,7 @@ export function PerformanceReporting() {
           <StatCard label="Off Track" value={campaigns.offTrack} icon={<XCircle size={18} />} iconTone="danger" hint="behind target" />
         </div>
 
-        {projects.length === 0 ? (
+        {campaignList.length === 0 ? (
           <EmptyState
             icon={<Megaphone size={28} />}
             title="No campaigns yet"
@@ -97,7 +99,7 @@ export function PerformanceReporting() {
           />
         ) : (
           <div className="grid gap-4 lg:grid-cols-2 xl:grid-cols-3">
-            {projects.map((project) => (
+            {campaignList.map((project) => (
               <CampaignCard
                 key={project.id}
                 project={project}

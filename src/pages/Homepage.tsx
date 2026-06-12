@@ -4,7 +4,6 @@ import {
   AlertTriangle,
   CalendarClock,
   CheckCircle2,
-  ClipboardList,
   Crosshair,
   FolderKanban,
   ListChecks,
@@ -24,11 +23,11 @@ import { ProgressBar } from '@/components/ui/ProgressBar';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { SegmentedDonut } from '@/components/charts/SegmentedDonut';
 import {
+  campaignsOf,
   campaignTrackSummary,
   objectiveTrackCounts,
-  openActionItems,
-  overdueProjects,
   pendingUpdateMembers,
+  projectAssignmentSummary,
   recentActivities,
   teamHealthSnapshot,
   teamRanking,
@@ -44,23 +43,24 @@ export function Homepage() {
   if (loading) return <LoadingScreen />;
   if (error || !data) return <ErrorState message={error ?? 'No data available.'} />;
 
-  const { teamMembers, objectives, projects, actionItems } = data;
+  const { teamMembers, objectives, projects } = data;
   const now = new Date();
 
   const health = teamHealthSnapshot(teamMembers);
-  const campaigns = campaignTrackSummary(projects);
+  const campaigns = campaignTrackSummary(campaignsOf(projects));
   const objCounts = objectiveTrackCounts(objectives, now);
   const ranking = teamRanking(teamMembers, projects);
   const pending = pendingUpdateMembers(teamMembers, now);
-  const overdue = overdueProjects(projects, now);
+  const projectSummary = projectAssignmentSummary(projects, now);
   const activities = recentActivities(data);
-  const activeCampaigns = projects.filter((p) => p.status === 'active').length;
+  const activeCampaigns = campaignsOf(projects).filter((p) => p.status === 'active').length;
 
   const alerts = [
     { id: 'a1', count: campaigns.offTrack, label: 'Campaigns off track', tone: 'danger' as Tone, to: '/performance', icon: Megaphone },
     { id: 'a2', count: pending.length, label: 'Members missing weekly update', tone: 'warning' as Tone, to: '/team', icon: Users },
     { id: 'a3', count: objCounts.dueThisWeek, label: 'Objectives due this week', tone: 'info' as Tone, to: '/objectives', icon: ListChecks },
-    { id: 'a4', count: overdue.length, label: 'Projects overdue', tone: 'danger' as Tone, to: '/projects', icon: FolderKanban },
+    { id: 'a4', count: projectSummary.overdue, label: 'Projects overdue', tone: 'danger' as Tone, to: '/projects', icon: FolderKanban },
+    { id: 'a5', count: projectSummary.blocked, label: 'Projects blocked', tone: 'danger' as Tone, to: '/projects', icon: FolderKanban },
   ].filter((a) => a.count > 0);
 
   return (
@@ -74,10 +74,10 @@ export function Homepage() {
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
         <StatCard label="Team Members" value={teamMembers.length} icon={<Users size={18} />} iconTone="brand" to="/team" />
         <StatCard label="Active Campaigns" value={activeCampaigns} icon={<Megaphone size={18} />} iconTone="info" to="/performance" />
+        <StatCard label="Active Projects" value={projectSummary.active} icon={<FolderKanban size={18} />} iconTone="brand" to="/projects" />
         <StatCard label="On-Track Objectives" value={objCounts.onTrack} icon={<CheckCircle2 size={18} />} iconTone="success" to="/objectives" />
         <StatCard label="Off-Track Objectives" value={objCounts.offTrack} icon={<AlertTriangle size={18} />} iconTone="danger" to="/objectives" />
         <StatCard label="Pending Updates" value={pending.length} icon={<CalendarClock size={18} />} iconTone="warning" to="/team" />
-        <StatCard label="Open Action Items" value={openActionItems(actionItems).length} icon={<ClipboardList size={18} />} iconTone="neutral" to="/notes" />
       </div>
 
       {/* Health + campaign + alerts */}

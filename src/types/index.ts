@@ -262,24 +262,59 @@ export type ProjectStatus = 'active' | 'paused' | 'completed';
 /** Whether a campaign is tracking to plan. */
 export type CampaignTrack = 'on-track' | 'off-track' | 'at-risk';
 
+/** Delivery status for a delegated project. */
+export type ProjectWorkStatus = 'not-started' | 'in-progress' | 'blocked' | 'completed' | 'cancelled';
+
+/** A timestamped update / activity-timeline entry on a project. */
+export interface ProjectUpdate {
+  id: string;
+  date: string;
+  note: string;
+  author?: string;
+}
+
+/**
+ * A `Project` is either a marketing **campaign** (with KPI metrics + on/off-track
+ * status) or a delegated **project** (with delivery status, progress %, blockers,
+ * dependencies). `kind` discriminates the two; undefined defaults to 'campaign'
+ * for backward compatibility. Campaign-only and project-only fields are optional.
+ */
 export interface Project {
   id: string;
+  /** 'campaign' (default) or 'project' (delegated work). */
+  kind?: 'campaign' | 'project';
   name: string;
   client?: string;
+  description?: string;
   status?: ProjectStatus;
-  /** Team members handling this project. */
+  /** Owner(s) handling this item. */
   ownerIds: string[];
-  /** Overall on/off-track status (metrics refined later). */
+  /** Supporting/assigned members (project assignment). */
+  assignedMemberIds?: string[];
+  priority?: Priority;
+
+  // --- Campaign fields ---
+  /** Overall on/off-track status (campaigns). */
   track: CampaignTrack;
-  // Representative performance metrics (optional; the metric set is refined later).
   leads?: number;
   leadsTarget?: number;
   cpl?: number;
   cplTarget?: number;
   spend?: number;
   spendTarget?: number;
+
+  // --- Project (delegation) fields ---
+  projectStatus?: ProjectWorkStatus;
+  /** Delivery progress 0–100. */
+  progressPct?: number;
+  dependencies?: string;
+  blockers?: string;
+  managerNotes?: string;
+  updates?: ProjectUpdate[];
+
   startDate?: string;
   endDate?: string;
+  dueDate?: string;
   notes?: string;
   /** True when created in-browser (not yet persisted to the sheet). */
   local?: boolean;

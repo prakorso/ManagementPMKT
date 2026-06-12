@@ -7,6 +7,7 @@ import {
   ClipboardList,
   FileSpreadsheet,
   FileText,
+  FolderKanban,
   Lightbulb,
   Mail,
   Megaphone,
@@ -27,7 +28,9 @@ import { Button } from '@/components/ui/Button';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { CampaignCard } from '@/components/projects/CampaignCard';
 import { AddCampaignModal } from '@/components/projects/AddCampaignModal';
-import { projectsForMember } from '@/utils/calculations';
+import { ProjectCard } from '@/components/projects/ProjectCard';
+import { ProjectDetailModal } from '@/components/projects/ProjectDetailModal';
+import { campaignsOf, memberProjects, projectsForMember } from '@/utils/calculations';
 import { formatDate, relativeDays } from '@/utils/format';
 import { actionStatusLabel, actionStatusTone, healthLabel, healthTone, meetingCategoryLabel, meetingCategoryTone } from '@/utils/labels';
 
@@ -38,6 +41,7 @@ export function MemberDetail() {
   const { session } = useSession();
   const isManager = session?.role === 'manager';
   const [campaignModal, setCampaignModal] = useState(false);
+  const [selectedProjId, setSelectedProjId] = useState<string | null>(null);
 
   if (loading) return <LoadingScreen />;
   if (error || !data) return <ErrorState message={error ?? 'No data available.'} />;
@@ -53,7 +57,9 @@ export function MemberDetail() {
   }
 
   const now = new Date();
-  const campaigns = projectsForMember(data.projects, member.id);
+  const campaigns = campaignsOf(projectsForMember(data.projects, member.id));
+  const memberProjectsList = memberProjects(data.projects, member.id);
+  const selectedProj = selectedProjId ? data.projects.find((p) => p.id === selectedProjId) ?? null : null;
   const meetings = data.meetings.filter((m) => m.teamMemberId === member.id).sort((a, b) => b.date.localeCompare(a.date));
   const actionItems = data.actionItems.filter((i) => i.teamMemberId === member.id);
   const openItems = actionItems.filter((i) => i.status !== 'done');
@@ -163,6 +169,21 @@ export function MemberDetail() {
         </div>
       </Card>
 
+      {/* Projects */}
+      {memberProjectsList.length > 0 && (
+        <Card padded={false}>
+          <div className="flex items-center gap-2 border-b border-slate-200/80 p-5 dark:border-slate-700/60">
+            <FolderKanban size={16} className="text-brand-500" />
+            <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-100">Project Assignment</h3>
+          </div>
+          <div className="grid gap-3 p-5 lg:grid-cols-2">
+            {memberProjectsList.map((p) => (
+              <ProjectCard key={p.id} project={p} members={data.teamMembers} onClick={() => setSelectedProjId(p.id)} />
+            ))}
+          </div>
+        </Card>
+      )}
+
       {/* Meetings + action items */}
       <div className="grid gap-4 lg:grid-cols-2">
         <Card padded={false}>
@@ -223,6 +244,9 @@ export function MemberDetail() {
         members={data.teamMembers}
         defaultOwnerId={member.id}
       />
+      {selectedProj && (
+        <ProjectDetailModal key={selectedProj.id} project={selectedProj} members={data.teamMembers} onClose={() => setSelectedProjId(null)} />
+      )}
     </div>
   );
 }

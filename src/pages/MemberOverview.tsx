@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { CalendarClock, ClipboardList, Megaphone, TrendingUp } from 'lucide-react';
+import { CalendarClock, ClipboardList, FolderKanban, Megaphone, TrendingUp } from 'lucide-react';
 import { useData } from '@/context/DataContext';
 import { useSession } from '@/context/SessionContext';
 import { LoadingScreen } from '@/components/ui/LoadingScreen';
@@ -10,8 +10,10 @@ import { Badge } from '@/components/ui/Badge';
 import { ProgressBar } from '@/components/ui/ProgressBar';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { CampaignCard } from '@/components/projects/CampaignCard';
+import { ProjectCard } from '@/components/projects/ProjectCard';
+import { ProjectDetailModal } from '@/components/projects/ProjectDetailModal';
 import { ObjectiveDetailModal } from '@/components/objectives/ObjectiveDetailModal';
-import { campaignTrackSummary, projectsForMember } from '@/utils/calculations';
+import { campaignsOf, campaignTrackSummary, memberProjects, projectsForMember } from '@/utils/calculations';
 import { formatDate, formatPercent, relativeDays } from '@/utils/format';
 import {
   actionStatusLabel,
@@ -26,6 +28,7 @@ export function MemberOverview() {
   const { data, loading, error, updateProject, updateActionItem } = useData();
   const { session } = useSession();
   const [selectedObjId, setSelectedObjId] = useState<string | null>(null);
+  const [selectedProjId, setSelectedProjId] = useState<string | null>(null);
 
   if (loading) return <LoadingScreen />;
   if (error || !data) return <ErrorState message={error ?? 'No data available.'} />;
@@ -36,13 +39,15 @@ export function MemberOverview() {
   }
 
   const now = new Date();
-  const campaigns = projectsForMember(data.projects, member.id);
+  const campaigns = campaignsOf(projectsForMember(data.projects, member.id));
   const campaignSummary = campaignTrackSummary(campaigns);
+  const myProjects = memberProjects(data.projects, member.id);
   const actionItems = data.actionItems.filter((i) => i.teamMemberId === member.id);
   const openTasks = actionItems.filter((i) => i.status !== 'done');
   const meetings = data.meetings.filter((m) => m.teamMemberId === member.id).sort((a, b) => b.date.localeCompare(a.date));
   const myObjectives = data.objectives.filter((o) => o.ownerId === member.id && !o.archived);
   const selectedObj = selectedObjId ? data.objectives.find((o) => o.id === selectedObjId) ?? null : null;
+  const selectedProj = selectedProjId ? data.projects.find((p) => p.id === selectedProjId) ?? null : null;
 
   return (
     <div className="space-y-6">
@@ -131,6 +136,22 @@ export function MemberOverview() {
         </div>
       </Card>
 
+      {/* My projects */}
+      {myProjects.length > 0 && (
+        <Card padded={false}>
+          <div className="border-b border-slate-200/80 p-5 dark:border-slate-700/60">
+            <h3 className="flex items-center gap-2 text-sm font-semibold text-slate-900 dark:text-slate-100">
+              <FolderKanban size={16} className="text-brand-500" /> My Projects
+            </h3>
+          </div>
+          <div className="grid gap-3 p-5 lg:grid-cols-2">
+            {myProjects.map((p) => (
+              <ProjectCard key={p.id} project={p} members={data.teamMembers} onClick={() => setSelectedProjId(p.id)} />
+            ))}
+          </div>
+        </Card>
+      )}
+
       <div className="grid gap-4 lg:grid-cols-2">
         {/* Tasks */}
         <Card>
@@ -189,6 +210,14 @@ export function MemberOverview() {
           objective={selectedObj}
           members={data.teamMembers}
           onClose={() => setSelectedObjId(null)}
+        />
+      )}
+      {selectedProj && (
+        <ProjectDetailModal
+          key={selectedProj.id}
+          project={selectedProj}
+          members={data.teamMembers}
+          onClose={() => setSelectedProjId(null)}
         />
       )}
     </div>

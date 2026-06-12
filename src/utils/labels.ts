@@ -6,6 +6,7 @@ import type {
   ObjectiveStatus,
   Priority,
   ProjectStatus,
+  ProjectWorkStatus,
   ReadinessArea,
 } from '@/types';
 import type { Tone } from '@/components/ui/Badge';
@@ -96,6 +97,22 @@ export const projectStatusLabel: Record<ProjectStatus, string> = {
   active: 'Active',
   paused: 'Paused',
   completed: 'Completed',
+};
+
+export const projectWorkStatusLabel: Record<ProjectWorkStatus, string> = {
+  'not-started': 'Not Started',
+  'in-progress': 'In Progress',
+  blocked: 'Blocked',
+  completed: 'Completed',
+  cancelled: 'Cancelled',
+};
+
+export const projectWorkStatusTone: Record<ProjectWorkStatus, Tone> = {
+  'not-started': 'neutral',
+  'in-progress': 'info',
+  blocked: 'danger',
+  completed: 'success',
+  cancelled: 'neutral',
 };
 
 export const readinessAreaLabel: Record<ReadinessArea, string> = {

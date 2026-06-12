@@ -1,0 +1,59 @@
+name: Deploy preview to GitHub Pages
+
+# Free, fast, GitHub-hosted preview (no Netlify). Builds the Vite app and
+# publishes it to GitHub Pages on every push to the working branch.
+#
+# One-time setup in the repo: Settings → Pages → Build and deployment →
+# Source: "GitHub Actions". If the deploy is blocked, also allow this branch
+# under Settings → Environments → github-pages → Deployment branches.
+
+on:
+  push:
+    branches:
+      - claude/exciting-cerf-1u3l56
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - name: Configure Pages (auto-enable if possible)
+        uses: actions/configure-pages@v5
+        with:
+          enablement: true
+      - run: npm ci
+      - name: Build (base = /<repo>/ for Pages)
+        run: npm run build
+        env:
+          VITE_BASE: /${{ github.event.repository.name }}/
+      - name: SPA fallback + disable Jekyll
+        run: |
+          cp dist/index.html dist/404.html
+          touch dist/.nojekyll
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

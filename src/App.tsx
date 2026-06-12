@@ -45,7 +45,7 @@ export default function App() {
   const isMember = session.role === 'member';
 
   return (
-    <BrowserRouter>
+    <BrowserRouter basename={import.meta.env.BASE_URL.replace(/\/$/, '')}>
       <Routes>
         <Route element={<Layout />}>
           <Route

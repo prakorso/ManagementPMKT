@@ -4,6 +4,8 @@ import { fileURLToPath, URL } from 'node:url';
 
 // https://vitejs.dev/config/
 export default defineConfig({
+  // Base path: '/' for Netlify/local; set VITE_BASE=/<repo>/ for GitHub Pages.
+  base: process.env.VITE_BASE ?? '/',
   plugins: [react()],
   resolve: {
     alias: {

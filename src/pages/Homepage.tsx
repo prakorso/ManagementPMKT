@@ -1,14 +1,16 @@
-import { addDays, parseISO } from 'date-fns';
 import { Link } from 'react-router-dom';
 import {
+  Activity,
   AlertTriangle,
   CalendarClock,
-  CalendarDays,
   CheckCircle2,
   ClipboardList,
-  HeartPulse,
+  Crosshair,
+  FolderKanban,
   ListChecks,
-  Target,
+  Megaphone,
+  NotebookPen,
+  Trophy,
   Users,
 } from 'lucide-react';
 import { useData } from '@/context/DataContext';
@@ -16,230 +18,195 @@ import { LoadingScreen } from '@/components/ui/LoadingScreen';
 import { ErrorState } from '@/components/ui/ErrorState';
 import { Card, CardHeader } from '@/components/ui/Card';
 import { StatCard } from '@/components/ui/StatCard';
-import { ProgressBar } from '@/components/ui/ProgressBar';
-import { ScoreRing } from '@/components/ui/ScoreRing';
 import { Badge } from '@/components/ui/Badge';
 import { Avatar } from '@/components/ui/Avatar';
+import { ProgressBar } from '@/components/ui/ProgressBar';
 import { EmptyState } from '@/components/ui/EmptyState';
+import { SegmentedDonut } from '@/components/charts/SegmentedDonut';
 import {
-  assessmentSummary,
-  collectRisks,
-  getProgramTiming,
-  monthProgress,
-  objectivesForMonth,
+  campaignTrackSummary,
+  objectiveTrackCounts,
   openActionItems,
-  overallObjectiveProgress,
-  overallReadiness,
-  previousMonthKey,
-  readinessBand,
-  teamHealthSummary,
-  upcomingOneOnOnes,
+  overdueProjects,
+  pendingUpdateMembers,
+  recentActivities,
+  teamHealthSnapshot,
+  teamRanking,
+  type ActivityItem,
 } from '@/utils/calculations';
-import type { MonthNumber } from '@/types';
 import { formatDate, formatPercent, relativeDays } from '@/utils/format';
-import { healthLabel, healthTone } from '@/utils/labels';
+import type { Tone } from '@/components/ui/Badge';
+
+const COLORS = { onTrack: '#10b981', atRisk: '#f59e0b', offTrack: '#f43f5e' };
 
 export function Homepage() {
   const { data, loading, error } = useData();
   if (loading) return <LoadingScreen />;
   if (error || !data) return <ErrorState message={error ?? 'No data available.'} />;
 
-  const { program, teamMembers, objectives, actionItems, assessments, readiness } = data;
+  const { teamMembers, objectives, projects, actionItems } = data;
   const now = new Date();
 
-  const timing = getProgramTiming(program.programStartDate, now);
-  const readinessScore = overallReadiness(readiness, timing.currentMonthKey);
-  const prevKey = previousMonthKey(timing.currentMonthKey);
-  const readinessDelta = prevKey ? readinessScore - overallReadiness(readiness, prevKey) : 0;
-  const band = readinessBand(readinessScore);
+  const health = teamHealthSnapshot(teamMembers);
+  const campaigns = campaignTrackSummary(projects);
+  const objCounts = objectiveTrackCounts(objectives, now);
+  const ranking = teamRanking(teamMembers, projects);
+  const pending = pendingUpdateMembers(teamMembers, now);
+  const overdue = overdueProjects(projects, now);
+  const activities = recentActivities(data);
+  const activeCampaigns = projects.filter((p) => p.status === 'active').length;
 
-  const overallProgress = overallObjectiveProgress(objectives);
-  const upcoming = upcomingOneOnOnes(teamMembers, now);
-  const openItems = openActionItems(actionItems);
-  const risks = collectRisks(data, now);
-  const health = teamHealthSummary(teamMembers);
-  const forecast = assessmentSummary(assessments);
-
-  const months: MonthNumber[] = [1, 2, 3];
-  const nextReviewDate = formatDate(addDays(parseISO(program.programStartDate), timing.currentMonth * 30).toISOString());
+  const alerts = [
+    { id: 'a1', count: campaigns.offTrack, label: 'Campaigns off track', tone: 'danger' as Tone, to: '/performance', icon: Megaphone },
+    { id: 'a2', count: pending.length, label: 'Members missing weekly update', tone: 'warning' as Tone, to: '/team', icon: Users },
+    { id: 'a3', count: objCounts.dueThisWeek, label: 'Objectives due this week', tone: 'info' as Tone, to: '/objectives', icon: ListChecks },
+    { id: 'a4', count: overdue.length, label: 'Projects overdue', tone: 'danger' as Tone, to: '/projects', icon: FolderKanban },
+  ].filter((a) => a.count > 0);
 
   return (
     <div className="space-y-6">
-      {/* Hero */}
-      <Card padded={false} className="overflow-hidden">
-        <div className="grid gap-6 p-6 sm:p-8 lg:grid-cols-[1fr_auto] lg:items-center">
-          <div>
-            <h1 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-white">
-              Your manager development at a glance
-            </h1>
-            <p className="mt-2 max-w-xl text-sm text-muted">
-              A snapshot of your progress, team, objectives and readiness this cycle.
-            </p>
-
-            <div className="mt-5 max-w-md">
-              <div className="mb-1.5 flex items-center justify-between text-xs">
-                <span className="font-medium text-slate-700 dark:text-slate-200">
-                  Month {timing.currentMonth} of 3 · Day {timing.dayInProgram} of {timing.totalDays}
-                </span>
-                <span className="text-muted">{formatPercent(timing.percentElapsed)} elapsed</span>
-              </div>
-              <ProgressBar value={timing.percentElapsed} tone="brand" />
-              <div className="mt-3 flex items-center gap-2 text-xs text-muted">
-                <Target size={14} className="text-brand-500" />
-                Overall objective progress: <span className="font-semibold text-slate-700 dark:text-slate-200">{overallProgress}%</span>
-              </div>
-            </div>
-          </div>
-
-          <Link
-            to="/readiness"
-            className="flex flex-col items-center gap-2 rounded-2xl bg-slate-50 p-5 transition-shadow hover:shadow-card-hover dark:bg-slate-800/40"
-          >
-            <ScoreRing value={readinessScore} label="Readiness" />
-            <Badge tone={band.tone}>{band.label}</Badge>
-            {prevKey && (
-              <span className={`text-xs font-medium ${readinessDelta >= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'}`}>
-                {readinessDelta >= 0 ? '▲' : '▼'} {Math.abs(readinessDelta)} pts vs last month
-              </span>
-            )}
-          </Link>
-        </div>
-      </Card>
-
-      {/* Month progress cards */}
-      <div className="grid gap-4 sm:grid-cols-3">
-        {months.map((month) => {
-          const items = objectivesForMonth(objectives, month);
-          const completed = items.filter((o) => o.status === 'completed').length;
-          const progress = monthProgress(objectives, month);
-          return (
-            <Card key={month}>
-              <CardHeader
-                title={`Month ${month} Progress`}
-                subtitle={`${completed} of ${items.length} objectives completed`}
-                icon={<CalendarDays size={16} />}
-              />
-              <div className="flex items-end justify-between">
-                <span className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white">{progress}%</span>
-                {month === timing.currentMonth && <Badge tone="brand">Current</Badge>}
-              </div>
-              <ProgressBar value={progress} autoTone className="mt-3" />
-            </Card>
-          );
-        })}
+      <div>
+        <h1 className="text-xl font-bold tracking-tight text-slate-900 dark:text-white sm:text-2xl">Control Tower</h1>
+        <p className="mt-1 text-sm text-muted">Your whole team at a glance — what needs attention right now.</p>
       </div>
 
-      {/* Quick stats */}
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <StatCard
-          label="Total Direct Reports"
-          value={teamMembers.length}
-          icon={<Users size={18} />}
-          iconTone="brand"
-          hint={`${health.onTrack} on track · ${health.atRisk} at risk`}
-          to="/team"
-        />
-        <StatCard
-          label="Upcoming 1:1 Sessions"
-          value={upcoming.length}
-          icon={<CalendarClock size={18} />}
-          iconTone="info"
-          hint={upcoming[0] ? `Next: ${upcoming[0].member.name}, ${relativeDays(upcoming[0].date, now)}` : 'None scheduled'}
-          to="/team"
-        />
-        <StatCard
-          label="Open Action Items"
-          value={openItems.length}
-          icon={<ClipboardList size={18} />}
-          iconTone="warning"
-          hint={`${actionItems.filter((i) => i.status === 'done').length} completed to date`}
-          to="/notes"
-        />
-        <StatCard
-          label="Forecast Accuracy"
-          value={formatPercent(forecast.forecastAccuracy)}
-          icon={<Target size={18} />}
-          iconTone="success"
-          hint={`${forecast.measuredCount} assessments measured`}
-          to="/assessments"
-        />
+      {/* Team summary cards */}
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
+        <StatCard label="Team Members" value={teamMembers.length} icon={<Users size={18} />} iconTone="brand" to="/team" />
+        <StatCard label="Active Campaigns" value={activeCampaigns} icon={<Megaphone size={18} />} iconTone="info" to="/performance" />
+        <StatCard label="On-Track Objectives" value={objCounts.onTrack} icon={<CheckCircle2 size={18} />} iconTone="success" to="/objectives" />
+        <StatCard label="Off-Track Objectives" value={objCounts.offTrack} icon={<AlertTriangle size={18} />} iconTone="danger" to="/objectives" />
+        <StatCard label="Pending Updates" value={pending.length} icon={<CalendarClock size={18} />} iconTone="warning" to="/team" />
+        <StatCard label="Open Action Items" value={openActionItems(actionItems).length} icon={<ClipboardList size={18} />} iconTone="neutral" to="/notes" />
       </div>
 
-      {/* Quick summary */}
+      {/* Health + campaign + alerts */}
       <div className="grid gap-4 lg:grid-cols-3">
-        {/* Team health */}
+        {/* Team health snapshot */}
         <Card>
-          <CardHeader title="Team Health Status" icon={<HeartPulse size={16} />} subtitle="Per-report status this cycle" />
-          <div className="mb-4 grid grid-cols-3 gap-2 text-center">
-            <HealthPill label="On Track" count={health.onTrack} tone="success" />
-            <HealthPill label="Watch" count={health.watch} tone="warning" />
-            <HealthPill label="At Risk" count={health.atRisk} tone="danger" />
+          <CardHeader title="Team Health Snapshot" subtitle="Per-member status" />
+          <div className="flex items-center gap-5">
+            <SegmentedDonut
+              centerValue={health.total}
+              centerLabel="members"
+              segments={[
+                { label: 'On Track', value: health.onTrack, color: COLORS.onTrack },
+                { label: 'At Risk', value: health.atRisk, color: COLORS.atRisk },
+                { label: 'Off Track', value: health.offTrack, color: COLORS.offTrack },
+              ]}
+            />
+            <ul className="space-y-2 text-sm">
+              <Legend color={COLORS.onTrack} label="On Track" value={health.onTrack} pct={health.onTrackPct} />
+              <Legend color={COLORS.atRisk} label="At Risk" value={health.atRisk} pct={health.atRiskPct} />
+              <Legend color={COLORS.offTrack} label="Off Track" value={health.offTrack} pct={health.offTrackPct} />
+            </ul>
           </div>
-          <ul className="space-y-2.5">
-            {teamMembers.map((m) => (
-              <li key={m.id} className="flex items-center gap-3">
-                <Avatar name={m.name} size="sm" />
-                <div className="min-w-0 flex-1">
-                  <div className="flex items-center justify-between gap-2">
-                    <span className="truncate text-sm font-medium text-slate-800 dark:text-slate-100">{m.name}</span>
-                    <Badge tone={healthTone[m.health]}>{healthLabel[m.health]}</Badge>
-                  </div>
-                  <ProgressBar value={m.developmentProgress} autoTone size="sm" className="mt-1.5" />
-                </div>
-              </li>
-            ))}
-          </ul>
         </Card>
 
-        {/* Outstanding risks */}
+        {/* Campaign health */}
         <Card>
-          <CardHeader title="Outstanding Risks" icon={<AlertTriangle size={16} />} subtitle={`${risks.length} flagged`} />
-          {risks.length === 0 ? (
-            <EmptyState icon={<CheckCircle2 size={28} />} title="No outstanding risks" description="Everything is on track right now." />
+          <CardHeader title="Campaign Health" subtitle={`${campaigns.total} campaigns`} icon={<Megaphone size={16} />} />
+          <div className="space-y-3">
+            <HealthBar label="On Track" value={campaigns.onTrack} total={campaigns.total} color={COLORS.onTrack} />
+            <HealthBar label="At Risk" value={campaigns.atRisk} total={campaigns.total} color={COLORS.atRisk} />
+            <HealthBar label="Off Track" value={campaigns.offTrack} total={campaigns.total} color={COLORS.offTrack} />
+          </div>
+          <Link to="/performance" className="mt-4 inline-block text-xs font-medium text-brand-600 hover:underline dark:text-brand-300">
+            View campaign performance →
+          </Link>
+        </Card>
+
+        {/* Alert center */}
+        <Card>
+          <CardHeader title="Alert Center" icon={<AlertTriangle size={16} />} subtitle={`${alerts.length} need attention`} />
+          {alerts.length === 0 ? (
+            <EmptyState icon={<CheckCircle2 size={28} />} title="All clear" description="No alerts right now." />
           ) : (
-            <ul className="space-y-3">
-              {risks.map((risk) => (
-                <li key={risk.id} className="flex items-start gap-2.5">
-                  <span
-                    className={`mt-1.5 h-2 w-2 flex-none rounded-full ${risk.severity === 'high' ? 'bg-rose-500' : 'bg-amber-500'}`}
-                  />
-                  <div>
-                    <p className="text-sm font-medium text-slate-800 dark:text-slate-100">{risk.label}</p>
-                    <p className="text-xs text-muted">{risk.detail}</p>
-                  </div>
-                </li>
-              ))}
+            <ul className="space-y-2">
+              {alerts.map((a) => {
+                const Icon = a.icon;
+                return (
+                  <li key={a.id}>
+                    <Link
+                      to={a.to}
+                      className="flex items-center gap-3 rounded-xl border border-slate-200/70 px-3 py-2.5 transition-colors hover:border-slate-300 hover:bg-slate-50 dark:border-slate-700/60 dark:hover:border-slate-600 dark:hover:bg-slate-800/40"
+                    >
+                      <span className="flex h-8 w-8 flex-none items-center justify-center rounded-lg bg-slate-100 text-slate-600 dark:bg-slate-700/60 dark:text-slate-300">
+                        <Icon size={16} />
+                      </span>
+                      <span className="flex-1 text-sm text-slate-700 dark:text-slate-200">{a.label}</span>
+                      <Badge tone={a.tone}>{a.count}</Badge>
+                    </Link>
+                  </li>
+                );
+              })}
             </ul>
           )}
         </Card>
+      </div>
 
-        {/* Upcoming reviews & 1:1s */}
-        <Card>
-          <CardHeader title="Upcoming Reviews & 1:1s" icon={<CalendarClock size={16} />} subtitle="Next on the calendar" />
-          <div className="mb-4 rounded-xl bg-brand-50 p-3 dark:bg-brand-500/10">
-            <div className="flex items-center gap-2">
-              <ListChecks size={15} className="text-brand-600 dark:text-brand-300" />
-              <span className="text-sm font-semibold text-brand-700 dark:text-brand-200">
-                Month {timing.currentMonth} Review
-              </span>
-            </div>
-            <p className="mt-1 text-xs text-brand-700/80 dark:text-brand-200/80">Target review date: {nextReviewDate}</p>
+      {/* Ranking + activities */}
+      <div className="grid gap-4 lg:grid-cols-3">
+        {/* Team ranking */}
+        <Card padded={false} className="lg:col-span-2">
+          <div className="flex items-center gap-2 border-b border-slate-200/80 p-5 dark:border-slate-700/60">
+            <Trophy size={16} className="text-brand-500" />
+            <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-100">Team Ranking</h3>
           </div>
-          {upcoming.length === 0 ? (
-            <EmptyState title="No upcoming 1:1s" description="Schedule your next round of 1:1s." />
+          <div className="overflow-x-auto">
+            <table className="w-full min-w-[520px] text-sm">
+              <thead>
+                <tr className="border-b border-slate-200/80 text-left text-xs uppercase tracking-wide text-muted dark:border-slate-700/60">
+                  <th className="px-5 py-3 font-medium">#</th>
+                  <th className="px-3 py-3 font-medium">Member</th>
+                  <th className="px-3 py-3 font-medium">Performance</th>
+                  <th className="px-3 py-3 font-medium">Campaigns</th>
+                  <th className="px-5 py-3 font-medium">Campaign Health</th>
+                </tr>
+              </thead>
+              <tbody>
+                {ranking.map((r, i) => (
+                  <tr key={r.member.id} className="border-b border-slate-100 last:border-0 hover:bg-slate-50/60 dark:border-slate-700/40 dark:hover:bg-slate-700/20">
+                    <td className="px-5 py-3 font-semibold text-slate-400">{i + 1}</td>
+                    <td className="px-3 py-3">
+                      <Link to={`/team/${r.member.id}`} className="flex items-center gap-2.5 hover:text-brand-600 dark:hover:text-brand-300">
+                        <Avatar name={r.member.name} size="sm" />
+                        <div className="min-w-0">
+                          <p className="truncate font-medium text-slate-800 dark:text-slate-100">{r.member.name}</p>
+                          <p className="truncate text-xs text-muted">{r.member.role}</p>
+                        </div>
+                      </Link>
+                    </td>
+                    <td className="px-3 py-3">
+                      <div className="flex items-center gap-2">
+                        <ProgressBar value={r.performanceScore} autoTone size="sm" className="w-16" />
+                        <span className="font-semibold text-slate-700 dark:text-slate-200">{r.performanceScore}</span>
+                      </div>
+                    </td>
+                    <td className="px-3 py-3 text-slate-600 dark:text-slate-300">{r.campaignCount}</td>
+                    <td className="px-5 py-3">
+                      {r.campaignHealth === null ? (
+                        <span className="text-xs text-muted">—</span>
+                      ) : (
+                        <span className="font-semibold text-slate-700 dark:text-slate-200">{r.campaignHealth}</span>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </Card>
+
+        {/* Recent activities */}
+        <Card>
+          <CardHeader title="Recent Activities" icon={<Activity size={16} />} />
+          {activities.length === 0 ? (
+            <p className="text-sm text-muted">No recent activity.</p>
           ) : (
-            <ul className="space-y-2.5">
-              {upcoming.slice(0, 5).map(({ member, date }) => (
-                <li key={member.id} className="flex items-center gap-3">
-                  <Avatar name={member.name} size="sm" />
-                  <div className="min-w-0 flex-1">
-                    <p className="truncate text-sm font-medium text-slate-800 dark:text-slate-100">{member.name}</p>
-                    <p className="text-xs text-muted">{formatDate(date)}</p>
-                  </div>
-                  <span className="text-xs font-medium text-slate-500 dark:text-slate-400">
-                    {relativeDays(date, now)}
-                  </span>
-                </li>
+            <ul className="space-y-3">
+              {activities.map((act) => (
+                <ActivityRow key={act.id} activity={act} now={now} />
               ))}
             </ul>
           )}
@@ -249,16 +216,51 @@ export function Homepage() {
   );
 }
 
-function HealthPill({ label, count, tone }: { label: string; count: number; tone: 'success' | 'warning' | 'danger' }) {
-  const styles = {
-    success: 'bg-emerald-50 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-300',
-    warning: 'bg-amber-50 text-amber-700 dark:bg-amber-500/15 dark:text-amber-300',
-    danger: 'bg-rose-50 text-rose-700 dark:bg-rose-500/15 dark:text-rose-300',
-  };
+function Legend({ color, label, value, pct }: { color: string; label: string; value: number; pct: number }) {
   return (
-    <div className={`rounded-xl py-2 ${styles[tone]}`}>
-      <p className="text-lg font-bold leading-none">{count}</p>
-      <p className="mt-1 text-[11px] font-medium">{label}</p>
+    <li className="flex items-center gap-2">
+      <span className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: color }} />
+      <span className="text-slate-600 dark:text-slate-300">{label}</span>
+      <span className="ml-auto font-semibold text-slate-800 dark:text-slate-100">
+        {value} <span className="text-xs font-normal text-muted">({formatPercent(pct)})</span>
+      </span>
+    </li>
+  );
+}
+
+function HealthBar({ label, value, total, color }: { label: string; value: number; total: number; color: string }) {
+  const pct = total > 0 ? (value / total) * 100 : 0;
+  return (
+    <div>
+      <div className="mb-1 flex items-center justify-between text-xs">
+        <span className="text-slate-600 dark:text-slate-300">{label}</span>
+        <span className="font-semibold text-slate-800 dark:text-slate-100">{value}</span>
+      </div>
+      <div className="h-2 w-full overflow-hidden rounded-full bg-slate-200/80 dark:bg-slate-700/60">
+        <div className="h-full rounded-full transition-all" style={{ width: `${pct}%`, backgroundColor: color }} />
+      </div>
     </div>
+  );
+}
+
+const ACTIVITY_ICON = {
+  meeting: NotebookPen,
+  project: FolderKanban,
+  objective: ListChecks,
+  assessment: Crosshair,
+} as const;
+
+function ActivityRow({ activity, now }: { activity: ActivityItem; now: Date }) {
+  const Icon = ACTIVITY_ICON[activity.kind];
+  return (
+    <li className="flex items-start gap-3">
+      <span className="mt-0.5 flex h-7 w-7 flex-none items-center justify-center rounded-lg bg-slate-100 text-slate-500 dark:bg-slate-700/60 dark:text-slate-300">
+        <Icon size={14} />
+      </span>
+      <div className="min-w-0 flex-1">
+        <p className="text-sm text-slate-700 dark:text-slate-200">{activity.title}</p>
+        <p className="text-[11px] text-muted">{relativeDays(activity.date, now)} · {formatDate(activity.date)}</p>
+      </div>
+    </li>
   );
 }

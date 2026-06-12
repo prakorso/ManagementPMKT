@@ -1,4 +1,4 @@
-import { differenceInCalendarDays, isValid, parseISO } from 'date-fns';
+import { differenceInCalendarDays, isBefore, isValid, parseISO } from 'date-fns';
 import type {
   ActionItem,
   Assessment,
@@ -304,6 +304,124 @@ export function campaignTrackSummary(projects: Project[]) {
     offTrack: projects.filter((p) => p.track === 'off-track').length,
     atRisk: projects.filter((p) => p.track === 'at-risk').length,
   };
+}
+
+const TRACK_SCORE: Record<string, number> = { 'on-track': 100, 'at-risk': 60, 'off-track': 20 };
+
+/** Campaign health score (0–100) across a member's campaigns, or null if none. */
+export function memberCampaignHealth(projects: Project[], memberId: string): number | null {
+  const mine = projectsForMember(projects, memberId);
+  if (!mine.length) return null;
+  return round(avg(mine.map((p) => TRACK_SCORE[p.track] ?? 60)));
+}
+
+/** Composite performance score blending development progress with campaign health. */
+export function memberPerformanceScore(member: TeamMember, projects: Project[]): number {
+  const ch = memberCampaignHealth(projects, member.id);
+  if (ch === null) return member.developmentProgress;
+  return round(0.5 * member.developmentProgress + 0.5 * ch);
+}
+
+export interface RankedMember {
+  member: TeamMember;
+  performanceScore: number;
+  campaignHealth: number | null;
+  campaignCount: number;
+}
+
+export function teamRanking(members: TeamMember[], projects: Project[]): RankedMember[] {
+  return members
+    .map((member) => ({
+      member,
+      performanceScore: memberPerformanceScore(member, projects),
+      campaignHealth: memberCampaignHealth(projects, member.id),
+      campaignCount: projectsForMember(projects, member.id).length,
+    }))
+    .sort((a, b) => b.performanceScore - a.performanceScore);
+}
+
+/** Maps member health to the On Track / At Risk / Off Track buckets. */
+export function teamHealthSnapshot(members: TeamMember[]) {
+  const total = members.length || 1;
+  const onTrack = members.filter((m) => m.health === 'on-track').length;
+  const atRisk = members.filter((m) => m.health === 'watch').length;
+  const offTrack = members.filter((m) => m.health === 'at-risk').length;
+  return {
+    total: members.length,
+    onTrack,
+    atRisk,
+    offTrack,
+    onTrackPct: round((onTrack / total) * 100),
+    atRiskPct: round((atRisk / total) * 100),
+    offTrackPct: round((offTrack / total) * 100),
+  };
+}
+
+function isObjectiveOverdue(o: Objective, now: Date): boolean {
+  if (o.status === 'completed' || !o.dueDate) return false;
+  const d = parseISO(o.dueDate);
+  return isValid(d) && isBefore(d, now);
+}
+
+export function objectiveTrackCounts(objectives: Objective[], now: Date = new Date()) {
+  const offTrack = objectives.filter((o) => isObjectiveOverdue(o, now)).length;
+  const onTrack = objectives.filter((o) => o.status !== 'completed' && !isObjectiveOverdue(o, now)).length;
+  const dueThisWeek = objectives.filter((o) => {
+    if (o.status === 'completed' || !o.dueDate) return false;
+    const diff = differenceInCalendarDays(parseISO(o.dueDate), now);
+    return diff >= 0 && diff <= 7;
+  }).length;
+  return { onTrack, offTrack, dueThisWeek };
+}
+
+export function overdueProjects(projects: Project[], now: Date = new Date()): Project[] {
+  return projects.filter((p) => {
+    if (p.status === 'completed' || !p.endDate) return false;
+    const d = parseISO(p.endDate);
+    return isValid(d) && isBefore(d, now);
+  });
+}
+
+/** Members with no 1:1 / weekly update in the last 7 days. */
+export function pendingUpdateMembers(members: TeamMember[], now: Date = new Date()): TeamMember[] {
+  return members.filter((m) => {
+    if (!m.lastOneOnOne) return true;
+    const d = parseISO(m.lastOneOnOne);
+    return !isValid(d) || differenceInCalendarDays(now, d) > 7;
+  });
+}
+
+export interface ActivityItem {
+  id: string;
+  date: string;
+  kind: 'meeting' | 'project' | 'objective' | 'assessment';
+  title: string;
+  subtitle?: string;
+}
+
+export function recentActivities(data: DashboardData, limit = 8): ActivityItem[] {
+  const items: ActivityItem[] = [];
+
+  data.meetings.forEach((m) =>
+    items.push({ id: `act-mtg-${m.id}`, date: m.date, kind: 'meeting', title: m.title, subtitle: m.summary }),
+  );
+  data.projects
+    .filter((p) => p.status === 'completed' && p.endDate)
+    .forEach((p) =>
+      items.push({ id: `act-prj-${p.id}`, date: p.endDate as string, kind: 'project', title: `${p.name} completed` }),
+    );
+  data.objectives
+    .filter((o) => o.status === 'completed' && o.dueDate)
+    .forEach((o) =>
+      items.push({ id: `act-obj-${o.id}`, date: o.dueDate as string, kind: 'objective', title: `${o.title} completed` }),
+    );
+  data.assessments
+    .filter((a) => a.completed && a.date)
+    .forEach((a) =>
+      items.push({ id: `act-asm-${a.id}`, date: a.date as string, kind: 'assessment', title: `${a.projectName} assessed` }),
+    );
+
+  return items.sort((a, b) => b.date.localeCompare(a.date)).slice(0, limit);
 }
 
 // -----------------------------------------------------------------------------

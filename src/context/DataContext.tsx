@@ -8,16 +8,18 @@ import {
   useState,
   type ReactNode,
 } from 'react';
-import type { ActionItem, DashboardData, Objective, Project, TeamMember } from '@/types';
+import type { ActionItem, CampaignAssignment, DashboardData, Objective, Project, TeamMember } from '@/types';
 import { createDataSource } from '@/data';
 import { SeedDataSource } from '@/data/SeedDataSource';
 import { config } from '@/config';
 import {
+  loadAssignments,
   loadLocalActionItems,
   loadLocalMembers,
   loadLocalObjectives,
   loadLocalProjects,
   loadRemoved,
+  saveAssignments,
   saveLocalActionItems,
   saveLocalMembers,
   saveLocalObjectives,
@@ -54,6 +56,10 @@ interface DataContextValue {
   removeObjective: (id: string) => void;
   /** Patches an action item / task (seed/sheet ones via a local override). */
   updateActionItem: (id: string, patch: Partial<ActionItem>) => void;
+  /** Campaign assignment + execution overlay, keyed by campaign name. */
+  assignments: Record<string, CampaignAssignment>;
+  /** Merge-patches a campaign's assignment (owner, tasks, updates, notes…). */
+  updateAssignment: (campaignName: string, patch: Partial<CampaignAssignment>) => void;
   /** True when an Apps Script write-back URL is configured. */
   writeEnabled: boolean;
   /** Saves/clears the write-back URL (persisted in this browser). */
@@ -79,6 +85,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
   const [localObjectives, setLocalObjectives] = useState<Objective[]>(() => loadLocalObjectives());
   const [localActionItems, setLocalActionItems] = useState<ActionItem[]>(() => loadLocalActionItems());
   const [removed, setRemovedState] = useState<RemovedIds>(() => loadRemoved());
+  const [assignments, setAssignments] = useState<Record<string, CampaignAssignment>>(() => loadAssignments());
   const [loading, setLoading] = useState(true);
   const [warning, setWarning] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -133,6 +140,15 @@ export function DataProvider({ children }: { children: ReactNode }) {
       return prev;
     });
   }, [baseData]);
+
+  const updateAssignment = useCallback((campaignName: string, patch: Partial<CampaignAssignment>) => {
+    setAssignments((prev) => {
+      const current = prev[campaignName] ?? { campaignName };
+      const next = { ...prev, [campaignName]: { ...current, ...patch, campaignName } };
+      saveAssignments(next);
+      return next;
+    });
+  }, []);
 
   /** Soft-delete: hide an entity by id (works for seed/sheet rows too). */
   const markRemoved = useCallback((kind: keyof RemovedIds, id: string) => {
@@ -300,6 +316,8 @@ export function DataProvider({ children }: { children: ReactNode }) {
       updateObjective,
       removeObjective,
       updateActionItem,
+      assignments,
+      updateAssignment,
       writeEnabled: !!writeUrl,
       configureWriteUrl,
       writeUrl,
@@ -320,6 +338,8 @@ export function DataProvider({ children }: { children: ReactNode }) {
       updateObjective,
       removeObjective,
       updateActionItem,
+      assignments,
+      updateAssignment,
       writeUrl,
       configureWriteUrl,
     ],

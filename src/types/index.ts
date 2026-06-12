@@ -282,6 +282,59 @@ export interface LgpCampaign {
 }
 
 // -----------------------------------------------------------------------------
+// Campaign assignment (the platform layer on top of an LGP campaign)
+// -----------------------------------------------------------------------------
+
+export type TaskStatus = 'todo' | 'in-progress' | 'blocked' | 'completed' | 'cancelled';
+
+export interface CampaignTask {
+  id: string;
+  name: string;
+  description?: string;
+  ownerId?: string;
+  dueDate?: string;
+  priority?: Priority;
+  status: TaskStatus;
+}
+
+export interface CampaignWeeklyUpdate {
+  id: string;
+  date: string;
+  progressSummary: string;
+  achievement?: string;
+  challenge?: string;
+  risk?: string;
+  supportNeeded?: string;
+  nextAction?: string;
+  author?: string;
+}
+
+export interface CampaignComment {
+  id: string;
+  date: string;
+  author: string;
+  text: string;
+}
+
+/** Manager assignment + execution data for one campaign (kept in a local overlay). */
+export interface CampaignAssignment {
+  campaignName: string;
+  ownerId?: string;
+  supportingIds?: string[];
+  reviewerId?: string;
+  priority?: Priority;
+  startDate?: string;
+  endDate?: string;
+  targetKpi?: string;
+  campaignType?: string;
+  tasks?: CampaignTask[];
+  weeklyUpdates?: CampaignWeeklyUpdate[];
+  managerNotesPublic?: string;
+  managerNotesInternal?: string;
+  comments?: CampaignComment[];
+}
+
+// -----------------------------------------------------------------------------
 // Batch 2 (planned) — multi-project support.
 //
 // These optional types let the schema grow toward per-project objective/

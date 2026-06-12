@@ -15,7 +15,7 @@ import { formatIDRCompact, formatNumber, relativeDays } from '@/utils/format';
 import type { LgpCampaign } from '@/types';
 
 export function CampaignHub() {
-  const { data, loading, error } = useData();
+  const { data, loading, error, assignments } = useData();
   const [query, setQuery] = useState('');
 
   const sorted = useMemo(() => {
@@ -31,6 +31,10 @@ export function CampaignHub() {
   if (error || !data) return <ErrorState message={error ?? 'No data available.'} />;
 
   const summary = lgpHealthSummary(data.lgpCampaigns);
+  const ownerName = (campaignName: string) => {
+    const id = assignments[campaignName]?.ownerId;
+    return id ? data.teamMembers.find((m) => m.id === id)?.name : undefined;
+  };
 
   return (
     <div className="space-y-6">
@@ -62,7 +66,7 @@ export function CampaignHub() {
       ) : (
         <div className="grid gap-3 lg:grid-cols-2 xl:grid-cols-3">
           {sorted.map((c) => (
-            <CampaignHubCard key={c.name} campaign={c} />
+            <CampaignHubCard key={c.name} campaign={c} owner={ownerName(c.name)} />
           ))}
         </div>
       )}
@@ -70,7 +74,7 @@ export function CampaignHub() {
   );
 }
 
-function CampaignHubCard({ campaign: c }: { campaign: LgpCampaign }) {
+function CampaignHubCard({ campaign: c, owner }: { campaign: LgpCampaign; owner?: string }) {
   const now = new Date();
   return (
     <Link
@@ -80,7 +84,7 @@ function CampaignHubCard({ campaign: c }: { campaign: LgpCampaign }) {
       <div className="flex items-start justify-between gap-2">
         <div className="min-w-0">
           <p className="truncate text-sm font-semibold text-slate-900 dark:text-slate-100">{c.name}</p>
-          {c.products && <p className="truncate text-xs text-muted">{c.products}</p>}
+          <p className="truncate text-xs text-muted">{owner ? `Owner: ${owner}` : c.products || 'Unassigned'}</p>
         </div>
         <Badge tone={campaignTrackTone[c.health.status]}>{campaignTrackLabel[c.health.status]}</Badge>
       </div>

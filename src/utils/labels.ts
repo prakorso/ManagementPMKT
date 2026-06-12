@@ -8,6 +8,7 @@ import type {
   ProjectStatus,
   ProjectWorkStatus,
   ReadinessArea,
+  TaskStatus,
 } from '@/types';
 import type { Tone } from '@/components/ui/Badge';
 
@@ -39,6 +40,22 @@ export const priorityTone: Record<Priority, Tone> = {
   low: 'neutral',
   medium: 'warning',
   high: 'danger',
+};
+
+export const taskStatusLabel: Record<TaskStatus, string> = {
+  todo: 'To Do',
+  'in-progress': 'In Progress',
+  blocked: 'Blocked',
+  completed: 'Completed',
+  cancelled: 'Cancelled',
+};
+
+export const taskStatusTone: Record<TaskStatus, Tone> = {
+  todo: 'neutral',
+  'in-progress': 'info',
+  blocked: 'danger',
+  completed: 'success',
+  cancelled: 'neutral',
 };
 
 export const actionStatusLabel: Record<ActionItemStatus, string> = {

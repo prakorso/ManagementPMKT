@@ -1,4 +1,4 @@
-import type { ActionItem, Assessment, Objective, Project, TeamMember } from '@/types';
+import type { ActionItem, Assessment, CampaignAssignment, Objective, Project, TeamMember } from '@/types';
 
 /**
  * Local overlay for team members added from the dashboard UI.
@@ -129,6 +129,27 @@ export function loadRemoved(): RemovedIds {
 export function saveRemoved(value: RemovedIds): void {
   try {
     localStorage.setItem(REMOVED_KEY, JSON.stringify(value));
+  } catch {
+    /* ignore */
+  }
+}
+
+// --- Campaign assignment overlay (keyed by campaign name) -------------------
+const ASSIGN_KEY = 'mdd-assignments';
+
+export function loadAssignments(): Record<string, CampaignAssignment> {
+  try {
+    const raw = localStorage.getItem(ASSIGN_KEY);
+    const parsed = raw ? JSON.parse(raw) : {};
+    return parsed && typeof parsed === 'object' ? parsed : {};
+  } catch {
+    return {};
+  }
+}
+
+export function saveAssignments(map: Record<string, CampaignAssignment>): void {
+  try {
+    localStorage.setItem(ASSIGN_KEY, JSON.stringify(map));
   } catch {
     /* ignore */
   }

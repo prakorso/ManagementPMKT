@@ -94,6 +94,8 @@ export interface Objective {
   progress: number;
   /** ISO due date (optional). */
   dueDate?: string;
+  /** Latest progress update note (added from the dashboard). */
+  update?: string;
 }
 
 // -----------------------------------------------------------------------------

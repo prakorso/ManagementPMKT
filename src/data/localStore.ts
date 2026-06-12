@@ -1,4 +1,4 @@
-import type { Project, TeamMember } from '@/types';
+import type { Assessment, Objective, Project, TeamMember } from '@/types';
 
 /**
  * Local overlay for team members added from the dashboard UI.
@@ -61,3 +61,35 @@ export function newLocalProjectId(name: string): string {
   const slug = name.toLowerCase().trim().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
   return `prj-local-${slug || 'campaign'}-${Date.now().toString(36)}`;
 }
+
+// --- Generic override overlays (objectives, assessments) --------------------
+// These hold full copies of edited entities keyed by id; the DataContext merges
+// them over the base data so in-app updates persist in the browser.
+
+function loadOverlay<T>(key: string): T[] {
+  try {
+    const raw = localStorage.getItem(key);
+    if (!raw) return [];
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed) ? (parsed as T[]) : [];
+  } catch {
+    return [];
+  }
+}
+
+function saveOverlay<T>(key: string, items: T[]): void {
+  try {
+    localStorage.setItem(key, JSON.stringify(items));
+  } catch {
+    /* ignore */
+  }
+}
+
+const OBJECTIVES_KEY = 'mdd-local-objectives';
+const ASSESSMENTS_KEY = 'mdd-local-assessments';
+
+export const loadLocalObjectives = (): Objective[] => loadOverlay<Objective>(OBJECTIVES_KEY);
+export const saveLocalObjectives = (items: Objective[]): void => saveOverlay(OBJECTIVES_KEY, items);
+
+export const loadLocalAssessments = (): Assessment[] => loadOverlay<Assessment>(ASSESSMENTS_KEY);
+export const saveLocalAssessments = (items: Assessment[]): void => saveOverlay(ASSESSMENTS_KEY, items);

@@ -31,10 +31,6 @@ jobs:
         with:
           node-version: 22
           cache: npm
-      - name: Configure Pages (auto-enable if possible)
-        uses: actions/configure-pages@v5
-        with:
-          enablement: true
       - run: npm ci
       - name: Build (base = /<repo>/ for Pages)
         run: npm run build

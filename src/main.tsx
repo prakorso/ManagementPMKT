@@ -3,6 +3,7 @@ import { createRoot } from 'react-dom/client';
 import App from './App';
 import { ThemeProvider } from '@/context/ThemeContext';
 import { DataProvider } from '@/context/DataContext';
+import { SessionProvider } from '@/context/SessionContext';
 import './index.css';
 
 const rootElement = document.getElementById('root');
@@ -12,7 +13,9 @@ createRoot(rootElement).render(
   <StrictMode>
     <ThemeProvider>
       <DataProvider>
-        <App />
+        <SessionProvider>
+          <App />
+        </SessionProvider>
       </DataProvider>
     </ThemeProvider>
   </StrictMode>,

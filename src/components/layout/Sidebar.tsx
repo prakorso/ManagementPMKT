@@ -1,7 +1,9 @@
 import { NavLink } from 'react-router-dom';
 import { Database } from 'lucide-react';
-import { navItems } from './navItems';
+import { navSections } from './navItems';
 import { useData } from '@/context/DataContext';
+import { useSession } from '@/context/SessionContext';
+import { canAccess } from '@/auth/roles';
 
 interface SidebarProps {
   onNavigate?: () => void;
@@ -9,6 +11,12 @@ interface SidebarProps {
 
 export function Sidebar({ onNavigate }: SidebarProps) {
   const { sourceName } = useData();
+  const { session } = useSession();
+  const role = session?.role ?? 'member';
+
+  const sections = navSections
+    .map((section) => ({ ...section, items: section.items.filter((item) => canAccess(role, item.to)) }))
+    .filter((section) => section.items.length > 0);
 
   return (
     <div className="flex h-full flex-col bg-white dark:bg-surface-dark-elevated">
@@ -30,35 +38,50 @@ export function Sidebar({ onNavigate }: SidebarProps) {
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 space-y-1 overflow-y-auto px-3 py-4">
-        {navItems.map((item) => {
-          const Icon = item.icon;
-          return (
-            <NavLink
-              key={item.to}
-              to={item.to}
-              end={item.end}
-              onClick={onNavigate}
-              className={({ isActive }) =>
-                `group flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors ${
-                  isActive
-                    ? 'bg-brand-50 text-brand-700 dark:bg-brand-500/15 dark:text-brand-200'
-                    : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-slate-700/50 dark:hover:text-white'
-                }`
-              }
-            >
-              {({ isActive }) => (
-                <>
-                  <Icon
-                    size={18}
-                    className={isActive ? 'text-brand-600 dark:text-brand-300' : 'text-slate-400 group-hover:text-slate-600 dark:group-hover:text-slate-200'}
-                  />
-                  <span>{item.label}</span>
-                </>
-              )}
-            </NavLink>
-          );
-        })}
+      <nav className="flex-1 space-y-4 overflow-y-auto px-3 py-4">
+        {sections.map((section, i) => (
+          <div key={section.title ?? `sec-${i}`}>
+            {section.title && (
+              <p className="mb-1 px-3 text-[11px] font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500">
+                {section.title}
+              </p>
+            )}
+            <div className="space-y-1">
+              {section.items.map((item) => {
+                const Icon = item.icon;
+                return (
+                  <NavLink
+                    key={item.to}
+                    to={item.to}
+                    end={item.end}
+                    onClick={onNavigate}
+                    className={({ isActive }) =>
+                      `group flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors ${
+                        isActive
+                          ? 'bg-brand-50 text-brand-700 dark:bg-brand-500/15 dark:text-brand-200'
+                          : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-slate-700/50 dark:hover:text-white'
+                      }`
+                    }
+                  >
+                    {({ isActive }) => (
+                      <>
+                        <Icon
+                          size={18}
+                          className={
+                            isActive
+                              ? 'text-brand-600 dark:text-brand-300'
+                              : 'text-slate-400 group-hover:text-slate-600 dark:group-hover:text-slate-200'
+                          }
+                        />
+                        <span>{item.label}</span>
+                      </>
+                    )}
+                  </NavLink>
+                );
+              })}
+            </div>
+          </div>
+        ))}
       </nav>
 
       {/* Data source footer */}

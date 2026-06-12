@@ -19,6 +19,9 @@ export type HealthStatus = 'on-track' | 'watch' | 'at-risk';
 
 export type ActionItemStatus = 'open' | 'in-progress' | 'done';
 
+/** Access roles (RBAC). */
+export type Role = 'manager' | 'team-lead' | 'member' | 'vp';
+
 export type MeetingCategory =
   | 'weekly-1on1'
   | 'performance-checkin'

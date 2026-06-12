@@ -6,6 +6,8 @@ import {
   Crosshair,
   NotebookPen,
   Gauge,
+  FolderKanban,
+  Settings,
   type LucideIcon,
 } from 'lucide-react';
 
@@ -17,12 +19,38 @@ export interface NavItem {
   end?: boolean;
 }
 
-export const navItems: NavItem[] = [
-  { to: '/', label: 'Overview', icon: LayoutDashboard, end: true },
-  { to: '/team', label: 'Team Management', icon: Users },
-  { to: '/objectives', label: 'Objective Tracker', icon: ListChecks },
-  { to: '/performance', label: 'Performance', icon: TrendingUp },
-  { to: '/assessments', label: 'Assessment Tracker', icon: Crosshair },
-  { to: '/notes', label: 'Meetings Update', icon: NotebookPen },
-  { to: '/readiness', label: 'Manager Readiness', icon: Gauge },
+export interface NavSection {
+  title?: string;
+  items: NavItem[];
+}
+
+export const navSections: NavSection[] = [
+  { items: [{ to: '/', label: 'Overview', icon: LayoutDashboard, end: true }] },
+  {
+    title: 'Performance',
+    items: [
+      { to: '/performance', label: 'Campaign Performance', icon: TrendingUp },
+      { to: '/objectives', label: 'Objective Tracker', icon: ListChecks },
+    ],
+  },
+  {
+    title: 'Team',
+    items: [
+      { to: '/team', label: 'Member Directory', icon: Users },
+      { to: '/projects', label: 'Project Assignment', icon: FolderKanban },
+    ],
+  },
+  {
+    items: [
+      { to: '/notes', label: 'Meetings Update', icon: NotebookPen },
+      { to: '/assessments', label: 'Assessment', icon: Crosshair },
+    ],
+  },
+  {
+    title: 'Governance',
+    items: [
+      { to: '/readiness', label: 'Readiness Management', icon: Gauge },
+      { to: '/settings', label: 'Settings', icon: Settings },
+    ],
+  },
 ];

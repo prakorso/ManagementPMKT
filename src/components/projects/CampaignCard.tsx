@@ -12,9 +12,21 @@ interface CampaignCardProps {
   onRemove?: (id: string) => void;
   /** Hide the owners row (e.g. on a member's own detail page). */
   hideOwners?: boolean;
+  /** Allow changing the track status (default true). */
+  canEdit?: boolean;
+  /** Allow deleting the campaign (manager). */
+  canDelete?: boolean;
 }
 
-export function CampaignCard({ project, members, onUpdate, onRemove, hideOwners }: CampaignCardProps) {
+export function CampaignCard({
+  project,
+  members,
+  onUpdate,
+  onRemove,
+  hideOwners,
+  canEdit = true,
+  canDelete = false,
+}: CampaignCardProps) {
   const owners = project.ownerIds
     .map((id) => members.find((m) => m.id === id)?.name)
     .filter(Boolean) as string[];
@@ -66,29 +78,35 @@ export function CampaignCard({ project, members, onUpdate, onRemove, hideOwners 
 
       {project.notes && <p className="mt-3 text-xs text-muted">{project.notes}</p>}
 
-      <div className="mt-3 flex items-center justify-between gap-2 border-t border-slate-100 pt-3 dark:border-slate-700/50">
-        <label className="flex items-center gap-2 text-xs text-muted">
-          Status
-          <select
-            value={project.track}
-            onChange={(e) => onUpdate(project.id, { track: e.target.value as CampaignTrack })}
-            className="rounded-md border border-slate-200 bg-white px-2 py-1 text-xs text-slate-700 outline-none focus:border-brand-400 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200"
-          >
-            <option value="on-track">On Track</option>
-            <option value="at-risk">At Risk</option>
-            <option value="off-track">Off Track</option>
-          </select>
-        </label>
-        {onRemove && project.local && (
-          <button
-            type="button"
-            onClick={() => onRemove(project.id)}
-            className="inline-flex items-center gap-1 text-xs font-medium text-rose-600 hover:text-rose-700 dark:text-rose-400"
-          >
-            <Trash2 size={13} /> Remove
-          </button>
-        )}
-      </div>
+      {(canEdit || (canDelete && onRemove)) && (
+        <div className="mt-3 flex items-center justify-between gap-2 border-t border-slate-100 pt-3 dark:border-slate-700/50">
+          {canEdit ? (
+            <label className="flex items-center gap-2 text-xs text-muted">
+              Status
+              <select
+                value={project.track}
+                onChange={(e) => onUpdate(project.id, { track: e.target.value as CampaignTrack })}
+                className="rounded-md border border-slate-200 bg-white px-2 py-1 text-xs text-slate-700 outline-none focus:border-brand-400 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200"
+              >
+                <option value="on-track">On Track</option>
+                <option value="at-risk">At Risk</option>
+                <option value="off-track">Off Track</option>
+              </select>
+            </label>
+          ) : (
+            <span />
+          )}
+          {canDelete && onRemove && (
+            <button
+              type="button"
+              onClick={() => onRemove(project.id)}
+              className="inline-flex items-center gap-1 text-xs font-medium text-rose-600 hover:text-rose-700 dark:text-rose-400"
+            >
+              <Trash2 size={13} /> Delete
+            </button>
+          )}
+        </div>
+      )}
     </div>
   );
 }

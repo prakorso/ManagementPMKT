@@ -1,5 +1,5 @@
 import { useState, type ReactNode } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import {
   ArrowLeft,
   CalendarCheck,
@@ -13,8 +13,10 @@ import {
   MessageSquareQuote,
   Plus,
   Sparkles,
+  Trash2,
 } from 'lucide-react';
 import { useData } from '@/context/DataContext';
+import { useSession } from '@/context/SessionContext';
 import { LoadingScreen } from '@/components/ui/LoadingScreen';
 import { ErrorState } from '@/components/ui/ErrorState';
 import { Card, CardHeader } from '@/components/ui/Card';
@@ -31,7 +33,10 @@ import { actionStatusLabel, actionStatusTone, healthLabel, healthTone, meetingCa
 
 export function MemberDetail() {
   const { memberId } = useParams();
-  const { data, loading, error, addProject, updateProject, removeProject } = useData();
+  const navigate = useNavigate();
+  const { data, loading, error, addProject, updateProject, removeProject, removeTeamMember } = useData();
+  const { session } = useSession();
+  const isManager = session?.role === 'manager';
   const [campaignModal, setCampaignModal] = useState(false);
 
   if (loading) return <LoadingScreen />;
@@ -55,7 +60,21 @@ export function MemberDetail() {
 
   return (
     <div className="space-y-6">
-      <BackLink />
+      <div className="flex items-center justify-between gap-3">
+        <BackLink />
+        {isManager && (
+          <Button
+            variant="danger"
+            size="sm"
+            onClick={() => {
+              removeTeamMember(member.id);
+              navigate('/team');
+            }}
+          >
+            <Trash2 size={14} /> Delete member
+          </Button>
+        )}
+      </div>
 
       {/* Header */}
       <Card>
@@ -137,7 +156,7 @@ export function MemberDetail() {
           ) : (
             <div className="grid gap-4 lg:grid-cols-2">
               {campaigns.map((project) => (
-                <CampaignCard key={project.id} project={project} members={data.teamMembers} onUpdate={updateProject} onRemove={removeProject} hideOwners />
+                <CampaignCard key={project.id} project={project} members={data.teamMembers} onUpdate={updateProject} onRemove={removeProject} hideOwners canDelete={isManager} />
               ))}
             </div>
           )}

@@ -13,6 +13,7 @@ import {
 } from 'recharts';
 import { AlertTriangle, CheckCircle2, ClipboardCheck, Lightbulb, Megaphone, Plus, XCircle } from 'lucide-react';
 import { useData } from '@/context/DataContext';
+import { useSession } from '@/context/SessionContext';
 import { LoadingScreen } from '@/components/ui/LoadingScreen';
 import { ErrorState } from '@/components/ui/ErrorState';
 import { PageHeader } from '@/components/ui/PageHeader';
@@ -41,6 +42,8 @@ type TrendView = 'monthly' | 'weekly';
 
 export function PerformanceReporting() {
   const { data, loading, error, addProject, updateProject, removeProject } = useData();
+  const { session } = useSession();
+  const isManager = session?.role === 'manager';
   const colors = useChartColors();
   const [view, setView] = useState<TrendView>('monthly');
   const [campaignModal, setCampaignModal] = useState(false);
@@ -101,6 +104,7 @@ export function PerformanceReporting() {
                 members={teamMembers}
                 onUpdate={updateProject}
                 onRemove={removeProject}
+                canDelete={isManager}
               />
             ))}
           </div>

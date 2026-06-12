@@ -17,6 +17,7 @@ import {
   TrendingUp,
 } from 'lucide-react';
 import { useData } from '@/context/DataContext';
+import { useSession } from '@/context/SessionContext';
 import { LoadingScreen } from '@/components/ui/LoadingScreen';
 import { ErrorState } from '@/components/ui/ErrorState';
 import { PageHeader } from '@/components/ui/PageHeader';
@@ -39,6 +40,8 @@ import type { ActionItem, Meeting, TeamMember } from '@/types';
 
 export function TeamManagement() {
   const { data, loading, error, addTeamMember, removeTeamMember, writeEnabled } = useData();
+  const { session } = useSession();
+  const isManager = session?.role === 'manager';
   const [modalOpen, setModalOpen] = useState(false);
   const [syncOpen, setSyncOpen] = useState(false);
 
@@ -105,7 +108,7 @@ export function TeamManagement() {
             meetings={meetings}
             now={now}
             writeEnabled={writeEnabled}
-            onRemove={member.local ? () => removeTeamMember(member.id) : undefined}
+            onDelete={isManager ? () => removeTeamMember(member.id) : undefined}
           />
         ))}
       </div>
@@ -146,14 +149,14 @@ function MemberCard({
   meetings,
   now,
   writeEnabled,
-  onRemove,
+  onDelete,
 }: {
   member: TeamMember;
   actionItems: ActionItem[];
   meetings: Meeting[];
   now: Date;
   writeEnabled?: boolean;
-  onRemove?: () => void;
+  onDelete?: () => void;
 }) {
   const [copied, setCopied] = useState(false);
   const openItems = actionItems.filter((i) => i.teamMemberId === member.id && i.status !== 'done');
@@ -187,7 +190,20 @@ function MemberCard({
             <p className="text-xs text-muted">{member.role}</p>
           </div>
         </Link>
-        <Badge tone={healthTone[member.health]}>{healthLabel[member.health]}</Badge>
+        <div className="flex flex-none items-center gap-1.5">
+          <Badge tone={healthTone[member.health]}>{healthLabel[member.health]}</Badge>
+          {onDelete && (
+            <button
+              type="button"
+              onClick={onDelete}
+              className="rounded-lg p-1.5 text-slate-400 hover:bg-rose-50 hover:text-rose-600 dark:hover:bg-rose-500/10 dark:hover:text-rose-400"
+              aria-label="Delete member"
+              title="Delete member"
+            >
+              <Trash2 size={15} />
+            </button>
+          )}
+        </div>
       </div>
 
       {/* Strengths & development areas */}
@@ -309,19 +325,14 @@ function MemberCard({
       </div>
 
       {/* Local member controls */}
-      {member.local && onRemove && (
+      {member.local && (
         <div className="mt-4 flex items-center justify-between gap-2 border-t border-slate-200/70 pt-3 dark:border-slate-700/60">
           <span className="text-[11px] text-muted">
             {writeEnabled ? 'Saving to your sheet…' : 'Saved in this browser. Add to your sheet to share it.'}
           </span>
-          <div className="flex items-center gap-1.5">
-            <Button variant="secondary" size="sm" onClick={copyRow}>
-              <Copy size={13} /> {copied ? 'Copied!' : 'Copy sheet row'}
-            </Button>
-            <Button variant="danger" size="sm" onClick={onRemove}>
-              <Trash2 size={13} /> Remove
-            </Button>
-          </div>
+          <Button variant="secondary" size="sm" onClick={copyRow}>
+            <Copy size={13} /> {copied ? 'Copied!' : 'Copy sheet row'}
+          </Button>
         </div>
       )}
     </Card>

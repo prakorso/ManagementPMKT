@@ -1,7 +1,8 @@
 import { useState } from 'react';
-import { Archive, History, Plus } from 'lucide-react';
+import { Archive, History, Plus, Trash2 } from 'lucide-react';
 import type { Objective, ObjectiveStatus, TeamMember } from '@/types';
 import { useData } from '@/context/DataContext';
+import { useSession } from '@/context/SessionContext';
 import { Modal } from '@/components/ui/Modal';
 import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
@@ -21,7 +22,11 @@ const inputClass =
 const STATUSES: ObjectiveStatus[] = ['not-started', 'in-progress', 'on-track', 'at-risk', 'off-track', 'completed'];
 
 export function ObjectiveDetailModal({ objective, members, onClose }: ObjectiveDetailModalProps) {
-  const { updateObjective } = useData();
+  const { updateObjective, removeObjective } = useData();
+  const { session } = useSession();
+  const canManage = session?.role === 'manager';
+  const isOwner = !!session?.memberId && session.memberId === objective.ownerId;
+  const canEdit = canManage || isOwner;
   const owner = objective.ownerId ? members.find((m) => m.id === objective.ownerId) : undefined;
 
   const [status, setStatus] = useState<ObjectiveStatus>(objective.status);
@@ -64,6 +69,11 @@ export function ObjectiveDetailModal({ objective, members, onClose }: ObjectiveD
     onClose();
   };
 
+  const del = () => {
+    removeObjective(objective.id);
+    onClose();
+  };
+
   const updates = objective.updates ?? [];
 
   return (
@@ -73,13 +83,20 @@ export function ObjectiveDetailModal({ objective, members, onClose }: ObjectiveD
       title={objective.title}
       footer={
         <>
-          <Button variant="danger" onClick={archive}>
-            <Archive size={14} /> Archive
-          </Button>
+          {canManage && (
+            <Button variant="danger" onClick={del}>
+              <Trash2 size={14} /> Delete
+            </Button>
+          )}
+          {canManage && (
+            <Button variant="secondary" onClick={archive}>
+              <Archive size={14} /> Archive
+            </Button>
+          )}
           <Button variant="ghost" onClick={onClose}>
             Close
           </Button>
-          <Button onClick={save}>{saved ? 'Saved ✓' : 'Save changes'}</Button>
+          {canEdit && <Button onClick={save}>{saved ? 'Saved ✓' : 'Save changes'}</Button>}
         </>
       }
     >
@@ -117,8 +134,16 @@ export function ObjectiveDetailModal({ objective, members, onClose }: ObjectiveD
         </div>
         <ProgressBar value={Number(progress) || 0} autoTone />
 
-        <EditArea label="Success Metrics" value={successMetrics} onChange={setSuccessMetrics} />
-        <EditArea label="Manager Feedback" value={managerFeedback} onChange={setManagerFeedback} />
+        {canManage ? (
+          <EditArea label="Success Metrics" value={successMetrics} onChange={setSuccessMetrics} />
+        ) : (
+          <ReadField label="Success Metrics" value={objective.successMetrics} />
+        )}
+        {canManage ? (
+          <EditArea label="Manager Feedback" value={managerFeedback} onChange={setManagerFeedback} />
+        ) : (
+          <ReadField label="Manager Feedback" value={objective.managerFeedback} />
+        )}
         <EditArea label="Risks" value={risks} onChange={setRisks} />
         <label className="block">
           <span className="mb-1 block text-xs font-medium text-slate-600 dark:text-slate-300">Next Action</span>
@@ -160,6 +185,15 @@ export function ObjectiveDetailModal({ objective, members, onClose }: ObjectiveD
         </div>
       </div>
     </Modal>
+  );
+}
+
+function ReadField({ label, value }: { label: string; value?: string }) {
+  return (
+    <div>
+      <span className="mb-1 block text-xs font-medium text-slate-600 dark:text-slate-300">{label}</span>
+      <p className="text-sm text-slate-700 dark:text-slate-200">{value || <span className="text-muted">—</span>}</p>
+    </div>
   );
 }
 

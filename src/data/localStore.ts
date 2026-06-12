@@ -1,4 +1,4 @@
-import type { Assessment, Objective, Project, TeamMember } from '@/types';
+import type { ActionItem, Assessment, Objective, Project, TeamMember } from '@/types';
 
 /**
  * Local overlay for team members added from the dashboard UI.
@@ -98,3 +98,38 @@ export function newLocalObjectiveId(title: string): string {
 
 export const loadLocalAssessments = (): Assessment[] => loadOverlay<Assessment>(ASSESSMENTS_KEY);
 export const saveLocalAssessments = (items: Assessment[]): void => saveOverlay(ASSESSMENTS_KEY, items);
+
+const ACTIONITEMS_KEY = 'mdd-local-actionitems';
+export const loadLocalActionItems = (): ActionItem[] => loadOverlay<ActionItem>(ACTIONITEMS_KEY);
+export const saveLocalActionItems = (items: ActionItem[]): void => saveOverlay(ACTIONITEMS_KEY, items);
+
+// --- Soft-delete overlay: ids hidden from the UI (works for seed/sheet rows too) ---
+export interface RemovedIds {
+  objectives: string[];
+  projects: string[];
+  members: string[];
+}
+
+const REMOVED_KEY = 'mdd-removed';
+
+export function loadRemoved(): RemovedIds {
+  try {
+    const raw = localStorage.getItem(REMOVED_KEY);
+    const parsed = raw ? JSON.parse(raw) : {};
+    return {
+      objectives: Array.isArray(parsed.objectives) ? parsed.objectives : [],
+      projects: Array.isArray(parsed.projects) ? parsed.projects : [],
+      members: Array.isArray(parsed.members) ? parsed.members : [],
+    };
+  } catch {
+    return { objectives: [], projects: [], members: [] };
+  }
+}
+
+export function saveRemoved(value: RemovedIds): void {
+  try {
+    localStorage.setItem(REMOVED_KEY, JSON.stringify(value));
+  } catch {
+    /* ignore */
+  }
+}

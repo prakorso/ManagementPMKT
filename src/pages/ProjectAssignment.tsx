@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { isBefore, parseISO } from 'date-fns';
 import { CheckCircle2, FolderKanban, Loader, Plus } from 'lucide-react';
 import { useData } from '@/context/DataContext';
+import { useSession } from '@/context/SessionContext';
 import { LoadingScreen } from '@/components/ui/LoadingScreen';
 import { ErrorState } from '@/components/ui/ErrorState';
 import { PageHeader } from '@/components/ui/PageHeader';
@@ -13,6 +14,8 @@ import { AddCampaignModal } from '@/components/projects/AddCampaignModal';
 
 export function ProjectAssignment() {
   const { data, loading, error, addProject, updateProject, removeProject } = useData();
+  const { session } = useSession();
+  const isManager = session?.role === 'manager';
   const [modalOpen, setModalOpen] = useState(false);
 
   if (loading) return <LoadingScreen />;
@@ -55,7 +58,7 @@ export function ProjectAssignment() {
       ) : (
         <div className="grid gap-4 lg:grid-cols-2 xl:grid-cols-3">
           {projects.map((project) => (
-            <CampaignCard key={project.id} project={project} members={teamMembers} onUpdate={updateProject} onRemove={removeProject} />
+            <CampaignCard key={project.id} project={project} members={teamMembers} onUpdate={updateProject} onRemove={removeProject} canDelete={isManager} />
           ))}
         </div>
       )}

@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { CalendarClock, ClipboardList, Megaphone, TrendingUp } from 'lucide-react';
 import { useData } from '@/context/DataContext';
 import { useSession } from '@/context/SessionContext';
@@ -9,6 +10,7 @@ import { Badge } from '@/components/ui/Badge';
 import { ProgressBar } from '@/components/ui/ProgressBar';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { CampaignCard } from '@/components/projects/CampaignCard';
+import { ObjectiveDetailModal } from '@/components/objectives/ObjectiveDetailModal';
 import { campaignTrackSummary, projectsForMember } from '@/utils/calculations';
 import { formatDate, formatPercent, relativeDays } from '@/utils/format';
 import {
@@ -21,8 +23,9 @@ import {
 } from '@/utils/labels';
 
 export function MemberOverview() {
-  const { data, loading, error, updateProject } = useData();
+  const { data, loading, error, updateProject, updateActionItem } = useData();
   const { session } = useSession();
+  const [selectedObjId, setSelectedObjId] = useState<string | null>(null);
 
   if (loading) return <LoadingScreen />;
   if (error || !data) return <ErrorState message={error ?? 'No data available.'} />;
@@ -39,6 +42,7 @@ export function MemberOverview() {
   const openTasks = actionItems.filter((i) => i.status !== 'done');
   const meetings = data.meetings.filter((m) => m.teamMemberId === member.id).sort((a, b) => b.date.localeCompare(a.date));
   const myObjectives = data.objectives.filter((o) => o.ownerId === member.id && !o.archived);
+  const selectedObj = selectedObjId ? data.objectives.find((o) => o.id === selectedObjId) ?? null : null;
 
   return (
     <div className="space-y-6">
@@ -86,15 +90,21 @@ export function MemberOverview() {
         ) : (
           <ul className="space-y-3">
             {myObjectives.map((o) => (
-              <li key={o.id} className="rounded-xl border border-slate-200/70 p-3 dark:border-slate-700/60">
-                <div className="flex items-center justify-between gap-2">
-                  <span className="text-sm font-medium text-slate-800 dark:text-slate-100">{o.title}</span>
-                  <Badge tone={objectiveStatusTone[o.status]}>{objectiveStatusLabel[o.status]}</Badge>
-                </div>
-                <div className="mt-2 flex items-center gap-3">
-                  <ProgressBar value={o.progress} autoTone size="sm" className="flex-1" />
-                  <span className="w-9 flex-none text-right text-xs font-semibold text-slate-700 dark:text-slate-200">{o.progress}%</span>
-                </div>
+              <li key={o.id}>
+                <button
+                  type="button"
+                  onClick={() => setSelectedObjId(o.id)}
+                  className="w-full rounded-xl border border-slate-200/70 p-3 text-left transition-colors hover:border-slate-300 dark:border-slate-700/60 dark:hover:border-slate-600"
+                >
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="text-sm font-medium text-slate-800 dark:text-slate-100">{o.title}</span>
+                    <Badge tone={objectiveStatusTone[o.status]}>{objectiveStatusLabel[o.status]}</Badge>
+                  </div>
+                  <div className="mt-2 flex items-center gap-3">
+                    <ProgressBar value={o.progress} autoTone size="sm" className="flex-1" />
+                    <span className="w-9 flex-none text-right text-xs font-semibold text-slate-700 dark:text-slate-200">{o.progress}%</span>
+                  </div>
+                </button>
               </li>
             ))}
           </ul>
@@ -131,7 +141,17 @@ export function MemberOverview() {
             <ul className="space-y-2.5">
               {actionItems.map((item) => (
                 <li key={item.id} className="flex items-center justify-between gap-2 text-sm">
-                  <span className="text-slate-700 dark:text-slate-200">{item.title}</span>
+                  <label className="flex min-w-0 cursor-pointer items-center gap-2">
+                    <input
+                      type="checkbox"
+                      className="accent-brand-600"
+                      checked={item.status === 'done'}
+                      onChange={() => updateActionItem(item.id, { status: item.status === 'done' ? 'open' : 'done' })}
+                    />
+                    <span className={`truncate ${item.status === 'done' ? 'text-muted line-through' : 'text-slate-700 dark:text-slate-200'}`}>
+                      {item.title}
+                    </span>
+                  </label>
                   <div className="flex flex-none items-center gap-2">
                     {item.dueDate && <span className="text-[11px] text-muted">{relativeDays(item.dueDate, now)}</span>}
                     <Badge tone={actionStatusTone[item.status]}>{actionStatusLabel[item.status]}</Badge>
@@ -162,6 +182,15 @@ export function MemberOverview() {
           )}
         </Card>
       </div>
+
+      {selectedObj && (
+        <ObjectiveDetailModal
+          key={selectedObj.id}
+          objective={selectedObj}
+          members={data.teamMembers}
+          onClose={() => setSelectedObjId(null)}
+        />
+      )}
     </div>
   );
 }

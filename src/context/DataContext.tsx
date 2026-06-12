@@ -8,17 +8,22 @@ import {
   useState,
   type ReactNode,
 } from 'react';
-import type { DashboardData, Objective, Project, TeamMember } from '@/types';
+import type { ActionItem, DashboardData, Objective, Project, TeamMember } from '@/types';
 import { createDataSource } from '@/data';
 import { SeedDataSource } from '@/data/SeedDataSource';
 import { config } from '@/config';
 import {
+  loadLocalActionItems,
   loadLocalMembers,
   loadLocalObjectives,
   loadLocalProjects,
+  loadRemoved,
+  saveLocalActionItems,
   saveLocalMembers,
   saveLocalObjectives,
   saveLocalProjects,
+  saveRemoved,
+  type RemovedIds,
 } from '@/data/localStore';
 import { appendRecord, getWriteUrl, memberToSheetRecord, setWriteUrl } from '@/data/sheetsWrite';
 
@@ -45,6 +50,10 @@ interface DataContextValue {
   addObjective: (objective: Objective) => void;
   /** Patches an objective (seed/sheet ones via a local override). */
   updateObjective: (id: string, patch: Partial<Objective>) => void;
+  /** Deletes an objective (soft-delete — hidden in the browser). */
+  removeObjective: (id: string) => void;
+  /** Patches an action item / task (seed/sheet ones via a local override). */
+  updateActionItem: (id: string, patch: Partial<ActionItem>) => void;
   /** True when an Apps Script write-back URL is configured. */
   writeEnabled: boolean;
   /** Saves/clears the write-back URL (persisted in this browser). */
@@ -68,6 +77,8 @@ export function DataProvider({ children }: { children: ReactNode }) {
   const [localMembers, setLocalMembers] = useState<TeamMember[]>(() => loadLocalMembers());
   const [localProjects, setLocalProjects] = useState<Project[]>(() => loadLocalProjects());
   const [localObjectives, setLocalObjectives] = useState<Objective[]>(() => loadLocalObjectives());
+  const [localActionItems, setLocalActionItems] = useState<ActionItem[]>(() => loadLocalActionItems());
+  const [removed, setRemovedState] = useState<RemovedIds>(() => loadRemoved());
   const [loading, setLoading] = useState(true);
   const [warning, setWarning] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -123,6 +134,16 @@ export function DataProvider({ children }: { children: ReactNode }) {
     });
   }, [baseData]);
 
+  /** Soft-delete: hide an entity by id (works for seed/sheet rows too). */
+  const markRemoved = useCallback((kind: keyof RemovedIds, id: string) => {
+    setRemovedState((prev) => {
+      if (prev[kind].includes(id)) return prev;
+      const next = { ...prev, [kind]: [...prev[kind], id] };
+      saveRemoved(next);
+      return next;
+    });
+  }, []);
+
   const addTeamMember = useCallback(
     (member: TeamMember) => {
       // Optimistically show it right away.
@@ -146,13 +167,17 @@ export function DataProvider({ children }: { children: ReactNode }) {
     [load],
   );
 
-  const removeTeamMember = useCallback((id: string) => {
-    setLocalMembers((prev) => {
-      const next = prev.filter((m) => m.id !== id);
-      saveLocalMembers(next);
-      return next;
-    });
-  }, []);
+  const removeTeamMember = useCallback(
+    (id: string) => {
+      markRemoved('members', id);
+      setLocalMembers((prev) => {
+        const next = prev.filter((m) => m.id !== id);
+        saveLocalMembers(next);
+        return next;
+      });
+    },
+    [markRemoved],
+  );
 
   const addProject = useCallback((project: Project) => {
     setLocalProjects((prev) => {
@@ -178,13 +203,17 @@ export function DataProvider({ children }: { children: ReactNode }) {
     });
   }, [baseData]);
 
-  const removeProject = useCallback((id: string) => {
-    setLocalProjects((prev) => {
-      const next = prev.filter((p) => p.id !== id);
-      saveLocalProjects(next);
-      return next;
-    });
-  }, []);
+  const removeProject = useCallback(
+    (id: string) => {
+      markRemoved('projects', id);
+      setLocalProjects((prev) => {
+        const next = prev.filter((p) => p.id !== id);
+        saveLocalProjects(next);
+        return next;
+      });
+    },
+    [markRemoved],
+  );
 
   const addObjective = useCallback((objective: Objective) => {
     setLocalObjectives((prev) => {
@@ -210,24 +239,49 @@ export function DataProvider({ children }: { children: ReactNode }) {
     });
   }, [baseData]);
 
+  const updateActionItem = useCallback((id: string, patch: Partial<ActionItem>) => {
+    setLocalActionItems((prev) => {
+      const existing = prev.find((a) => a.id === id);
+      let next: ActionItem[];
+      if (existing) {
+        next = prev.map((a) => (a.id === id ? { ...a, ...patch } : a));
+      } else {
+        const fromBase = baseData?.actionItems.find((a) => a.id === id);
+        if (!fromBase) return prev;
+        next = [...prev, { ...fromBase, ...patch }];
+      }
+      saveLocalActionItems(next);
+      return next;
+    });
+  }, [baseData]);
+
+  const removeObjective = useCallback(
+    (id: string) => {
+      markRemoved('objectives', id);
+      setLocalObjectives((prev) => {
+        const next = prev.filter((o) => o.id !== id);
+        saveLocalObjectives(next);
+        return next;
+      });
+    },
+    [markRemoved],
+  );
+
   const configureWriteUrl = useCallback((url: string) => {
     setWriteUrl(url);
     setWriteUrlState(url.trim());
   }, []);
 
-  // Merge sheet/seed data with the local overlays.
+  // Merge sheet/seed data with the local overlays, then hide soft-deleted ids.
   const data = useMemo<DashboardData | null>(() => {
     if (!baseData) return null;
-    const teamMembers =
-      localMembers.length === 0 ? baseData.teamMembers : [...baseData.teamMembers, ...localMembers];
+    const teamMembers = [...baseData.teamMembers, ...localMembers].filter((m) => !removed.members.includes(m.id));
+    const projects = mergeOverlay(baseData.projects, localProjects).filter((p) => !removed.projects.includes(p.id));
+    const objectives = mergeOverlay(baseData.objectives, localObjectives).filter((o) => !removed.objectives.includes(o.id));
+    const actionItems = mergeOverlay(baseData.actionItems, localActionItems);
 
-    // Projects: local entries override base ones by id (so edits stick), and
-    // local-only projects are appended.
-    const projects = mergeOverlay(baseData.projects, localProjects);
-    const objectives = mergeOverlay(baseData.objectives, localObjectives);
-
-    return { ...baseData, teamMembers, projects, objectives };
-  }, [baseData, localMembers, localProjects, localObjectives]);
+    return { ...baseData, teamMembers, projects, objectives, actionItems };
+  }, [baseData, localMembers, localProjects, localObjectives, localActionItems, removed]);
 
   const value = useMemo(
     () => ({
@@ -244,6 +298,8 @@ export function DataProvider({ children }: { children: ReactNode }) {
       removeProject,
       addObjective,
       updateObjective,
+      removeObjective,
+      updateActionItem,
       writeEnabled: !!writeUrl,
       configureWriteUrl,
       writeUrl,
@@ -262,6 +318,8 @@ export function DataProvider({ children }: { children: ReactNode }) {
       removeProject,
       addObjective,
       updateObjective,
+      removeObjective,
+      updateActionItem,
       writeUrl,
       configureWriteUrl,
     ],

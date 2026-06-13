@@ -1,6 +1,6 @@
 import { useState, type ReactNode } from 'react';
 import { Link, Navigate, useParams } from 'react-router-dom';
-import { ArrowLeft, ClipboardList, MessageSquare, NotebookPen, Plus, UserPlus } from 'lucide-react';
+import { ArrowLeft, AlertOctagon, AlertTriangle, CheckCircle2, ClipboardList, MessageSquare, NotebookPen, Plus, Sparkles, TrendingUp, UserPlus } from 'lucide-react';
 import { useData } from '@/context/DataContext';
 import { useSession } from '@/context/SessionContext';
 import { LoadingScreen } from '@/components/ui/LoadingScreen';
@@ -11,6 +11,7 @@ import { Button } from '@/components/ui/Button';
 import { ScoreRing } from '@/components/ui/ScoreRing';
 import { Modal } from '@/components/ui/Modal';
 import { lgpKpiTiles } from '@/utils/calculations';
+import { campaignInsights, type InsightSeverity } from '@/utils/insights';
 import { campaignTrackLabel, campaignTrackTone, priorityLabel, priorityTone, taskStatusLabel, taskStatusTone } from '@/utils/labels';
 import { formatDate, formatIDR, formatIDRCompact, formatNumber, formatPercent } from '@/utils/format';
 import type {
@@ -28,6 +29,13 @@ const inputClass =
   'w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-800 outline-none placeholder:text-slate-400 focus:border-brand-400 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100';
 const statusTone = { 'on-track': 'success', 'at-risk': 'warning', 'off-track': 'danger' } as const;
 const newId = (p: string) => `${p}-${Date.now().toString(36)}`;
+
+const INSIGHT_STYLE: Record<InsightSeverity, { wrap: string; icon: ReactNode }> = {
+  critical: { wrap: 'border-rose-400 bg-rose-50/60 dark:border-rose-500/50 dark:bg-rose-500/10', icon: <AlertOctagon size={16} className="text-rose-500" /> },
+  warning: { wrap: 'border-amber-400 bg-amber-50/60 dark:border-amber-500/50 dark:bg-amber-500/10', icon: <AlertTriangle size={16} className="text-amber-500" /> },
+  opportunity: { wrap: 'border-sky-400 bg-sky-50/60 dark:border-sky-500/50 dark:bg-sky-500/10', icon: <TrendingUp size={16} className="text-sky-500" /> },
+  good: { wrap: 'border-emerald-400 bg-emerald-50/60 dark:border-emerald-500/50 dark:bg-emerald-500/10', icon: <CheckCircle2 size={16} className="text-emerald-500" /> },
+};
 
 export function CampaignDetail() {
   const { name } = useParams();
@@ -137,6 +145,22 @@ export function CampaignDetail() {
             value={formatPercent(campaign.funnel.raw > 0 ? (campaign.funnel.booking / campaign.funnel.raw) * 100 : 0, 1)}
           />
         </div>
+      </Card>
+
+      {/* Insights (rule-based — precursor to the Phase C AI Command Center) */}
+      <Card>
+        <CardHeader title="Insights" subtitle="Otomatis dari metrik LGP · pendahulu AI Command Center (Fase C)" icon={<Sparkles size={16} />} />
+        <ul className="space-y-2">
+          {campaignInsights(campaign).map((ins) => (
+            <li key={ins.id} className={`flex items-start gap-3 rounded-xl border-l-4 px-3.5 py-2.5 ${INSIGHT_STYLE[ins.severity].wrap}`}>
+              <span className="mt-0.5 flex-none">{INSIGHT_STYLE[ins.severity].icon}</span>
+              <div className="min-w-0">
+                <p className="text-sm font-semibold text-slate-800 dark:text-slate-100">{ins.title}</p>
+                <p className="text-xs text-slate-600 dark:text-slate-300">{ins.detail}</p>
+              </div>
+            </li>
+          ))}
+        </ul>
       </Card>
 
       {/* Breakdown */}

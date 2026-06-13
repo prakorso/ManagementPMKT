@@ -3,6 +3,7 @@ import type {
   ActionItem,
   Assessment,
   CampaignAssignment,
+  CampaignTask,
   DashboardData,
   LgpCampaign,
   MonthNumber,
@@ -155,17 +156,21 @@ export function readinessBand(score: number): { label: string; tone: 'danger' | 
 export interface UpcomingOneOnOne {
   member: TeamMember;
   date: string;
+  inDays: number;
 }
 
-export function upcomingOneOnOnes(members: TeamMember[], now: Date = new Date()): UpcomingOneOnOne[] {
-  return members
-    .filter((m) => m.nextOneOnOne)
-    .map((m) => ({ member: m, date: m.nextOneOnOne as string }))
-    .filter((x) => {
-      const d = parseISO(x.date);
-      return isValid(d) && differenceInCalendarDays(d, now) >= 0;
-    })
-    .sort((a, b) => a.date.localeCompare(b.date));
+/** Members with a next 1:1 scheduled from today onward, soonest first. */
+export function upcomingOneOnOnes(members: TeamMember[], now: Date = new Date(), limit = 6): UpcomingOneOnOne[] {
+  const items: UpcomingOneOnOne[] = [];
+  members.forEach((m) => {
+    if (!m.nextOneOnOne) return;
+    const d = parseISO(m.nextOneOnOne);
+    if (!isValid(d)) return;
+    const inDays = differenceInCalendarDays(d, now);
+    if (inDays < 0) return;
+    items.push({ member: m, date: m.nextOneOnOne, inDays });
+  });
+  return items.sort((x, y) => x.inDays - y.inDays).slice(0, limit);
 }
 
 /** Share of reports who had a 1:1 within the last 7 days. */
@@ -523,6 +528,38 @@ export function pendingUpdateMembers(members: TeamMember[], now: Date = new Date
     const d = parseISO(m.lastOneOnOne);
     return !isValid(d) || differenceInCalendarDays(now, d) > 7;
   });
+}
+
+export interface OverdueTaskItem {
+  campaignName: string;
+  task: CampaignTask;
+  ownerName: string | null;
+  daysOverdue: number;
+}
+
+/** Campaign tasks past their due date and not yet completed/cancelled, most overdue first. */
+export function overdueTasks(
+  assignments: Record<string, CampaignAssignment>,
+  members: TeamMember[],
+  now: Date = new Date(),
+  limit = 6,
+): OverdueTaskItem[] {
+  const nameOf = (id?: string) => (id ? members.find((m) => m.id === id)?.name ?? null : null);
+  const items: OverdueTaskItem[] = [];
+  Object.values(assignments).forEach((a) => {
+    (a.tasks ?? []).forEach((t) => {
+      if (t.status === 'completed' || t.status === 'cancelled' || !t.dueDate) return;
+      const d = parseISO(t.dueDate);
+      if (!isValid(d) || !isBefore(d, now)) return;
+      items.push({
+        campaignName: a.campaignName,
+        task: t,
+        ownerName: nameOf(t.ownerId),
+        daysOverdue: differenceInCalendarDays(now, d),
+      });
+    });
+  });
+  return items.sort((x, y) => y.daysOverdue - x.daysOverdue).slice(0, limit);
 }
 
 export interface ActivityItem {

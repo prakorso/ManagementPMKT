@@ -3,8 +3,10 @@ import {
   Activity,
   AlertTriangle,
   Banknote,
+  CalendarClock,
   CheckCircle2,
   Crosshair,
+  ListChecks,
   Megaphone,
   NotebookPen,
   Target,
@@ -26,13 +28,15 @@ import { EmptyState } from '@/components/ui/EmptyState';
 import { SegmentedDonut } from '@/components/charts/SegmentedDonut';
 import {
   lgpPortfolio,
+  overdueTasks,
   pendingUpdateMembers,
   recentActivities,
   teamHealthSnapshot,
   teamRankingLgp,
+  upcomingOneOnOnes,
   type ActivityItem,
 } from '@/utils/calculations';
-import { formatIDRCompact, formatNumber, formatPercent, relativeDays } from '@/utils/format';
+import { formatDate, formatIDRCompact, formatNumber, formatPercent, relativeDays } from '@/utils/format';
 import type { Tone } from '@/components/ui/Badge';
 
 const COLORS = { onTrack: '#10b981', atRisk: '#f59e0b', offTrack: '#f43f5e' };
@@ -51,6 +55,8 @@ export function Homepage() {
   const pending = pendingUpdateMembers(teamMembers, now);
   const unassigned = lgpCampaigns.filter((c) => !assignments[c.name]?.ownerId).length;
   const activities = recentActivities(data);
+  const overdue = overdueTasks(assignments, teamMembers, now);
+  const upcoming = upcomingOneOnOnes(teamMembers, now);
 
   const alerts = [
     { id: 'a1', count: p.offTrack, label: 'Campaigns off track', tone: 'danger' as Tone, to: '/campaigns', icon: Megaphone },
@@ -133,6 +139,71 @@ export function Homepage() {
                   </li>
                 );
               })}
+            </ul>
+          )}
+        </Card>
+      </div>
+
+      {/* Overdue tasks + upcoming 1:1 */}
+      <div className="grid gap-4 lg:grid-cols-2">
+        <Card padded={false}>
+          <div className="flex items-center justify-between gap-2 border-b border-slate-200/80 p-5 dark:border-slate-700/60">
+            <h3 className="flex items-center gap-2 text-sm font-semibold text-slate-900 dark:text-slate-100">
+              <ListChecks size={16} className="text-brand-500" /> Overdue Tasks
+            </h3>
+            <Badge tone={overdue.length ? 'danger' : 'neutral'}>{overdue.length}</Badge>
+          </div>
+          {overdue.length === 0 ? (
+            <p className="p-5 text-sm text-muted">No overdue tasks.</p>
+          ) : (
+            <ul className="divide-y divide-slate-100 dark:divide-slate-700/40">
+              {overdue.map((o) => (
+                <li key={`${o.campaignName}-${o.task.id}`} className="flex items-center gap-3 px-5 py-3">
+                  <div className="min-w-0 flex-1">
+                    <Link
+                      to={`/campaigns/${encodeURIComponent(o.campaignName)}`}
+                      className="block truncate text-sm font-medium text-slate-800 hover:text-brand-600 dark:text-slate-100 dark:hover:text-brand-300"
+                    >
+                      {o.task.name}
+                    </Link>
+                    <p className="truncate text-xs text-muted">
+                      {o.campaignName}
+                      {o.ownerName ? ` · ${o.ownerName}` : ''}
+                    </p>
+                  </div>
+                  <Badge tone="danger">{o.daysOverdue}d late</Badge>
+                </li>
+              ))}
+            </ul>
+          )}
+        </Card>
+
+        <Card padded={false}>
+          <div className="flex items-center justify-between gap-2 border-b border-slate-200/80 p-5 dark:border-slate-700/60">
+            <h3 className="flex items-center gap-2 text-sm font-semibold text-slate-900 dark:text-slate-100">
+              <CalendarClock size={16} className="text-brand-500" /> Upcoming 1:1
+            </h3>
+            <Badge tone={upcoming.length ? 'info' : 'neutral'}>{upcoming.length}</Badge>
+          </div>
+          {upcoming.length === 0 ? (
+            <p className="p-5 text-sm text-muted">No 1:1 scheduled.</p>
+          ) : (
+            <ul className="divide-y divide-slate-100 dark:divide-slate-700/40">
+              {upcoming.map((u) => (
+                <li key={u.member.id} className="flex items-center gap-3 px-5 py-3">
+                  <Avatar name={u.member.name} size="sm" />
+                  <div className="min-w-0 flex-1">
+                    <Link
+                      to={`/team/${u.member.id}`}
+                      className="block truncate text-sm font-medium text-slate-800 hover:text-brand-600 dark:text-slate-100 dark:hover:text-brand-300"
+                    >
+                      {u.member.name}
+                    </Link>
+                    <p className="truncate text-xs text-muted">{formatDate(u.date)}</p>
+                  </div>
+                  <Badge tone={u.inDays === 0 ? 'warning' : 'info'}>{u.inDays === 0 ? 'Today' : `in ${u.inDays}d`}</Badge>
+                </li>
+              ))}
             </ul>
           )}
         </Card>

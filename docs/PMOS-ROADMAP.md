@@ -76,10 +76,15 @@ plus Spam & Unqualified (from `contact_status` / `last_result`). Headline econom
   Required center, Team Ranking, Recent Activity.
 - ✅ **Role-aware Homepage** ("What do I do today?"): Manager + VP = combined Control
   Tower + Executive · Specialist = My Dashboard (MemberOverview).
-- 🟡 **Project Dashboard:** full 8-stage funnel + CPA + Conversion done in the
-  Campaign Workspace; **placeholder AI section** still to add.
-- 🔵 *Remaining for Phase A:* the per-project **AI insight section** placeholder,
-  plus Manager-home **Overdue Tasks** and **Upcoming 1:1** widgets.
+- ✅ **Project Dashboard:** full 8-stage funnel + CPA + Conversion in the Campaign
+  Workspace, plus a rule-based **Insights** section (`src/utils/insights.ts`) — the
+  deterministic precursor to the Phase C AI Command Center.
+- ✅ **Manager home widgets:** **Overdue Tasks** + **Upcoming 1:1**.
+
+> **Phase A complete.** Only the cross-device **sync** belongs to Fase A by the
+> user's wish but is deliberately deferred to **Phase D** (Supabase) until data
+> sign-off from another division; the sync layer already exists (dormant) and can
+> be pulled forward at any time.
 
 ### Phase B — Team management & 1:1  *(people layer)*
 - **Team Dashboard:** project count, revenue, booking, CPA, achievement, **workload

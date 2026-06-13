@@ -35,12 +35,12 @@ Role mapping: PRD **Specialist** = current **member** role. VP/Manager already e
 | RBAC (VP / Manager / Specialist) | ✅ | Roles, login/session, role-based nav & route guards |
 | Campaign/Project (one entity, from Hub) | ✅ | Campaign Hub + Project Assignment + Workspace |
 | Campaign KPIs from LGP | ✅ | Funnel (RAW→SVD), Spend, CPL, CP*, contribution, breakdown, health score |
-| Project Dashboard (full funnel + AI) | 🟡 | Funnel/metrics done; **Spam, Unqualified, SVA, SPD, CPA, ROAS, AI section** new |
+| Project Dashboard (full funnel + AI) | 🟡 | Funnel (incl. Spam, Unqualified, SVA, SPD), CPA & Conversion done; **AI section** new |
 | Tasks (per campaign) | ✅ | Create/assign/status in the Workspace |
 | Weekly Updates | ✅ | In the Workspace (member submits, manager sees) |
 | Manager Notes (public/internal) | ✅ | In the Workspace |
 | One-on-One System | 🟡 | Meetings module exists; **dedicated 1:1 fields + action-item/escalation tracking** new |
-| Executive Dashboard (VP) | 🟡 | Control Tower exists; **Revenue/CPA/ROAS + business-health view** new |
+| Executive Dashboard (VP) | ✅ | Merged into the shared Manager/VP home (Control Tower + business KPIs: Spend, Leads, Bookings, CPA, Conversion + campaign/team health) |
 | Team Dashboard (workload/capacity) | 🟡 | Team mgmt + ranking exist; **workload/capacity/utilization** new |
 | Performance Score | 🔵 | Formula defined, not yet computed |
 | Knowledge Base | 🔵 | New module |
@@ -56,24 +56,30 @@ Role mapping: PRD **Specialist** = current **member** role. VP/Manager already e
 ## Funnel & KPI mapping (LGP → PMOS)
 
 PMOS funnel: **Lead → Submit → Spam → Unqualified → Interest → SVA → SPD → Booking**.
-LGP today gives: RAW(=Lead), Submitted(=Submit), Interest, SVS(≈SVA), SVD(≈SPD), Booking.
-**To add in the sync:** Spam & Unqualified (from `contact_status` / `last_result`),
-Revenue & Booking value (from `project_index.kpi_booking_value` / `lgp_value` + bookings),
-then **CPA** (spend ÷ booking) and **ROAS** (revenue ÷ spend).
+LGP gives: RAW(=Lead), Submitted(=Submit), Interest, SVS(≈SVA), SVD(≈SPD), Booking,
+plus Spam & Unqualified (from `contact_status` / `last_result`). Headline economics:
+**CPA** (spend ÷ booking) and **Conversion** (booking ÷ leads).
+
+> **No ROAS/Revenue.** This is a property business — deals close off-platform over
+> long cycles, so spend-efficiency (CPA) and funnel Conversion are the meaningful,
+> project-agnostic metrics. Revenue/ROAS were dropped on purpose.
 
 ---
 
 ## Phased roadmap
 
 ### Phase A — Business KPIs & role-aware homepages  *(builds on Control Tower)*
-- Extend `sync-lgp.mjs`: Spam, Unqualified, Revenue, Booking value → **CPA, ROAS,
-  conversion rates** per campaign.
-- **Executive Dashboard (VP):** Business Health card, Revenue/Booking/CPA/ROAS
-  trends, Project Health (Healthy/Warning/Critical), Team Health summary.
-- **Role-aware Homepage** ("What do I do today?"): VP = executive view · Manager =
-  Control Tower + **Action Required Center** + Overdue Tasks + Upcoming 1:1 ·
-  Specialist = My Dashboard.
-- **Project Dashboard:** full 8-stage funnel + CPA/ROAS + a placeholder AI section.
+- ✅ Extend `sync-lgp.mjs`: Spam, Unqualified → 8-stage funnel + **CPA & Conversion**
+  per campaign (Revenue/ROAS intentionally dropped — see KPI note above).
+- ✅ **Executive Dashboard:** merged into the shared Manager/VP home — business KPIs
+  (Spend, Leads, Bookings, CPA, Conversion), Campaign Health, Team Health, Action
+  Required center, Team Ranking, Recent Activity.
+- ✅ **Role-aware Homepage** ("What do I do today?"): Manager + VP = combined Control
+  Tower + Executive · Specialist = My Dashboard (MemberOverview).
+- 🟡 **Project Dashboard:** full 8-stage funnel + CPA + Conversion done in the
+  Campaign Workspace; **placeholder AI section** still to add.
+- 🔵 *Remaining for Phase A:* the per-project **AI insight section** placeholder,
+  plus Manager-home **Overdue Tasks** and **Upcoming 1:1** widgets.
 
 ### Phase B — Team management & 1:1  *(people layer)*
 - **Team Dashboard:** project count, revenue, booking, CPA, achievement, **workload

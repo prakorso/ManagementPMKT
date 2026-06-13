@@ -1,4 +1,4 @@
-import { createContext, useCallback, useContext, useMemo, useState, type ReactNode } from 'react';
+import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
 import type { Role } from '@/types';
 import { useData } from '@/context/DataContext';
 import {
@@ -29,6 +29,13 @@ export function SessionProvider({ children }: { children: ReactNode }) {
   const { data } = useData();
   const [session, setSession] = useState<SessionUser | null>(() => loadSession());
   const [roleAssignments, setRoleAssignments] = useState<Record<string, Role>>(() => loadRoleAssignments());
+
+  // Re-read role assignments when a cross-device sync update lands.
+  useEffect(() => {
+    const rehydrate = () => setRoleAssignments(loadRoleAssignments());
+    window.addEventListener('pmos-sync', rehydrate);
+    return () => window.removeEventListener('pmos-sync', rehydrate);
+  }, []);
 
   const profiles = useMemo<SessionUser[]>(() => {
     if (!data) return [];

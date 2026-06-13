@@ -1,4 +1,5 @@
 import type { ActionItem, Assessment, CampaignAssignment, Objective, Project, TeamMember } from '@/types';
+import { pushSync } from './sync';
 
 /**
  * Local overlay for team members added from the dashboard UI.
@@ -27,6 +28,7 @@ export function saveLocalMembers(members: TeamMember[]): void {
   } catch {
     /* ignore storage failures (private mode / quota) */
   }
+  pushSync();
 }
 
 /** Generates a stable-ish id for a locally-added member. */
@@ -55,6 +57,7 @@ export function saveLocalProjects(projects: Project[]): void {
   } catch {
     /* ignore */
   }
+  pushSync();
 }
 
 export function newLocalProjectId(name: string): string {
@@ -83,6 +86,7 @@ function saveOverlay<T>(key: string, items: T[]): void {
   } catch {
     /* ignore */
   }
+  pushSync();
 }
 
 const OBJECTIVES_KEY = 'mdd-local-objectives';
@@ -132,6 +136,7 @@ export function saveRemoved(value: RemovedIds): void {
   } catch {
     /* ignore */
   }
+  pushSync();
 }
 
 // --- Campaign assignment overlay (keyed by campaign name) -------------------
@@ -153,4 +158,5 @@ export function saveAssignments(map: Record<string, CampaignAssignment>): void {
   } catch {
     /* ignore */
   }
+  pushSync();
 }

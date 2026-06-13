@@ -36,6 +36,9 @@ jobs:
         run: npm run build
         env:
           VITE_BASE: /${{ github.event.repository.name }}/
+          # Optional cross-device sync — add these as repo secrets to enable on Pages.
+          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
       - name: SPA fallback + disable Jekyll
         run: |
           cp dist/index.html dist/404.html

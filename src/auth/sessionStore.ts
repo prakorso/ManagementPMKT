@@ -1,4 +1,5 @@
 import type { Role } from '@/types';
+import { pushSync } from '@/data/sync';
 
 /**
  * Lightweight, browser-side session + role assignment store.
@@ -53,4 +54,5 @@ export function saveRoleAssignments(map: Record<string, Role>): void {
   } catch {
     /* ignore */
   }
+  pushSync();
 }

@@ -27,6 +27,7 @@ import {
   saveRemoved,
   type RemovedIds,
 } from '@/data/localStore';
+import { initSync } from '@/data/sync';
 import { appendRecord, getWriteUrl, memberToSheetRecord, setWriteUrl } from '@/data/sheetsWrite';
 
 interface DataContextValue {
@@ -125,6 +126,25 @@ export function DataProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     void load();
   }, [load]);
+
+  // Cross-device sync (Supabase, optional): pull + realtime, then re-hydrate the
+  // local overlays whenever a remote change lands.
+  useEffect(() => {
+    void initSync(() => window.dispatchEvent(new Event('pmos-sync')));
+  }, []);
+
+  useEffect(() => {
+    const rehydrate = () => {
+      setLocalMembers(loadLocalMembers());
+      setLocalProjects(loadLocalProjects());
+      setLocalObjectives(loadLocalObjectives());
+      setLocalActionItems(loadLocalActionItems());
+      setRemovedState(loadRemoved());
+      setAssignments(loadAssignments());
+    };
+    window.addEventListener('pmos-sync', rehydrate);
+    return () => window.removeEventListener('pmos-sync', rehydrate);
+  }, []);
 
   // Once a locally-added member shows up in the sheet data (same id), drop the
   // in-browser copy so it isn't rendered twice.

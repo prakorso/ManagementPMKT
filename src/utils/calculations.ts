@@ -353,12 +353,36 @@ export function lgpKpiTiles(c: LgpCampaign): LgpKpiTile[] {
   };
   return [
     tile('raw', 'RAW Leads', f.raw, t.leads),
+    tile('spam', 'Spam', f.spam, 0),
+    tile('unqualified', 'Unqualified', f.unqualified, 0),
     tile('submitted', 'Submitted', f.submitted, Math.round(f.raw * 0.9)),
     tile('interest', 'Interest', f.interest, Math.round(f.raw * 0.25)),
-    tile('svs', 'SVS', f.svs, Math.round(f.raw * 0.07)),
-    tile('svd', 'SVD', f.svd, t.visit > 0 ? t.visit : Math.round(f.raw * 0.05)),
+    tile('svs', 'SVA', f.svs, Math.round(f.raw * 0.07)),
+    tile('svd', 'SPD', f.svd, t.visit > 0 ? t.visit : Math.round(f.raw * 0.05)),
     tile('booking', 'Booking', f.booking, t.book),
   ];
+}
+
+/** Portfolio-level business KPIs across campaigns (Executive Dashboard). */
+export function lgpPortfolio(campaigns: LgpCampaign[]) {
+  const s = (fn: (c: LgpCampaign) => number) => campaigns.reduce((sum, c) => sum + fn(c), 0);
+  const spend = s((c) => c.ads.spend);
+  const leads = s((c) => c.funnel.raw);
+  const booking = s((c) => c.funnel.booking);
+  const revenue = s((c) => c.finance.revenue);
+  return {
+    count: campaigns.length,
+    spend,
+    leads,
+    booking,
+    revenue,
+    cpl: leads > 0 ? round(spend / leads) : 0,
+    cpa: booking > 0 ? round(spend / booking) : 0,
+    roas: spend > 0 ? Number((revenue / spend).toFixed(2)) : 0,
+    onTrack: campaigns.filter((c) => c.health.status === 'on-track').length,
+    atRisk: campaigns.filter((c) => c.health.status === 'at-risk').length,
+    offTrack: campaigns.filter((c) => c.health.status === 'off-track').length,
+  };
 }
 
 export function lgpHealthSummary(campaigns: LgpCampaign[]) {

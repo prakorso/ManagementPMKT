@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-12T06:07:22.598Z",
+  "generatedAt": "2026-06-13T06:26:34.008Z",
   "source": "LGP CSV exports",
   "count": 81,
   "campaigns": [
@@ -16,6 +16,8 @@
       },
       "funnel": {
         "raw": 11115,
+        "spam": 2986,
+        "unqualified": 6749,
         "submitted": 2294,
         "interest": 2291,
         "svs": 556,
@@ -40,6 +42,11 @@
         "cpInterest": 390896,
         "cpSvd": 4867079,
         "cpBooking": 895542531
+      },
+      "finance": {
+        "revenue": 0,
+        "cpa": 895542531,
+        "roas": 0
       },
       "health": {
         "score": 100,
@@ -304,6 +311,8 @@
       },
       "funnel": {
         "raw": 7204,
+        "spam": 520,
+        "unqualified": 4131,
         "submitted": 1520,
         "interest": 537,
         "svs": 231,
@@ -328,6 +337,11 @@
         "cpInterest": 1066512,
         "cpSvd": 4618687,
         "cpBooking": 0
+      },
+      "finance": {
+        "revenue": 0,
+        "cpa": 0,
+        "roas": 0
       },
       "health": {
         "score": 100,
@@ -592,6 +606,8 @@
       },
       "funnel": {
         "raw": 5694,
+        "spam": 204,
+        "unqualified": 4515,
         "submitted": 4413,
         "interest": 720,
         "svs": 237,
@@ -616,6 +632,11 @@
         "cpInterest": 524273,
         "cpSvd": 3664818,
         "cpBooking": 188738140
+      },
+      "finance": {
+        "revenue": 0,
+        "cpa": 188738140,
+        "roas": 0
       },
       "health": {
         "score": 14,
@@ -880,6 +901,8 @@
       },
       "funnel": {
         "raw": 3266,
+        "spam": 494,
+        "unqualified": 2268,
         "submitted": 2080,
         "interest": 486,
         "svs": 168,
@@ -904,6 +927,11 @@
         "cpInterest": 666529,
         "cpSvd": 4499073,
         "cpBooking": 0
+      },
+      "finance": {
+        "revenue": 0,
+        "cpa": 0,
+        "roas": 0
       },
       "health": {
         "score": 60,
@@ -1168,6 +1196,8 @@
       },
       "funnel": {
         "raw": 2915,
+        "spam": 626,
+        "unqualified": 2036,
         "submitted": 1708,
         "interest": 213,
         "svs": 121,
@@ -1192,6 +1222,11 @@
         "cpInterest": 1502255,
         "cpSvd": 4775825,
         "cpBooking": 0
+      },
+      "finance": {
+        "revenue": 0,
+        "cpa": 0,
+        "roas": 0
       },
       "health": {
         "score": 60,
@@ -1436,6 +1471,8 @@
       },
       "funnel": {
         "raw": 3987,
+        "spam": 864,
+        "unqualified": 2843,
         "submitted": 412,
         "interest": 174,
         "svs": 124,
@@ -1460,6 +1497,11 @@
         "cpInterest": 1794044,
         "cpSvd": 5889879,
         "cpBooking": 0
+      },
+      "finance": {
+        "revenue": 0,
+        "cpa": 0,
+        "roas": 0
       },
       "health": {
         "score": 100,
@@ -1704,6 +1746,8 @@
       },
       "funnel": {
         "raw": 5065,
+        "spam": 316,
+        "unqualified": 3748,
         "submitted": 4173,
         "interest": 744,
         "svs": 261,
@@ -1728,6 +1772,11 @@
         "cpInterest": 415276,
         "cpSvd": 2532505,
         "cpBooking": 0
+      },
+      "finance": {
+        "revenue": 0,
+        "cpa": 0,
+        "roas": 0
       },
       "health": {
         "score": 60,
@@ -1992,6 +2041,8 @@
       },
       "funnel": {
         "raw": 2347,
+        "spam": 591,
+        "unqualified": 1137,
         "submitted": 1582,
         "interest": 150,
         "svs": 52,
@@ -2016,6 +2067,11 @@
         "cpInterest": 1576870,
         "cpSvd": 11263360,
         "cpBooking": 0
+      },
+      "finance": {
+        "revenue": 0,
+        "cpa": 0,
+        "roas": 0
       },
       "health": {
         "score": 60,
@@ -2280,6 +2336,8 @@
       },
       "funnel": {
         "raw": 5473,
+        "spam": 255,
+        "unqualified": 4362,
         "submitted": 4826,
         "interest": 1482,
         "svs": 460,
@@ -2304,6 +2362,11 @@
         "cpInterest": 120424,
         "cpSvd": 1331859,
         "cpBooking": 0
+      },
+      "finance": {
+        "revenue": 0,
+        "cpa": 0,
+        "roas": 0
       },
       "health": {
         "score": 100,
@@ -2568,6 +2631,8 @@
       },
       "funnel": {
         "raw": 1884,
+        "spam": 422,
+        "unqualified": 1205,
         "submitted": 1360,
         "interest": 237,
         "svs": 96,
@@ -2592,6 +2657,11 @@
         "cpInterest": 735772,
         "cpSvd": 3487557,
         "cpBooking": 0
+      },
+      "finance": {
+        "revenue": 0,
+        "cpa": 0,
+        "roas": 0
       },
       "health": {
         "score": 100,
@@ -2816,6 +2886,8 @@
       },
       "funnel": {
         "raw": 1740,
+        "spam": 217,
+        "unqualified": 1083,
         "submitted": 1274,
         "interest": 190,
         "svs": 82,
@@ -2840,6 +2912,11 @@
         "cpInterest": 871282,
         "cpSvd": 3245952,
         "cpBooking": 0
+      },
+      "finance": {
+        "revenue": 0,
+        "cpa": 0,
+        "roas": 0
       },
       "health": {
         "score": 100,
@@ -3074,6 +3151,8 @@
       },
       "funnel": {
         "raw": 2021,
+        "spam": 461,
+        "unqualified": 1286,
         "submitted": 339,
         "interest": 133,
         "svs": 60,
@@ -3098,6 +3177,11 @@
         "cpInterest": 1101202,
         "cpSvd": 4881996,
         "cpBooking": 0
+      },
+      "finance": {
+        "revenue": 0,
+        "cpa": 0,
+        "roas": 0
       },
       "health": {
         "score": 60,
@@ -3322,6 +3406,8 @@
       },
       "funnel": {
         "raw": 5990,
+        "spam": 227,
+        "unqualified": 4912,
         "submitted": 5699,
         "interest": 1799,
         "svs": 350,
@@ -3346,6 +3432,11 @@
         "cpInterest": 69558,
         "cpSvd": 1060463,
         "cpBooking": 0
+      },
+      "finance": {
+        "revenue": 0,
+        "cpa": 0,
+        "roas": 0
       },
       "health": {
         "score": 100,
@@ -3610,6 +3701,8 @@
       },
       "funnel": {
         "raw": 2732,
+        "spam": 272,
+        "unqualified": 855,
         "submitted": 323,
         "interest": 304,
         "svs": 77,
@@ -3634,6 +3727,11 @@
         "cpInterest": 401668,
         "cpSvd": 3052675,
         "cpBooking": 0
+      },
+      "finance": {
+        "revenue": 0,
+        "cpa": 0,
+        "roas": 0
       },
       "health": {
         "score": 60,
@@ -3858,6 +3956,8 @@
       },
       "funnel": {
         "raw": 2658,
+        "spam": 148,
+        "unqualified": 1418,
         "submitted": 819,
         "interest": 538,
         "svs": 159,
@@ -3882,6 +3982,11 @@
         "cpInterest": 212907,
         "cpSvd": 2863598,
         "cpBooking": 0
+      },
+      "finance": {
+        "revenue": 0,
+        "cpa": 0,
+        "roas": 0
       },
       "health": {
         "score": 60,
@@ -4126,6 +4231,8 @@
       },
       "funnel": {
         "raw": 1325,
+        "spam": 126,
+        "unqualified": 531,
         "submitted": 47,
         "interest": 100,
         "svs": 40,
@@ -4150,6 +4257,11 @@
         "cpInterest": 1134611,
         "cpSvd": 4933090,
         "cpBooking": 0
+      },
+      "finance": {
+        "revenue": 0,
+        "cpa": 0,
+        "roas": 0
       },
       "health": {
         "score": 10,
@@ -4354,6 +4466,8 @@
       },
       "funnel": {
         "raw": 1714,
+        "spam": 189,
+        "unqualified": 1091,
         "submitted": 1206,
         "interest": 158,
         "svs": 58,
@@ -4378,6 +4492,11 @@
         "cpInterest": 662465,
         "cpSvd": 7476387,
         "cpBooking": 0
+      },
+      "finance": {
+        "revenue": 0,
+        "cpa": 0,
+        "roas": 0
       },
       "health": {
         "score": 60,
@@ -4592,6 +4711,8 @@
       },
       "funnel": {
         "raw": 2080,
+        "spam": 258,
+        "unqualified": 1267,
         "submitted": 1575,
         "interest": 113,
         "svs": 63,
@@ -4616,6 +4737,11 @@
         "cpInterest": 880198,
         "cpSvd": 3429739,
         "cpBooking": 0
+      },
+      "finance": {
+        "revenue": 0,
+        "cpa": 0,
+        "roas": 0
       },
       "health": {
         "score": 78,
@@ -4830,6 +4956,8 @@
       },
       "funnel": {
         "raw": 2191,
+        "spam": 83,
+        "unqualified": 1521,
         "submitted": 554,
         "interest": 577,
         "svs": 217,
@@ -4854,6 +4982,11 @@
         "cpInterest": 168833,
         "cpSvd": 885605,
         "cpBooking": 0
+      },
+      "finance": {
+        "revenue": 0,
+        "cpa": 0,
+        "roas": 0
       },
       "health": {
         "score": 60,
@@ -5088,6 +5221,8 @@
       },
       "funnel": {
         "raw": 1391,
+        "spam": 65,
+        "unqualified": 527,
         "submitted": 432,
         "interest": 421,
         "svs": 42,
@@ -5112,6 +5247,11 @@
         "cpInterest": 229480,
         "cpSvd": 4200487,
         "cpBooking": 0
+      },
+      "finance": {
+        "revenue": 0,
+        "cpa": 0,
+        "roas": 0
       },
       "health": {
         "score": 75,
@@ -5306,6 +5446,8 @@
       },
       "funnel": {
         "raw": 1605,
+        "spam": 324,
+        "unqualified": 962,
         "submitted": 1333,
         "interest": 180,
         "svs": 95,
@@ -5330,6 +5472,11 @@
         "cpInterest": 508174,
         "cpSvd": 2613467,
         "cpBooking": 0
+      },
+      "finance": {
+        "revenue": 0,
+        "cpa": 0,
+        "roas": 0
       },
       "health": {
         "score": 43,
@@ -5544,6 +5691,8 @@
       },
       "funnel": {
         "raw": 1893,
+        "spam": 182,
+        "unqualified": 597,
         "submitted": 309,
         "interest": 309,
         "svs": 88,
@@ -5568,6 +5717,11 @@
         "cpInterest": 292660,
         "cpSvd": 2153143,
         "cpBooking": 0
+      },
+      "finance": {
+        "revenue": 0,
+        "cpa": 0,
+        "roas": 0
       },
       "health": {
         "score": 100,
@@ -5782,6 +5936,8 @@
       },
       "funnel": {
         "raw": 2557,
+        "spam": 91,
+        "unqualified": 1970,
         "submitted": 565,
         "interest": 316,
         "svs": 91,
@@ -5806,6 +5962,11 @@
         "cpInterest": 257682,
         "cpSvd": 1850628,
         "cpBooking": 0
+      },
+      "finance": {
+        "revenue": 0,
+        "cpa": 0,
+        "roas": 0
       },
       "health": {
         "score": 100,
@@ -6040,6 +6201,8 @@
       },
       "funnel": {
         "raw": 1671,
+        "spam": 91,
+        "unqualified": 1090,
         "submitted": 1047,
         "interest": 157,
         "svs": 50,
@@ -6064,6 +6227,11 @@
         "cpInterest": 450964,
         "cpSvd": 3933406,
         "cpBooking": 0
+      },
+      "finance": {
+        "revenue": 0,
+        "cpa": 0,
+        "roas": 0
       },
       "health": {
         "score": 89,
@@ -6258,6 +6426,8 @@
       },
       "funnel": {
         "raw": 0,
+        "spam": 0,
+        "unqualified": 0,
         "submitted": 0,
         "interest": 0,
         "svs": 0,
@@ -6282,6 +6452,11 @@
         "cpInterest": 0,
         "cpSvd": 0,
         "cpBooking": 0
+      },
+      "finance": {
+        "revenue": 0,
+        "cpa": 0,
+        "roas": 0
       },
       "health": {
         "score": 10,
@@ -6476,6 +6651,8 @@
       },
       "funnel": {
         "raw": 877,
+        "spam": 242,
+        "unqualified": 322,
         "submitted": 518,
         "interest": 53,
         "svs": 27,
@@ -6500,6 +6677,11 @@
         "cpInterest": 1125623,
         "cpSvd": 4261288,
         "cpBooking": 0
+      },
+      "finance": {
+        "revenue": 0,
+        "cpa": 0,
+        "roas": 0
       },
       "health": {
         "score": 88,
@@ -6704,6 +6886,8 @@
       },
       "funnel": {
         "raw": 1672,
+        "spam": 71,
+        "unqualified": 1138,
         "submitted": 1551,
         "interest": 293,
         "svs": 114,
@@ -6728,6 +6912,11 @@
         "cpInterest": 193919,
         "cpSvd": 2029220,
         "cpBooking": 0
+      },
+      "finance": {
+        "revenue": 0,
+        "cpa": 0,
+        "roas": 0
       },
       "health": {
         "score": 100,
@@ -6932,6 +7121,8 @@
       },
       "funnel": {
         "raw": 1144,
+        "spam": 158,
+        "unqualified": 867,
         "submitted": 923,
         "interest": 58,
         "svs": 42,
@@ -6956,6 +7147,11 @@
         "cpInterest": 924420,
         "cpSvd": 2821914,
         "cpBooking": 0
+      },
+      "finance": {
+        "revenue": 0,
+        "cpa": 0,
+        "roas": 0
       },
       "health": {
         "score": 98,
@@ -7170,6 +7366,8 @@
       },
       "funnel": {
         "raw": 592,
+        "spam": 90,
+        "unqualified": 185,
         "submitted": 426,
         "interest": 25,
         "svs": 8,
@@ -7194,6 +7392,11 @@
         "cpInterest": 2139752,
         "cpSvd": 7641973,
         "cpBooking": 0
+      },
+      "finance": {
+        "revenue": 0,
+        "cpa": 0,
+        "roas": 0
       },
       "health": {
         "score": 34,
@@ -7408,6 +7611,8 @@
       },
       "funnel": {
         "raw": 1785,
+        "spam": 87,
+        "unqualified": 985,
         "submitted": 1507,
         "interest": 524,
         "svs": 116,
@@ -7432,6 +7637,11 @@
         "cpInterest": 100601,
         "cpSvd": 1464305,
         "cpBooking": 10542992
+      },
+      "finance": {
+        "revenue": 0,
+        "cpa": 10542992,
+        "roas": 0
       },
       "health": {
         "score": 100,
@@ -7656,6 +7866,8 @@
       },
       "funnel": {
         "raw": 1569,
+        "spam": 137,
+        "unqualified": 721,
         "submitted": 1296,
         "interest": 187,
         "svs": 62,
@@ -7680,6 +7892,11 @@
         "cpInterest": 272808,
         "cpSvd": 1457574,
         "cpBooking": 0
+      },
+      "finance": {
+        "revenue": 0,
+        "cpa": 0,
+        "roas": 0
       },
       "health": {
         "score": 100,
@@ -7914,6 +8131,8 @@
       },
       "funnel": {
         "raw": 414,
+        "spam": 123,
+        "unqualified": 199,
         "submitted": 248,
         "interest": 30,
         "svs": 11,
@@ -7938,6 +8157,11 @@
         "cpInterest": 1354922,
         "cpSvd": 6774609,
         "cpBooking": 0
+      },
+      "finance": {
+        "revenue": 0,
+        "cpa": 0,
+        "roas": 0
       },
       "health": {
         "score": 22,
@@ -8092,6 +8316,8 @@
       },
       "funnel": {
         "raw": 557,
+        "spam": 25,
+        "unqualified": 30,
         "submitted": 426,
         "interest": 26,
         "svs": 10,
@@ -8116,6 +8342,11 @@
         "cpInterest": 1367572,
         "cpSvd": 7111374,
         "cpBooking": 0
+      },
+      "finance": {
+        "revenue": 0,
+        "cpa": 0,
+        "roas": 0
       },
       "health": {
         "score": 80,
@@ -8330,6 +8561,8 @@
       },
       "funnel": {
         "raw": 931,
+        "spam": 117,
+        "unqualified": 634,
         "submitted": 858,
         "interest": 169,
         "svs": 32,
@@ -8354,6 +8587,11 @@
         "cpInterest": 197899,
         "cpSvd": 1672245,
         "cpBooking": 0
+      },
+      "finance": {
+        "revenue": 0,
+        "cpa": 0,
+        "roas": 0
       },
       "health": {
         "score": 100,
@@ -8568,6 +8806,8 @@
       },
       "funnel": {
         "raw": 576,
+        "spam": 35,
+        "unqualified": 136,
         "submitted": 519,
         "interest": 47,
         "svs": 23,
@@ -8592,6 +8832,11 @@
         "cpInterest": 698975,
         "cpSvd": 3650202,
         "cpBooking": 0
+      },
+      "finance": {
+        "revenue": 0,
+        "cpa": 0,
+        "roas": 0
       },
       "health": {
         "score": 84,
@@ -8786,6 +9031,8 @@
       },
       "funnel": {
         "raw": 811,
+        "spam": 140,
+        "unqualified": 553,
         "submitted": 578,
         "interest": 60,
         "svs": 26,
@@ -8810,6 +9057,11 @@
         "cpInterest": 532772,
         "cpSvd": 2906032,
         "cpBooking": 0
+      },
+      "finance": {
+        "revenue": 0,
+        "cpa": 0,
+        "roas": 0
       },
       "health": {
         "score": 94,
@@ -9014,6 +9266,8 @@
       },
       "funnel": {
         "raw": 980,
+        "spam": 39,
+        "unqualified": 646,
         "submitted": 908,
         "interest": 79,
         "svs": 39,
@@ -9038,6 +9292,11 @@
         "cpInterest": 396844,
         "cpSvd": 2612556,
         "cpBooking": 0
+      },
+      "finance": {
+        "revenue": 0,
+        "cpa": 0,
+        "roas": 0
       },
       "health": {
         "score": 98,
@@ -9242,6 +9501,8 @@
       },
       "funnel": {
         "raw": 688,
+        "spam": 86,
+        "unqualified": 89,
         "submitted": 504,
         "interest": 92,
         "svs": 16,
@@ -9266,6 +9527,11 @@
         "cpInterest": 292962,
         "cpSvd": 2450230,
         "cpBooking": 0
+      },
+      "finance": {
+        "revenue": 0,
+        "cpa": 0,
+        "roas": 0
       },
       "health": {
         "score": 89,
@@ -9480,6 +9746,8 @@
       },
       "funnel": {
         "raw": 497,
+        "spam": 55,
+        "unqualified": 299,
         "submitted": 408,
         "interest": 64,
         "svs": 13,
@@ -9504,6 +9772,11 @@
         "cpInterest": 390984,
         "cpSvd": 2502297,
         "cpBooking": 0
+      },
+      "finance": {
+        "revenue": 0,
+        "cpa": 0,
+        "roas": 0
       },
       "health": {
         "score": 64,
@@ -9678,6 +9951,8 @@
       },
       "funnel": {
         "raw": 441,
+        "spam": 131,
+        "unqualified": 238,
         "submitted": 285,
         "interest": 28,
         "svs": 4,
@@ -9702,6 +9977,11 @@
         "cpInterest": 767577,
         "cpSvd": 7164049,
         "cpBooking": 0
+      },
+      "finance": {
+        "revenue": 0,
+        "cpa": 0,
+        "roas": 0
       },
       "health": {
         "score": 70,
@@ -9896,6 +10176,8 @@
       },
       "funnel": {
         "raw": 590,
+        "spam": 26,
+        "unqualified": 350,
         "submitted": 441,
         "interest": 52,
         "svs": 20,
@@ -9920,6 +10202,11 @@
         "cpInterest": 367292,
         "cpSvd": 3819839,
         "cpBooking": 0
+      },
+      "finance": {
+        "revenue": 0,
+        "cpa": 0,
+        "roas": 0
       },
       "health": {
         "score": 80,
@@ -10154,6 +10441,8 @@
       },
       "funnel": {
         "raw": 494,
+        "spam": 92,
+        "unqualified": 252,
         "submitted": 336,
         "interest": 75,
         "svs": 43,
@@ -10178,6 +10467,11 @@
         "cpInterest": 224092,
         "cpSvd": 1527898,
         "cpBooking": 0
+      },
+      "finance": {
+        "revenue": 0,
+        "cpa": 0,
+        "roas": 0
       },
       "health": {
         "score": 100,
@@ -10412,6 +10706,8 @@
       },
       "funnel": {
         "raw": 467,
+        "spam": 44,
+        "unqualified": 287,
         "submitted": 366,
         "interest": 82,
         "svs": 28,
@@ -10436,6 +10732,11 @@
         "cpInterest": 197964,
         "cpSvd": 2319005,
         "cpBooking": 0
+      },
+      "finance": {
+        "revenue": 0,
+        "cpa": 0,
+        "roas": 0
       },
       "health": {
         "score": 95,
@@ -10660,6 +10961,8 @@
       },
       "funnel": {
         "raw": 0,
+        "spam": 0,
+        "unqualified": 0,
         "submitted": 0,
         "interest": 0,
         "svs": 0,
@@ -10684,6 +10987,11 @@
         "cpInterest": 0,
         "cpSvd": 0,
         "cpBooking": 0
+      },
+      "finance": {
+        "revenue": 0,
+        "cpa": 0,
+        "roas": 0
       },
       "health": {
         "score": 10,
@@ -10778,6 +11086,8 @@
       },
       "funnel": {
         "raw": 1062,
+        "spam": 27,
+        "unqualified": 689,
         "submitted": 161,
         "interest": 116,
         "svs": 48,
@@ -10802,6 +11112,11 @@
         "cpInterest": 119158,
         "cpSvd": 1063259,
         "cpBooking": 0
+      },
+      "finance": {
+        "revenue": 0,
+        "cpa": 0,
+        "roas": 0
       },
       "health": {
         "score": 95,
@@ -11016,6 +11331,8 @@
       },
       "funnel": {
         "raw": 656,
+        "spam": 22,
+        "unqualified": 134,
         "submitted": 546,
         "interest": 69,
         "svs": 27,
@@ -11040,6 +11357,11 @@
         "cpInterest": 158363,
         "cpSvd": 840542,
         "cpBooking": 0
+      },
+      "finance": {
+        "revenue": 0,
+        "cpa": 0,
+        "roas": 0
       },
       "health": {
         "score": 95,
@@ -11254,6 +11576,8 @@
       },
       "funnel": {
         "raw": 317,
+        "spam": 19,
+        "unqualified": 231,
         "submitted": 302,
         "interest": 39,
         "svs": 20,
@@ -11278,6 +11602,11 @@
         "cpInterest": 278570,
         "cpSvd": 987656,
         "cpBooking": 0
+      },
+      "finance": {
+        "revenue": 0,
+        "cpa": 0,
+        "roas": 0
       },
       "health": {
         "score": 60,
@@ -11432,6 +11761,8 @@
       },
       "funnel": {
         "raw": 325,
+        "spam": 24,
+        "unqualified": 66,
         "submitted": 243,
         "interest": 36,
         "svs": 19,
@@ -11456,6 +11787,11 @@
         "cpInterest": 265659,
         "cpSvd": 1593951,
         "cpBooking": 0
+      },
+      "finance": {
+        "revenue": 0,
+        "cpa": 0,
+        "roas": 0
       },
       "health": {
         "score": 61,
@@ -11610,6 +11946,8 @@
       },
       "funnel": {
         "raw": 323,
+        "spam": 10,
+        "unqualified": 60,
         "submitted": 256,
         "interest": 37,
         "svs": 16,
@@ -11634,6 +11972,11 @@
         "cpInterest": 247104,
         "cpSvd": 1828568,
         "cpBooking": 0
+      },
+      "finance": {
+        "revenue": 0,
+        "cpa": 0,
+        "roas": 0
       },
       "health": {
         "score": 100,
@@ -11848,6 +12191,8 @@
       },
       "funnel": {
         "raw": 597,
+        "spam": 13,
+        "unqualified": 371,
         "submitted": 474,
         "interest": 69,
         "svs": 30,
@@ -11872,6 +12217,11 @@
         "cpInterest": 131561,
         "cpSvd": 907769,
         "cpBooking": 0
+      },
+      "finance": {
+        "revenue": 0,
+        "cpa": 0,
+        "roas": 0
       },
       "health": {
         "score": 100,
@@ -12106,6 +12456,8 @@
       },
       "funnel": {
         "raw": 611,
+        "spam": 42,
+        "unqualified": 209,
         "submitted": 442,
         "interest": 22,
         "svs": 3,
@@ -12130,6 +12482,11 @@
         "cpInterest": 408798,
         "cpSvd": 8993553,
         "cpBooking": 0
+      },
+      "finance": {
+        "revenue": 0,
+        "cpa": 0,
+        "roas": 0
       },
       "health": {
         "score": 68,
@@ -12324,6 +12681,8 @@
       },
       "funnel": {
         "raw": 340,
+        "spam": 6,
+        "unqualified": 226,
         "submitted": 283,
         "interest": 38,
         "svs": 9,
@@ -12348,6 +12707,11 @@
         "cpInterest": 205580,
         "cpSvd": 7812024,
         "cpBooking": 0
+      },
+      "finance": {
+        "revenue": 0,
+        "cpa": 0,
+        "roas": 0
       },
       "health": {
         "score": 100,
@@ -12552,6 +12916,8 @@
       },
       "funnel": {
         "raw": 205,
+        "spam": 25,
+        "unqualified": 130,
         "submitted": 161,
         "interest": 13,
         "svs": 8,
@@ -12576,6 +12942,11 @@
         "cpInterest": 567880,
         "cpSvd": 1845611,
         "cpBooking": 0
+      },
+      "finance": {
+        "revenue": 0,
+        "cpa": 0,
+        "roas": 0
       },
       "health": {
         "score": 100,
@@ -12790,6 +13161,8 @@
       },
       "funnel": {
         "raw": 782,
+        "spam": 16,
+        "unqualified": 485,
         "submitted": 753,
         "interest": 84,
         "svs": 40,
@@ -12814,6 +13187,11 @@
         "cpInterest": 85063,
         "cpSvd": 476355,
         "cpBooking": 0
+      },
+      "finance": {
+        "revenue": 0,
+        "cpa": 0,
+        "roas": 0
       },
       "health": {
         "score": 100,
@@ -13028,6 +13406,8 @@
       },
       "funnel": {
         "raw": 323,
+        "spam": 28,
+        "unqualified": 102,
         "submitted": 305,
         "interest": 51,
         "svs": 21,
@@ -13052,6 +13432,11 @@
         "cpInterest": 138985,
         "cpSvd": 416954,
         "cpBooking": 0
+      },
+      "finance": {
+        "revenue": 0,
+        "cpa": 0,
+        "roas": 0
       },
       "health": {
         "score": 100,
@@ -13266,6 +13651,8 @@
       },
       "funnel": {
         "raw": 404,
+        "spam": 17,
+        "unqualified": 309,
         "submitted": 343,
         "interest": 105,
         "svs": 40,
@@ -13290,6 +13677,11 @@
         "cpInterest": 62475,
         "cpSvd": 655987,
         "cpBooking": 0
+      },
+      "finance": {
+        "revenue": 0,
+        "cpa": 0,
+        "roas": 0
       },
       "health": {
         "score": 100,
@@ -13504,6 +13896,8 @@
       },
       "funnel": {
         "raw": 780,
+        "spam": 11,
+        "unqualified": 166,
         "submitted": 695,
         "interest": 166,
         "svs": 59,
@@ -13528,6 +13922,11 @@
         "cpInterest": 34267,
         "cpSvd": 517115,
         "cpBooking": 0
+      },
+      "finance": {
+        "revenue": 0,
+        "cpa": 0,
+        "roas": 0
       },
       "health": {
         "score": 60,
@@ -13742,6 +14141,8 @@
       },
       "funnel": {
         "raw": 159,
+        "spam": 31,
+        "unqualified": 83,
         "submitted": 115,
         "interest": 8,
         "svs": 5,
@@ -13766,6 +14167,11 @@
         "cpInterest": 607939,
         "cpSvd": 4863511,
         "cpBooking": 0
+      },
+      "finance": {
+        "revenue": 0,
+        "cpa": 0,
+        "roas": 0
       },
       "health": {
         "score": 60,
@@ -13910,6 +14316,8 @@
       },
       "funnel": {
         "raw": 369,
+        "spam": 20,
+        "unqualified": 64,
         "submitted": 308,
         "interest": 65,
         "svs": 44,
@@ -13934,6 +14342,11 @@
         "cpInterest": 71906,
         "cpSvd": 292117,
         "cpBooking": 0
+      },
+      "finance": {
+        "revenue": 0,
+        "cpa": 0,
+        "roas": 0
       },
       "health": {
         "score": 100,
@@ -14148,6 +14561,8 @@
       },
       "funnel": {
         "raw": 351,
+        "spam": 15,
+        "unqualified": 102,
         "submitted": 322,
         "interest": 40,
         "svs": 18,
@@ -14172,6 +14587,11 @@
         "cpInterest": 105307,
         "cpSvd": 300876,
         "cpBooking": 0
+      },
+      "finance": {
+        "revenue": 0,
+        "cpa": 0,
+        "roas": 0
       },
       "health": {
         "score": 97,
@@ -14386,6 +14806,8 @@
       },
       "funnel": {
         "raw": 573,
+        "spam": 8,
+        "unqualified": 60,
         "submitted": 548,
         "interest": 30,
         "svs": 14,
@@ -14410,6 +14832,11 @@
         "cpInterest": 103518,
         "cpSvd": 345059,
         "cpBooking": 0
+      },
+      "finance": {
+        "revenue": 0,
+        "cpa": 0,
+        "roas": 0
       },
       "health": {
         "score": 100,
@@ -14594,6 +15021,8 @@
       },
       "funnel": {
         "raw": 151,
+        "spam": 16,
+        "unqualified": 94,
         "submitted": 141,
         "interest": 6,
         "svs": 1,
@@ -14618,6 +15047,11 @@
         "cpInterest": 469510,
         "cpSvd": 2817061,
         "cpBooking": 0
+      },
+      "finance": {
+        "revenue": 0,
+        "cpa": 0,
+        "roas": 0
       },
       "health": {
         "score": 60,
@@ -14752,6 +15186,8 @@
       },
       "funnel": {
         "raw": 141,
+        "spam": 47,
+        "unqualified": 53,
         "submitted": 96,
         "interest": 9,
         "svs": 3,
@@ -14776,6 +15212,11 @@
         "cpInterest": 56597,
         "cpSvd": 0,
         "cpBooking": 0
+      },
+      "finance": {
+        "revenue": 0,
+        "cpa": 0,
+        "roas": 0
       },
       "health": {
         "score": 33,
@@ -14860,6 +15301,8 @@
       },
       "funnel": {
         "raw": 500,
+        "spam": 100,
+        "unqualified": 220,
         "submitted": 335,
         "interest": 30,
         "svs": 15,
@@ -14884,6 +15327,11 @@
         "cpInterest": 0,
         "cpSvd": 0,
         "cpBooking": 0
+      },
+      "finance": {
+        "revenue": 0,
+        "cpa": 0,
+        "roas": 0
       },
       "health": {
         "score": 90,
@@ -15098,6 +15546,8 @@
       },
       "funnel": {
         "raw": 16,
+        "spam": 1,
+        "unqualified": 3,
         "submitted": 8,
         "interest": 1,
         "svs": 1,
@@ -15122,6 +15572,11 @@
         "cpInterest": 0,
         "cpSvd": 0,
         "cpBooking": 0
+      },
+      "finance": {
+        "revenue": 0,
+        "cpa": 0,
+        "roas": 0
       },
       "health": {
         "score": 10,
@@ -15286,6 +15741,8 @@
       },
       "funnel": {
         "raw": 456,
+        "spam": 10,
+        "unqualified": 47,
         "submitted": 434,
         "interest": 121,
         "svs": 30,
@@ -15310,6 +15767,11 @@
         "cpInterest": 0,
         "cpSvd": 0,
         "cpBooking": 0
+      },
+      "finance": {
+        "revenue": 0,
+        "cpa": 0,
+        "roas": 0
       },
       "health": {
         "score": 90,
@@ -15494,6 +15956,8 @@
       },
       "funnel": {
         "raw": 1339,
+        "spam": 50,
+        "unqualified": 863,
         "submitted": 1277,
         "interest": 145,
         "svs": 64,
@@ -15518,6 +15982,11 @@
         "cpInterest": 0,
         "cpSvd": 0,
         "cpBooking": 0
+      },
+      "finance": {
+        "revenue": 0,
+        "cpa": 0,
+        "roas": 0
       },
       "health": {
         "score": 59,
@@ -15732,6 +16201,8 @@
       },
       "funnel": {
         "raw": 311,
+        "spam": 41,
+        "unqualified": 214,
         "submitted": 235,
         "interest": 37,
         "svs": 17,
@@ -15756,6 +16227,11 @@
         "cpInterest": 0,
         "cpSvd": 0,
         "cpBooking": 0
+      },
+      "finance": {
+        "revenue": 0,
+        "cpa": 0,
+        "roas": 0
       },
       "health": {
         "score": 62,
@@ -15950,6 +16426,8 @@
       },
       "funnel": {
         "raw": 100,
+        "spam": 15,
+        "unqualified": 47,
         "submitted": 88,
         "interest": 6,
         "svs": 1,
@@ -15974,6 +16452,11 @@
         "cpInterest": 0,
         "cpSvd": 0,
         "cpBooking": 0
+      },
+      "finance": {
+        "revenue": 0,
+        "cpa": 0,
+        "roas": 0
       },
       "health": {
         "score": 30,
@@ -16108,6 +16591,8 @@
       },
       "funnel": {
         "raw": 232,
+        "spam": 18,
+        "unqualified": 11,
         "submitted": 184,
         "interest": 6,
         "svs": 1,
@@ -16132,6 +16617,11 @@
         "cpInterest": 0,
         "cpSvd": 0,
         "cpBooking": 0
+      },
+      "finance": {
+        "revenue": 0,
+        "cpa": 0,
+        "roas": 0
       },
       "health": {
         "score": 50,
@@ -16276,6 +16766,8 @@
       },
       "funnel": {
         "raw": 264,
+        "spam": 11,
+        "unqualified": 198,
         "submitted": 252,
         "interest": 58,
         "svs": 18,
@@ -16300,6 +16792,11 @@
         "cpInterest": 0,
         "cpSvd": 0,
         "cpBooking": 0
+      },
+      "finance": {
+        "revenue": 0,
+        "cpa": 0,
+        "roas": 0
       },
       "health": {
         "score": 50,
@@ -16454,6 +16951,8 @@
       },
       "funnel": {
         "raw": 50,
+        "spam": 8,
+        "unqualified": 30,
         "submitted": 43,
         "interest": 2,
         "svs": 2,
@@ -16478,6 +16977,11 @@
         "cpInterest": 0,
         "cpSvd": 0,
         "cpBooking": 0
+      },
+      "finance": {
+        "revenue": 0,
+        "cpa": 0,
+        "roas": 0
       },
       "health": {
         "score": 10,
@@ -16582,6 +17086,8 @@
       },
       "funnel": {
         "raw": 115,
+        "spam": 1,
+        "unqualified": 16,
         "submitted": 93,
         "interest": 15,
         "svs": 3,
@@ -16606,6 +17112,11 @@
         "cpInterest": 0,
         "cpSvd": 0,
         "cpBooking": 0
+      },
+      "finance": {
+        "revenue": 0,
+        "cpa": 0,
+        "roas": 0
       },
       "health": {
         "score": 33,
@@ -16690,6 +17201,8 @@
       },
       "funnel": {
         "raw": 398,
+        "spam": 94,
+        "unqualified": 137,
         "submitted": 213,
         "interest": 12,
         "svs": 7,
@@ -16714,6 +17227,11 @@
         "cpInterest": 0,
         "cpSvd": 0,
         "cpBooking": 0
+      },
+      "finance": {
+        "revenue": 0,
+        "cpa": 0,
+        "roas": 0
       },
       "health": {
         "score": 90,
@@ -16917,6 +17435,8 @@
       },
       "funnel": {
         "raw": 346,
+        "spam": 16,
+        "unqualified": 233,
         "submitted": 264,
         "interest": 55,
         "svs": 18,
@@ -16941,6 +17461,11 @@
         "cpInterest": 0,
         "cpSvd": 0,
         "cpBooking": 0
+      },
+      "finance": {
+        "revenue": 0,
+        "cpa": 0,
+        "roas": 0
       },
       "health": {
         "score": 31,
@@ -17095,6 +17620,8 @@
       },
       "funnel": {
         "raw": 767,
+        "spam": 170,
+        "unqualified": 360,
         "submitted": 676,
         "interest": 88,
         "svs": 54,
@@ -17119,6 +17646,11 @@
         "cpInterest": 0,
         "cpSvd": 0,
         "cpBooking": 0
+      },
+      "finance": {
+        "revenue": 0,
+        "cpa": 0,
+        "roas": 0
       },
       "health": {
         "score": 90,
@@ -17313,6 +17845,8 @@
       },
       "funnel": {
         "raw": 992,
+        "spam": 499,
+        "unqualified": 369,
         "submitted": 83,
         "interest": 81,
         "svs": 18,
@@ -17337,6 +17871,11 @@
         "cpInterest": 0,
         "cpSvd": 0,
         "cpBooking": 0
+      },
+      "finance": {
+        "revenue": 0,
+        "cpa": 0,
+        "roas": 0
       },
       "health": {
         "score": 54,
@@ -17531,6 +18070,8 @@
       },
       "funnel": {
         "raw": 342,
+        "spam": 34,
+        "unqualified": 163,
         "submitted": 292,
         "interest": 41,
         "svs": 12,
@@ -17555,6 +18096,11 @@
         "cpInterest": 0,
         "cpSvd": 0,
         "cpBooking": 0
+      },
+      "finance": {
+        "revenue": 0,
+        "cpa": 0,
+        "roas": 0
       },
       "health": {
         "score": 63,
@@ -17769,6 +18315,8 @@
       },
       "funnel": {
         "raw": 76,
+        "spam": 0,
+        "unqualified": 2,
         "submitted": 71,
         "interest": 3,
         "svs": 0,
@@ -17793,6 +18341,11 @@
         "cpInterest": 0,
         "cpSvd": 0,
         "cpBooking": 0
+      },
+      "finance": {
+        "revenue": 0,
+        "cpa": 0,
+        "roas": 0
       },
       "health": {
         "score": 14,
@@ -17847,6 +18400,8 @@
       },
       "funnel": {
         "raw": 109,
+        "spam": 4,
+        "unqualified": 41,
         "submitted": 96,
         "interest": 18,
         "svs": 9,
@@ -17871,6 +18426,11 @@
         "cpInterest": 0,
         "cpSvd": 0,
         "cpBooking": 0
+      },
+      "finance": {
+        "revenue": 0,
+        "cpa": 0,
+        "roas": 0
       },
       "health": {
         "score": 24,
@@ -17955,6 +18515,8 @@
       },
       "funnel": {
         "raw": 175,
+        "spam": 24,
+        "unqualified": 94,
         "submitted": 169,
         "interest": 10,
         "svs": 7,
@@ -17979,6 +18541,11 @@
         "cpInterest": 0,
         "cpSvd": 0,
         "cpBooking": 0
+      },
+      "finance": {
+        "revenue": 0,
+        "cpa": 0,
+        "roas": 0
       },
       "health": {
         "score": 50,

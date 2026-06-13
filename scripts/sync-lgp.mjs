@@ -102,7 +102,7 @@ for (const [name, { r, start, end }] of byName) {
     targets: { leads: num(col(r, 'kpi_leads')), visit: num(col(r, 'kpi_visit')), book: num(col(r, 'kpi_book')), bookingValue: num(col(r, 'kpi_booking_value')) },
     lgpValue: num(col(r, 'lgp_value')),
     actCost: num(col(r, 'act_cost')),
-    funnel: { raw: 0, submitted: 0, interest: 0, svs: 0, svd: 0, booking: 0 },
+    funnel: { raw: 0, spam: 0, unqualified: 0, submitted: 0, interest: 0, svs: 0, svd: 0, booking: 0 },
     contribution: { pmkt: 0, organic: 0, socmed: 0, other: 0 },
     ads: { spend: 0, meta: 0, google: 0, tiktok: 0 },
     _m: new Map(), // monthKey -> {raw,submitted,interest,svs,svd,spend}
@@ -124,7 +124,7 @@ const lh = leadRows[0];
 const L = (name) => lh.indexOf(name);
 const Lproj = L('project_name'), Ldt = L('lead_datetime'), Lsvs = L('site_visit_status'),
   Lsub = L('submit_date_to_developer'), Lcat = L('last_contact_category'), Lfb = L('feedback_call_pmkt'),
-  Lcontrib = L('contribution_category');
+  Lcontrib = L('contribution_category'), Lam = L('col_am');
 
 for (let i = 1; i < leadRows.length; i++) {
   const r = leadRows[i];
@@ -139,7 +139,10 @@ for (let i = 1; i < leadRows.length; i++) {
   const svd = svs.includes('today') || svs.includes('done') || svs.includes('won') || svs.includes('booking');
   const booking = svs.includes('booking');
 
+  const am = (r[Lam] || '').toLowerCase();
   c.funnel.raw++;
+  if (am.includes('spam')) c.funnel.spam++;
+  if (am.includes('unqualified')) c.funnel.unqualified++;
   if (submitted) c.funnel.submitted++;
   if (interest) c.funnel.interest++;
   if (hasSvs) c.funnel.svs++;
@@ -189,9 +192,15 @@ const out = campaigns.map((c) => {
   const costEff = targetCpl > 0 && cost.cpl > 0 ? clamp(targetCpl / cost.cpl) : 0.5;
   const score = Math.round((leadAch * 0.4 + bookingAch * 0.4 + costEff * 0.2) * 100);
   const status = score >= 80 ? 'on-track' : score >= 60 ? 'at-risk' : 'off-track';
+  // Finance (estimates from project_index targets — refined when real booking/revenue data lands).
+  const valuePerBooking = c.targets.book > 0 && c.targets.bookingValue > 0 ? c.targets.bookingValue / c.targets.book : 0;
+  const revenue = Math.round(f.booking * valuePerBooking);
+  const cpa = f.booking > 0 ? Math.round(a.spend / f.booking) : 0;
+  const roas = a.spend > 0 ? Number((revenue / a.spend).toFixed(2)) : 0;
   return {
     name: c.name, products: c.products, startDate: c.startDate, endDate: c.endDate,
     targets: c.targets, funnel: f, contribution: c.contribution, ads: a, cost,
+    finance: { revenue, cpa, roas },
     health: { score, status }, lastLead: c.lastLead ? c.lastLead.slice(0, 10) : null,
     monthly: lastN(c._m, 12), weekly: lastN(c._w, 12),
   };

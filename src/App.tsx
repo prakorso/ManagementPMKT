@@ -11,6 +11,7 @@ import type { Role } from '@/types';
 
 // Route-level code splitting keeps chart-heavy pages out of the initial bundle.
 const Homepage = lazy(() => import('@/pages/Homepage').then((m) => ({ default: m.Homepage })));
+const ExecutiveDashboard = lazy(() => import('@/pages/ExecutiveDashboard').then((m) => ({ default: m.ExecutiveDashboard })));
 const MemberOverview = lazy(() => import('@/pages/MemberOverview').then((m) => ({ default: m.MemberOverview })));
 const TeamManagement = lazy(() => import('@/pages/TeamManagement').then((m) => ({ default: m.TeamManagement })));
 const MemberDetail = lazy(() => import('@/pages/MemberDetail').then((m) => ({ default: m.MemberDetail })));
@@ -41,18 +42,14 @@ export default function App() {
   if (error || !data) return <ErrorState message={error ?? 'No data available.'} />;
   if (!session) return <LoginScreen />;
 
-  const isMember = session.role === 'member';
+  const homeForRole =
+    session.role === 'member' ? <MemberOverview /> : session.role === 'vp' ? <ExecutiveDashboard /> : <Homepage />;
 
   return (
     <BrowserRouter basename={import.meta.env.BASE_URL.replace(/\/$/, '')}>
       <Routes>
         <Route element={<Layout />}>
-          <Route
-            index
-            element={
-              <Suspense fallback={<LoadingScreen />}>{isMember ? <MemberOverview /> : <Homepage />}</Suspense>
-            }
-          />
+          <Route index element={<Suspense fallback={<LoadingScreen />}>{homeForRole}</Suspense>} />
           <Route path="campaigns" element={<Guard path="/campaigns"><CampaignHub /></Guard>} />
           <Route path="campaigns/:name" element={<Guard path="/campaigns/:name"><CampaignDetail /></Guard>} />
           <Route path="performance" element={<Guard path="/performance"><PerformanceReporting /></Guard>} />

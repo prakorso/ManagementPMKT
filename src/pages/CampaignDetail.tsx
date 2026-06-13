@@ -131,6 +131,9 @@ export function CampaignDetail() {
           <Cost label="CP Interest" value={formatIDR(campaign.cost.cpInterest)} />
           <Cost label="CP SVD" value={formatIDR(campaign.cost.cpSvd)} />
           <Cost label="CP Booking" value={formatIDR(campaign.cost.cpBooking)} />
+          <Cost label="Revenue (est)" value={formatIDRCompact(campaign.finance.revenue)} />
+          <Cost label="CPA" value={formatIDR(campaign.finance.cpa)} />
+          <Cost label="ROAS" value={`${campaign.finance.roas}×`} />
         </div>
       </Card>
 

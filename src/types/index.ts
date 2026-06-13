@@ -271,10 +271,12 @@ export interface LgpCampaign {
   startDate: string;
   endDate: string;
   targets: { leads: number; visit: number; book: number; bookingValue: number };
-  funnel: { raw: number; submitted: number; interest: number; svs: number; svd: number; booking: number };
+  funnel: { raw: number; spam: number; unqualified: number; submitted: number; interest: number; svs: number; svd: number; booking: number };
   contribution: { pmkt: number; organic: number; socmed: number; other: number };
   ads: { spend: number; meta: number; google: number; tiktok: number };
   cost: { cpl: number; cpSubmit: number; cpInterest: number; cpSvd: number; cpBooking: number };
+  /** Estimated finance (refined when real booking/revenue data lands). */
+  finance: { revenue: number; cpa: number; roas: number };
   health: { score: number; status: CampaignTrack };
   lastLead?: string | null;
   monthly: LgpPeriod[];

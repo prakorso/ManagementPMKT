@@ -192,15 +192,12 @@ const out = campaigns.map((c) => {
   const costEff = targetCpl > 0 && cost.cpl > 0 ? clamp(targetCpl / cost.cpl) : 0.5;
   const score = Math.round((leadAch * 0.4 + bookingAch * 0.4 + costEff * 0.2) * 100);
   const status = score >= 80 ? 'on-track' : score >= 60 ? 'at-risk' : 'off-track';
-  // Finance (estimates from project_index targets — refined when real booking/revenue data lands).
-  const valuePerBooking = c.targets.book > 0 && c.targets.bookingValue > 0 ? c.targets.bookingValue / c.targets.book : 0;
-  const revenue = Math.round(f.booking * valuePerBooking);
+  // CPA = cost per booking (acquisition). Property business uses CPA, not ROAS.
   const cpa = f.booking > 0 ? Math.round(a.spend / f.booking) : 0;
-  const roas = a.spend > 0 ? Number((revenue / a.spend).toFixed(2)) : 0;
   return {
     name: c.name, products: c.products, startDate: c.startDate, endDate: c.endDate,
     targets: c.targets, funnel: f, contribution: c.contribution, ads: a, cost,
-    finance: { revenue, cpa, roas },
+    finance: { cpa },
     health: { score, status }, lastLead: c.lastLead ? c.lastLead.slice(0, 10) : null,
     monthly: lastN(c._m, 12), weekly: lastN(c._w, 12),
   };

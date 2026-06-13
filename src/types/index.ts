@@ -275,8 +275,8 @@ export interface LgpCampaign {
   contribution: { pmkt: number; organic: number; socmed: number; other: number };
   ads: { spend: number; meta: number; google: number; tiktok: number };
   cost: { cpl: number; cpSubmit: number; cpInterest: number; cpSvd: number; cpBooking: number };
-  /** Estimated finance (refined when real booking/revenue data lands). */
-  finance: { revenue: number; cpa: number; roas: number };
+  /** Cost per acquisition (spend ÷ booking). Property business uses CPA, not ROAS. */
+  finance: { cpa: number };
   health: { score: number; status: CampaignTrack };
   lastLead?: string | null;
   monthly: LgpPeriod[];

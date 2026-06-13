@@ -29,7 +29,9 @@ export function StatCard({ label, value, icon, iconTone = 'brand', hint, delta, 
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
           <p className="truncate text-xs font-medium uppercase tracking-wide text-muted">{label}</p>
-          <p className="mt-2 text-2xl font-bold tracking-tight text-slate-900 dark:text-white">{value}</p>
+          <p className="mt-2 whitespace-nowrap text-2xl font-bold tabular-nums tracking-tight text-slate-900 dark:text-white">
+            {value}
+          </p>
         </div>
         {icon && (
           <span className={`flex h-10 w-10 flex-none items-center justify-center rounded-xl ${iconTones[iconTone]}`}>

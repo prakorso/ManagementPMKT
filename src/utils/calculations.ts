@@ -2,6 +2,7 @@ import { differenceInCalendarDays, isBefore, isValid, parseISO } from 'date-fns'
 import type {
   ActionItem,
   Assessment,
+  CampaignAssignment,
   DashboardData,
   LgpCampaign,
   MonthNumber,
@@ -363,26 +364,53 @@ export function lgpKpiTiles(c: LgpCampaign): LgpKpiTile[] {
   ];
 }
 
-/** Portfolio-level business KPIs across campaigns (Executive Dashboard). */
+/** Portfolio-level business KPIs across campaigns (Executive / Control Tower). */
 export function lgpPortfolio(campaigns: LgpCampaign[]) {
   const s = (fn: (c: LgpCampaign) => number) => campaigns.reduce((sum, c) => sum + fn(c), 0);
   const spend = s((c) => c.ads.spend);
   const leads = s((c) => c.funnel.raw);
   const booking = s((c) => c.funnel.booking);
-  const revenue = s((c) => c.finance.revenue);
   return {
     count: campaigns.length,
     spend,
     leads,
     booking,
-    revenue,
     cpl: leads > 0 ? round(spend / leads) : 0,
     cpa: booking > 0 ? round(spend / booking) : 0,
-    roas: spend > 0 ? Number((revenue / spend).toFixed(2)) : 0,
+    conversion: leads > 0 ? Number(((booking / leads) * 100).toFixed(1)) : 0,
     onTrack: campaigns.filter((c) => c.health.status === 'on-track').length,
     atRisk: campaigns.filter((c) => c.health.status === 'at-risk').length,
     offTrack: campaigns.filter((c) => c.health.status === 'off-track').length,
   };
+}
+
+/** Campaigns a member owns or supports (by assignment). */
+export function memberAssignedCampaigns(
+  campaigns: LgpCampaign[],
+  assignments: Record<string, CampaignAssignment>,
+  memberId: string,
+): LgpCampaign[] {
+  return campaigns.filter((c) => {
+    const a = assignments[c.name];
+    return !!a && (a.ownerId === memberId || (a.supportingIds ?? []).includes(memberId));
+  });
+}
+
+/** Team ranking by performance score, using assigned-campaign health. */
+export function teamRankingLgp(
+  members: TeamMember[],
+  campaigns: LgpCampaign[],
+  assignments: Record<string, CampaignAssignment>,
+): RankedMember[] {
+  return members
+    .map((member) => {
+      const mine = memberAssignedCampaigns(campaigns, assignments, member.id);
+      const campaignHealth = mine.length ? round(avg(mine.map((c) => c.health.score))) : null;
+      const performanceScore =
+        campaignHealth === null ? member.developmentProgress : round(0.5 * member.developmentProgress + 0.5 * campaignHealth);
+      return { member, performanceScore, campaignHealth, campaignCount: mine.length };
+    })
+    .sort((a, b) => b.performanceScore - a.performanceScore);
 }
 
 export function lgpHealthSummary(campaigns: LgpCampaign[]) {

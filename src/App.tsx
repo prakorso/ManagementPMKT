@@ -11,7 +11,6 @@ import type { Role } from '@/types';
 
 // Route-level code splitting keeps chart-heavy pages out of the initial bundle.
 const Homepage = lazy(() => import('@/pages/Homepage').then((m) => ({ default: m.Homepage })));
-const ExecutiveDashboard = lazy(() => import('@/pages/ExecutiveDashboard').then((m) => ({ default: m.ExecutiveDashboard })));
 const MemberOverview = lazy(() => import('@/pages/MemberOverview').then((m) => ({ default: m.MemberOverview })));
 const TeamManagement = lazy(() => import('@/pages/TeamManagement').then((m) => ({ default: m.TeamManagement })));
 const MemberDetail = lazy(() => import('@/pages/MemberDetail').then((m) => ({ default: m.MemberDetail })));
@@ -42,8 +41,10 @@ export default function App() {
   if (error || !data) return <ErrorState message={error ?? 'No data available.'} />;
   if (!session) return <LoginScreen />;
 
-  const homeForRole =
-    session.role === 'member' ? <MemberOverview /> : session.role === 'vp' ? <ExecutiveDashboard /> : <Homepage />;
+  // Manager, team-lead and VP all share the combined Control Tower + Executive
+  // home (the dashboard the manager controls and the VP reviews). Members get
+  // their own scoped overview.
+  const homeForRole = session.role === 'member' ? <MemberOverview /> : <Homepage />;
 
   return (
     <BrowserRouter basename={import.meta.env.BASE_URL.replace(/\/$/, '')}>

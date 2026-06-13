@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-13T06:26:34.008Z",
+  "generatedAt": "2026-06-13T06:38:39.777Z",
   "source": "LGP CSV exports",
   "count": 81,
   "campaigns": [
@@ -44,9 +44,7 @@
         "cpBooking": 895542531
       },
       "finance": {
-        "revenue": 0,
-        "cpa": 895542531,
-        "roas": 0
+        "cpa": 895542531
       },
       "health": {
         "score": 100,
@@ -339,9 +337,7 @@
         "cpBooking": 0
       },
       "finance": {
-        "revenue": 0,
-        "cpa": 0,
-        "roas": 0
+        "cpa": 0
       },
       "health": {
         "score": 100,
@@ -634,9 +630,7 @@
         "cpBooking": 188738140
       },
       "finance": {
-        "revenue": 0,
-        "cpa": 188738140,
-        "roas": 0
+        "cpa": 188738140
       },
       "health": {
         "score": 14,
@@ -929,9 +923,7 @@
         "cpBooking": 0
       },
       "finance": {
-        "revenue": 0,
-        "cpa": 0,
-        "roas": 0
+        "cpa": 0
       },
       "health": {
         "score": 60,
@@ -1224,9 +1216,7 @@
         "cpBooking": 0
       },
       "finance": {
-        "revenue": 0,
-        "cpa": 0,
-        "roas": 0
+        "cpa": 0
       },
       "health": {
         "score": 60,
@@ -1499,9 +1489,7 @@
         "cpBooking": 0
       },
       "finance": {
-        "revenue": 0,
-        "cpa": 0,
-        "roas": 0
+        "cpa": 0
       },
       "health": {
         "score": 100,
@@ -1774,9 +1762,7 @@
         "cpBooking": 0
       },
       "finance": {
-        "revenue": 0,
-        "cpa": 0,
-        "roas": 0
+        "cpa": 0
       },
       "health": {
         "score": 60,
@@ -2069,9 +2055,7 @@
         "cpBooking": 0
       },
       "finance": {
-        "revenue": 0,
-        "cpa": 0,
-        "roas": 0
+        "cpa": 0
       },
       "health": {
         "score": 60,
@@ -2364,9 +2348,7 @@
         "cpBooking": 0
       },
       "finance": {
-        "revenue": 0,
-        "cpa": 0,
-        "roas": 0
+        "cpa": 0
       },
       "health": {
         "score": 100,
@@ -2659,9 +2641,7 @@
         "cpBooking": 0
       },
       "finance": {
-        "revenue": 0,
-        "cpa": 0,
-        "roas": 0
+        "cpa": 0
       },
       "health": {
         "score": 100,
@@ -2914,9 +2894,7 @@
         "cpBooking": 0
       },
       "finance": {
-        "revenue": 0,
-        "cpa": 0,
-        "roas": 0
+        "cpa": 0
       },
       "health": {
         "score": 100,
@@ -3179,9 +3157,7 @@
         "cpBooking": 0
       },
       "finance": {
-        "revenue": 0,
-        "cpa": 0,
-        "roas": 0
+        "cpa": 0
       },
       "health": {
         "score": 60,
@@ -3434,9 +3410,7 @@
         "cpBooking": 0
       },
       "finance": {
-        "revenue": 0,
-        "cpa": 0,
-        "roas": 0
+        "cpa": 0
       },
       "health": {
         "score": 100,
@@ -3729,9 +3703,7 @@
         "cpBooking": 0
       },
       "finance": {
-        "revenue": 0,
-        "cpa": 0,
-        "roas": 0
+        "cpa": 0
       },
       "health": {
         "score": 60,
@@ -3984,9 +3956,7 @@
         "cpBooking": 0
       },
       "finance": {
-        "revenue": 0,
-        "cpa": 0,
-        "roas": 0
+        "cpa": 0
       },
       "health": {
         "score": 60,
@@ -4259,9 +4229,7 @@
         "cpBooking": 0
       },
       "finance": {
-        "revenue": 0,
-        "cpa": 0,
-        "roas": 0
+        "cpa": 0
       },
       "health": {
         "score": 10,
@@ -4494,9 +4462,7 @@
         "cpBooking": 0
       },
       "finance": {
-        "revenue": 0,
-        "cpa": 0,
-        "roas": 0
+        "cpa": 0
       },
       "health": {
         "score": 60,
@@ -4739,9 +4705,7 @@
         "cpBooking": 0
       },
       "finance": {
-        "revenue": 0,
-        "cpa": 0,
-        "roas": 0
+        "cpa": 0
       },
       "health": {
         "score": 78,
@@ -4984,9 +4948,7 @@
         "cpBooking": 0
       },
       "finance": {
-        "revenue": 0,
-        "cpa": 0,
-        "roas": 0
+        "cpa": 0
       },
       "health": {
         "score": 60,
@@ -5249,9 +5211,7 @@
         "cpBooking": 0
       },
       "finance": {
-        "revenue": 0,
-        "cpa": 0,
-        "roas": 0
+        "cpa": 0
       },
       "health": {
         "score": 75,
@@ -5474,9 +5434,7 @@
         "cpBooking": 0
       },
       "finance": {
-        "revenue": 0,
-        "cpa": 0,
-        "roas": 0
+        "cpa": 0
       },
       "health": {
         "score": 43,
@@ -5719,9 +5677,7 @@
         "cpBooking": 0
       },
       "finance": {
-        "revenue": 0,
-        "cpa": 0,
-        "roas": 0
+        "cpa": 0
       },
       "health": {
         "score": 100,
@@ -5964,9 +5920,7 @@
         "cpBooking": 0
       },
       "finance": {
-        "revenue": 0,
-        "cpa": 0,
-        "roas": 0
+        "cpa": 0
       },
       "health": {
         "score": 100,
@@ -6229,9 +6183,7 @@
         "cpBooking": 0
       },
       "finance": {
-        "revenue": 0,
-        "cpa": 0,
-        "roas": 0
+        "cpa": 0
       },
       "health": {
         "score": 89,
@@ -6454,9 +6406,7 @@
         "cpBooking": 0
       },
       "finance": {
-        "revenue": 0,
-        "cpa": 0,
-        "roas": 0
+        "cpa": 0
       },
       "health": {
         "score": 10,
@@ -6679,9 +6629,7 @@
         "cpBooking": 0
       },
       "finance": {
-        "revenue": 0,
-        "cpa": 0,
-        "roas": 0
+        "cpa": 0
       },
       "health": {
         "score": 88,
@@ -6914,9 +6862,7 @@
         "cpBooking": 0
       },
       "finance": {
-        "revenue": 0,
-        "cpa": 0,
-        "roas": 0
+        "cpa": 0
       },
       "health": {
         "score": 100,
@@ -7149,9 +7095,7 @@
         "cpBooking": 0
       },
       "finance": {
-        "revenue": 0,
-        "cpa": 0,
-        "roas": 0
+        "cpa": 0
       },
       "health": {
         "score": 98,
@@ -7394,9 +7338,7 @@
         "cpBooking": 0
       },
       "finance": {
-        "revenue": 0,
-        "cpa": 0,
-        "roas": 0
+        "cpa": 0
       },
       "health": {
         "score": 34,
@@ -7639,9 +7581,7 @@
         "cpBooking": 10542992
       },
       "finance": {
-        "revenue": 0,
-        "cpa": 10542992,
-        "roas": 0
+        "cpa": 10542992
       },
       "health": {
         "score": 100,
@@ -7894,9 +7834,7 @@
         "cpBooking": 0
       },
       "finance": {
-        "revenue": 0,
-        "cpa": 0,
-        "roas": 0
+        "cpa": 0
       },
       "health": {
         "score": 100,
@@ -8159,9 +8097,7 @@
         "cpBooking": 0
       },
       "finance": {
-        "revenue": 0,
-        "cpa": 0,
-        "roas": 0
+        "cpa": 0
       },
       "health": {
         "score": 22,
@@ -8344,9 +8280,7 @@
         "cpBooking": 0
       },
       "finance": {
-        "revenue": 0,
-        "cpa": 0,
-        "roas": 0
+        "cpa": 0
       },
       "health": {
         "score": 80,
@@ -8589,9 +8523,7 @@
         "cpBooking": 0
       },
       "finance": {
-        "revenue": 0,
-        "cpa": 0,
-        "roas": 0
+        "cpa": 0
       },
       "health": {
         "score": 100,
@@ -8834,9 +8766,7 @@
         "cpBooking": 0
       },
       "finance": {
-        "revenue": 0,
-        "cpa": 0,
-        "roas": 0
+        "cpa": 0
       },
       "health": {
         "score": 84,
@@ -9059,9 +8989,7 @@
         "cpBooking": 0
       },
       "finance": {
-        "revenue": 0,
-        "cpa": 0,
-        "roas": 0
+        "cpa": 0
       },
       "health": {
         "score": 94,
@@ -9294,9 +9222,7 @@
         "cpBooking": 0
       },
       "finance": {
-        "revenue": 0,
-        "cpa": 0,
-        "roas": 0
+        "cpa": 0
       },
       "health": {
         "score": 98,
@@ -9529,9 +9455,7 @@
         "cpBooking": 0
       },
       "finance": {
-        "revenue": 0,
-        "cpa": 0,
-        "roas": 0
+        "cpa": 0
       },
       "health": {
         "score": 89,
@@ -9774,9 +9698,7 @@
         "cpBooking": 0
       },
       "finance": {
-        "revenue": 0,
-        "cpa": 0,
-        "roas": 0
+        "cpa": 0
       },
       "health": {
         "score": 64,
@@ -9979,9 +9901,7 @@
         "cpBooking": 0
       },
       "finance": {
-        "revenue": 0,
-        "cpa": 0,
-        "roas": 0
+        "cpa": 0
       },
       "health": {
         "score": 70,
@@ -10204,9 +10124,7 @@
         "cpBooking": 0
       },
       "finance": {
-        "revenue": 0,
-        "cpa": 0,
-        "roas": 0
+        "cpa": 0
       },
       "health": {
         "score": 80,
@@ -10469,9 +10387,7 @@
         "cpBooking": 0
       },
       "finance": {
-        "revenue": 0,
-        "cpa": 0,
-        "roas": 0
+        "cpa": 0
       },
       "health": {
         "score": 100,
@@ -10734,9 +10650,7 @@
         "cpBooking": 0
       },
       "finance": {
-        "revenue": 0,
-        "cpa": 0,
-        "roas": 0
+        "cpa": 0
       },
       "health": {
         "score": 95,
@@ -10989,9 +10903,7 @@
         "cpBooking": 0
       },
       "finance": {
-        "revenue": 0,
-        "cpa": 0,
-        "roas": 0
+        "cpa": 0
       },
       "health": {
         "score": 10,
@@ -11114,9 +11026,7 @@
         "cpBooking": 0
       },
       "finance": {
-        "revenue": 0,
-        "cpa": 0,
-        "roas": 0
+        "cpa": 0
       },
       "health": {
         "score": 95,
@@ -11359,9 +11269,7 @@
         "cpBooking": 0
       },
       "finance": {
-        "revenue": 0,
-        "cpa": 0,
-        "roas": 0
+        "cpa": 0
       },
       "health": {
         "score": 95,
@@ -11604,9 +11512,7 @@
         "cpBooking": 0
       },
       "finance": {
-        "revenue": 0,
-        "cpa": 0,
-        "roas": 0
+        "cpa": 0
       },
       "health": {
         "score": 60,
@@ -11789,9 +11695,7 @@
         "cpBooking": 0
       },
       "finance": {
-        "revenue": 0,
-        "cpa": 0,
-        "roas": 0
+        "cpa": 0
       },
       "health": {
         "score": 61,
@@ -11974,9 +11878,7 @@
         "cpBooking": 0
       },
       "finance": {
-        "revenue": 0,
-        "cpa": 0,
-        "roas": 0
+        "cpa": 0
       },
       "health": {
         "score": 100,
@@ -12219,9 +12121,7 @@
         "cpBooking": 0
       },
       "finance": {
-        "revenue": 0,
-        "cpa": 0,
-        "roas": 0
+        "cpa": 0
       },
       "health": {
         "score": 100,
@@ -12484,9 +12384,7 @@
         "cpBooking": 0
       },
       "finance": {
-        "revenue": 0,
-        "cpa": 0,
-        "roas": 0
+        "cpa": 0
       },
       "health": {
         "score": 68,
@@ -12709,9 +12607,7 @@
         "cpBooking": 0
       },
       "finance": {
-        "revenue": 0,
-        "cpa": 0,
-        "roas": 0
+        "cpa": 0
       },
       "health": {
         "score": 100,
@@ -12944,9 +12840,7 @@
         "cpBooking": 0
       },
       "finance": {
-        "revenue": 0,
-        "cpa": 0,
-        "roas": 0
+        "cpa": 0
       },
       "health": {
         "score": 100,
@@ -13189,9 +13083,7 @@
         "cpBooking": 0
       },
       "finance": {
-        "revenue": 0,
-        "cpa": 0,
-        "roas": 0
+        "cpa": 0
       },
       "health": {
         "score": 100,
@@ -13434,9 +13326,7 @@
         "cpBooking": 0
       },
       "finance": {
-        "revenue": 0,
-        "cpa": 0,
-        "roas": 0
+        "cpa": 0
       },
       "health": {
         "score": 100,
@@ -13679,9 +13569,7 @@
         "cpBooking": 0
       },
       "finance": {
-        "revenue": 0,
-        "cpa": 0,
-        "roas": 0
+        "cpa": 0
       },
       "health": {
         "score": 100,
@@ -13924,9 +13812,7 @@
         "cpBooking": 0
       },
       "finance": {
-        "revenue": 0,
-        "cpa": 0,
-        "roas": 0
+        "cpa": 0
       },
       "health": {
         "score": 60,
@@ -14169,9 +14055,7 @@
         "cpBooking": 0
       },
       "finance": {
-        "revenue": 0,
-        "cpa": 0,
-        "roas": 0
+        "cpa": 0
       },
       "health": {
         "score": 60,
@@ -14344,9 +14228,7 @@
         "cpBooking": 0
       },
       "finance": {
-        "revenue": 0,
-        "cpa": 0,
-        "roas": 0
+        "cpa": 0
       },
       "health": {
         "score": 100,
@@ -14589,9 +14471,7 @@
         "cpBooking": 0
       },
       "finance": {
-        "revenue": 0,
-        "cpa": 0,
-        "roas": 0
+        "cpa": 0
       },
       "health": {
         "score": 97,
@@ -14834,9 +14714,7 @@
         "cpBooking": 0
       },
       "finance": {
-        "revenue": 0,
-        "cpa": 0,
-        "roas": 0
+        "cpa": 0
       },
       "health": {
         "score": 100,
@@ -15049,9 +14927,7 @@
         "cpBooking": 0
       },
       "finance": {
-        "revenue": 0,
-        "cpa": 0,
-        "roas": 0
+        "cpa": 0
       },
       "health": {
         "score": 60,
@@ -15214,9 +15090,7 @@
         "cpBooking": 0
       },
       "finance": {
-        "revenue": 0,
-        "cpa": 0,
-        "roas": 0
+        "cpa": 0
       },
       "health": {
         "score": 33,
@@ -15329,9 +15203,7 @@
         "cpBooking": 0
       },
       "finance": {
-        "revenue": 0,
-        "cpa": 0,
-        "roas": 0
+        "cpa": 0
       },
       "health": {
         "score": 90,
@@ -15574,9 +15446,7 @@
         "cpBooking": 0
       },
       "finance": {
-        "revenue": 0,
-        "cpa": 0,
-        "roas": 0
+        "cpa": 0
       },
       "health": {
         "score": 10,
@@ -15769,9 +15639,7 @@
         "cpBooking": 0
       },
       "finance": {
-        "revenue": 0,
-        "cpa": 0,
-        "roas": 0
+        "cpa": 0
       },
       "health": {
         "score": 90,
@@ -15984,9 +15852,7 @@
         "cpBooking": 0
       },
       "finance": {
-        "revenue": 0,
-        "cpa": 0,
-        "roas": 0
+        "cpa": 0
       },
       "health": {
         "score": 59,
@@ -16229,9 +16095,7 @@
         "cpBooking": 0
       },
       "finance": {
-        "revenue": 0,
-        "cpa": 0,
-        "roas": 0
+        "cpa": 0
       },
       "health": {
         "score": 62,
@@ -16454,9 +16318,7 @@
         "cpBooking": 0
       },
       "finance": {
-        "revenue": 0,
-        "cpa": 0,
-        "roas": 0
+        "cpa": 0
       },
       "health": {
         "score": 30,
@@ -16619,9 +16481,7 @@
         "cpBooking": 0
       },
       "finance": {
-        "revenue": 0,
-        "cpa": 0,
-        "roas": 0
+        "cpa": 0
       },
       "health": {
         "score": 50,
@@ -16794,9 +16654,7 @@
         "cpBooking": 0
       },
       "finance": {
-        "revenue": 0,
-        "cpa": 0,
-        "roas": 0
+        "cpa": 0
       },
       "health": {
         "score": 50,
@@ -16979,9 +16837,7 @@
         "cpBooking": 0
       },
       "finance": {
-        "revenue": 0,
-        "cpa": 0,
-        "roas": 0
+        "cpa": 0
       },
       "health": {
         "score": 10,
@@ -17114,9 +16970,7 @@
         "cpBooking": 0
       },
       "finance": {
-        "revenue": 0,
-        "cpa": 0,
-        "roas": 0
+        "cpa": 0
       },
       "health": {
         "score": 33,
@@ -17229,9 +17083,7 @@
         "cpBooking": 0
       },
       "finance": {
-        "revenue": 0,
-        "cpa": 0,
-        "roas": 0
+        "cpa": 0
       },
       "health": {
         "score": 90,
@@ -17463,9 +17315,7 @@
         "cpBooking": 0
       },
       "finance": {
-        "revenue": 0,
-        "cpa": 0,
-        "roas": 0
+        "cpa": 0
       },
       "health": {
         "score": 31,
@@ -17648,9 +17498,7 @@
         "cpBooking": 0
       },
       "finance": {
-        "revenue": 0,
-        "cpa": 0,
-        "roas": 0
+        "cpa": 0
       },
       "health": {
         "score": 90,
@@ -17873,9 +17721,7 @@
         "cpBooking": 0
       },
       "finance": {
-        "revenue": 0,
-        "cpa": 0,
-        "roas": 0
+        "cpa": 0
       },
       "health": {
         "score": 54,
@@ -18098,9 +17944,7 @@
         "cpBooking": 0
       },
       "finance": {
-        "revenue": 0,
-        "cpa": 0,
-        "roas": 0
+        "cpa": 0
       },
       "health": {
         "score": 63,
@@ -18343,9 +18187,7 @@
         "cpBooking": 0
       },
       "finance": {
-        "revenue": 0,
-        "cpa": 0,
-        "roas": 0
+        "cpa": 0
       },
       "health": {
         "score": 14,
@@ -18428,9 +18270,7 @@
         "cpBooking": 0
       },
       "finance": {
-        "revenue": 0,
-        "cpa": 0,
-        "roas": 0
+        "cpa": 0
       },
       "health": {
         "score": 24,
@@ -18543,9 +18383,7 @@
         "cpBooking": 0
       },
       "finance": {
-        "revenue": 0,
-        "cpa": 0,
-        "roas": 0
+        "cpa": 0
       },
       "health": {
         "score": 50,

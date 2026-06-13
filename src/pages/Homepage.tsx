@@ -2,15 +2,17 @@ import { Link } from 'react-router-dom';
 import {
   Activity,
   AlertTriangle,
-  CalendarClock,
+  Banknote,
   CheckCircle2,
   Crosshair,
-  FolderKanban,
-  ListChecks,
   Megaphone,
   NotebookPen,
+  Target,
+  TrendingUp,
   Trophy,
+  UserX,
   Users,
+  Wallet,
 } from 'lucide-react';
 import { useData } from '@/context/DataContext';
 import { LoadingScreen } from '@/components/ui/LoadingScreen';
@@ -23,104 +25,95 @@ import { ProgressBar } from '@/components/ui/ProgressBar';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { SegmentedDonut } from '@/components/charts/SegmentedDonut';
 import {
-  campaignsOf,
-  campaignTrackSummary,
-  objectiveTrackCounts,
+  lgpPortfolio,
   pendingUpdateMembers,
-  projectAssignmentSummary,
   recentActivities,
   teamHealthSnapshot,
-  teamRanking,
+  teamRankingLgp,
   type ActivityItem,
 } from '@/utils/calculations';
-import { formatDate, formatPercent, relativeDays } from '@/utils/format';
+import { formatIDRCompact, formatNumber, formatPercent, relativeDays } from '@/utils/format';
 import type { Tone } from '@/components/ui/Badge';
 
 const COLORS = { onTrack: '#10b981', atRisk: '#f59e0b', offTrack: '#f43f5e' };
 
 export function Homepage() {
-  const { data, loading, error } = useData();
+  const { data, loading, error, assignments } = useData();
   if (loading) return <LoadingScreen />;
   if (error || !data) return <ErrorState message={error ?? 'No data available.'} />;
 
-  const { teamMembers, objectives, projects } = data;
+  const { teamMembers, lgpCampaigns } = data;
   const now = new Date();
 
-  const health = teamHealthSnapshot(teamMembers);
-  const campaigns = campaignTrackSummary(campaignsOf(projects));
-  const objCounts = objectiveTrackCounts(objectives, now);
-  const ranking = teamRanking(teamMembers, projects);
+  const p = lgpPortfolio(lgpCampaigns);
+  const team = teamHealthSnapshot(teamMembers);
+  const ranking = teamRankingLgp(teamMembers, lgpCampaigns, assignments);
   const pending = pendingUpdateMembers(teamMembers, now);
-  const projectSummary = projectAssignmentSummary(projects, now);
+  const unassigned = lgpCampaigns.filter((c) => !assignments[c.name]?.ownerId).length;
   const activities = recentActivities(data);
-  const activeCampaigns = campaignsOf(projects).filter((p) => p.status === 'active').length;
 
   const alerts = [
-    { id: 'a1', count: campaigns.offTrack, label: 'Campaigns off track', tone: 'danger' as Tone, to: '/performance', icon: Megaphone },
-    { id: 'a2', count: pending.length, label: 'Members missing weekly update', tone: 'warning' as Tone, to: '/team', icon: Users },
-    { id: 'a3', count: objCounts.dueThisWeek, label: 'Objectives due this week', tone: 'info' as Tone, to: '/objectives', icon: ListChecks },
-    { id: 'a4', count: projectSummary.overdue, label: 'Projects overdue', tone: 'danger' as Tone, to: '/projects', icon: FolderKanban },
-    { id: 'a5', count: projectSummary.blocked, label: 'Projects blocked', tone: 'danger' as Tone, to: '/projects', icon: FolderKanban },
+    { id: 'a1', count: p.offTrack, label: 'Campaigns off track', tone: 'danger' as Tone, to: '/campaigns', icon: Megaphone },
+    { id: 'a2', count: p.atRisk, label: 'Campaigns at risk', tone: 'warning' as Tone, to: '/campaigns', icon: AlertTriangle },
+    { id: 'a3', count: unassigned, label: 'Campaigns unassigned', tone: 'info' as Tone, to: '/campaigns', icon: UserX },
+    { id: 'a4', count: pending.length, label: 'Members missing weekly update', tone: 'warning' as Tone, to: '/team', icon: Users },
   ].filter((a) => a.count > 0);
 
   return (
     <div className="space-y-6">
       <div>
         <h1 className="text-xl font-bold tracking-tight text-slate-900 dark:text-white sm:text-2xl">Control Tower</h1>
-        <p className="mt-1 text-sm text-muted">Your whole team at a glance — what needs attention right now.</p>
+        <p className="mt-1 text-sm text-muted">Business health and what needs attention across {p.count} campaigns.</p>
       </div>
 
-      {/* Team summary cards */}
+      {/* Business KPIs */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
-        <StatCard label="Team Members" value={teamMembers.length} icon={<Users size={18} />} iconTone="brand" to="/team" />
-        <StatCard label="Active Campaigns" value={activeCampaigns} icon={<Megaphone size={18} />} iconTone="info" to="/performance" />
-        <StatCard label="Active Projects" value={projectSummary.active} icon={<FolderKanban size={18} />} iconTone="brand" to="/projects" />
-        <StatCard label="On-Track Objectives" value={objCounts.onTrack} icon={<CheckCircle2 size={18} />} iconTone="success" to="/objectives" />
-        <StatCard label="Off-Track Objectives" value={objCounts.offTrack} icon={<AlertTriangle size={18} />} iconTone="danger" to="/objectives" />
-        <StatCard label="Pending Updates" value={pending.length} icon={<CalendarClock size={18} />} iconTone="warning" to="/team" />
+        <StatCard label="Spend" value={formatIDRCompact(p.spend)} icon={<Wallet size={18} />} iconTone="brand" />
+        <StatCard label="Leads" value={formatNumber(p.leads)} icon={<Megaphone size={18} />} iconTone="info" to="/campaigns" />
+        <StatCard label="Bookings" value={formatNumber(p.booking)} icon={<Target size={18} />} iconTone="success" />
+        <StatCard label="CPA" value={formatIDRCompact(p.cpa)} icon={<Banknote size={18} />} iconTone="warning" />
+        <StatCard label="Conversion" value={formatPercent(p.conversion, 1)} icon={<TrendingUp size={18} />} iconTone="success" />
+        <StatCard label="Campaigns" value={formatNumber(p.count)} icon={<Crosshair size={18} />} iconTone="neutral" to="/campaigns" />
       </div>
 
-      {/* Health + campaign + alerts */}
+      {/* Health + alerts */}
       <div className="grid gap-4 lg:grid-cols-3">
-        {/* Team health snapshot */}
         <Card>
-          <CardHeader title="Team Health Snapshot" subtitle="Per-member status" />
+          <CardHeader title="Campaign Health" subtitle={`${p.count} campaigns`} icon={<Megaphone size={16} />} />
           <div className="flex items-center gap-5">
             <SegmentedDonut
-              centerValue={health.total}
-              centerLabel="members"
+              centerValue={p.count}
+              centerLabel="campaigns"
               segments={[
-                { label: 'On Track', value: health.onTrack, color: COLORS.onTrack },
-                { label: 'At Risk', value: health.atRisk, color: COLORS.atRisk },
-                { label: 'Off Track', value: health.offTrack, color: COLORS.offTrack },
+                { label: 'On Track', value: p.onTrack, color: COLORS.onTrack },
+                { label: 'At Risk', value: p.atRisk, color: COLORS.atRisk },
+                { label: 'Off Track', value: p.offTrack, color: COLORS.offTrack },
               ]}
             />
             <ul className="space-y-2 text-sm">
-              <Legend color={COLORS.onTrack} label="On Track" value={health.onTrack} pct={health.onTrackPct} />
-              <Legend color={COLORS.atRisk} label="At Risk" value={health.atRisk} pct={health.atRiskPct} />
-              <Legend color={COLORS.offTrack} label="Off Track" value={health.offTrack} pct={health.offTrackPct} />
+              <Legend color={COLORS.onTrack} label="On Track" value={p.onTrack} />
+              <Legend color={COLORS.atRisk} label="At Risk" value={p.atRisk} />
+              <Legend color={COLORS.offTrack} label="Off Track" value={p.offTrack} />
             </ul>
           </div>
         </Card>
 
-        {/* Campaign health */}
         <Card>
-          <CardHeader title="Campaign Health" subtitle={`${campaigns.total} campaigns`} icon={<Megaphone size={16} />} />
-          <div className="space-y-3">
-            <HealthBar label="On Track" value={campaigns.onTrack} total={campaigns.total} color={COLORS.onTrack} />
-            <HealthBar label="At Risk" value={campaigns.atRisk} total={campaigns.total} color={COLORS.atRisk} />
-            <HealthBar label="Off Track" value={campaigns.offTrack} total={campaigns.total} color={COLORS.offTrack} />
-          </div>
-          <Link to="/performance" className="mt-4 inline-block text-xs font-medium text-brand-600 hover:underline dark:text-brand-300">
-            View campaign performance →
+          <CardHeader title="Team Health" subtitle={`${team.total} members`} icon={<Users size={16} />} />
+          <ul className="space-y-2 text-sm">
+            <Legend color={COLORS.onTrack} label="On Track" value={team.onTrack} />
+            <Legend color={COLORS.atRisk} label="Watch" value={team.atRisk} />
+            <Legend color={COLORS.offTrack} label="At Risk" value={team.offTrack} />
+          </ul>
+          <Link to="/team" className="mt-4 inline-block text-xs font-medium text-brand-600 hover:underline dark:text-brand-300">
+            View team →
           </Link>
         </Card>
 
-        {/* Alert center */}
         <Card>
-          <CardHeader title="Alert Center" icon={<AlertTriangle size={16} />} subtitle={`${alerts.length} need attention`} />
+          <CardHeader title="Action Required" icon={<AlertTriangle size={16} />} subtitle={`${alerts.length} need attention`} />
           {alerts.length === 0 ? (
-            <EmptyState icon={<CheckCircle2 size={28} />} title="All clear" description="No alerts right now." />
+            <EmptyState icon={<CheckCircle2 size={28} />} title="All clear" description="Nothing needs attention right now." />
           ) : (
             <ul className="space-y-2">
               {alerts.map((a) => {
@@ -145,9 +138,8 @@ export function Homepage() {
         </Card>
       </div>
 
-      {/* Ranking + activities */}
+      {/* Ranking + activity */}
       <div className="grid gap-4 lg:grid-cols-3">
-        {/* Team ranking */}
         <Card padded={false} className="lg:col-span-2">
           <div className="flex items-center gap-2 border-b border-slate-200/80 p-5 dark:border-slate-700/60">
             <Trophy size={16} className="text-brand-500" />
@@ -180,15 +172,15 @@ export function Homepage() {
                     <td className="px-3 py-3">
                       <div className="flex items-center gap-2">
                         <ProgressBar value={r.performanceScore} autoTone size="sm" className="w-16" />
-                        <span className="font-semibold text-slate-700 dark:text-slate-200">{r.performanceScore}</span>
+                        <span className="font-semibold tabular-nums text-slate-700 dark:text-slate-200">{r.performanceScore}</span>
                       </div>
                     </td>
-                    <td className="px-3 py-3 text-slate-600 dark:text-slate-300">{r.campaignCount}</td>
+                    <td className="px-3 py-3 tabular-nums text-slate-600 dark:text-slate-300">{r.campaignCount}</td>
                     <td className="px-5 py-3">
                       {r.campaignHealth === null ? (
                         <span className="text-xs text-muted">—</span>
                       ) : (
-                        <span className="font-semibold text-slate-700 dark:text-slate-200">{r.campaignHealth}</span>
+                        <span className="font-semibold tabular-nums text-slate-700 dark:text-slate-200">{r.campaignHealth}</span>
                       )}
                     </td>
                   </tr>
@@ -198,7 +190,6 @@ export function Homepage() {
           </div>
         </Card>
 
-        {/* Recent activities */}
         <Card>
           <CardHeader title="Recent Activities" icon={<Activity size={16} />} />
           {activities.length === 0 ? (
@@ -216,39 +207,17 @@ export function Homepage() {
   );
 }
 
-function Legend({ color, label, value, pct }: { color: string; label: string; value: number; pct: number }) {
+function Legend({ color, label, value }: { color: string; label: string; value: number }) {
   return (
     <li className="flex items-center gap-2">
       <span className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: color }} />
       <span className="text-slate-600 dark:text-slate-300">{label}</span>
-      <span className="ml-auto font-semibold text-slate-800 dark:text-slate-100">
-        {value} <span className="text-xs font-normal text-muted">({formatPercent(pct)})</span>
-      </span>
+      <span className="ml-auto font-semibold tabular-nums text-slate-800 dark:text-slate-100">{value}</span>
     </li>
   );
 }
 
-function HealthBar({ label, value, total, color }: { label: string; value: number; total: number; color: string }) {
-  const pct = total > 0 ? (value / total) * 100 : 0;
-  return (
-    <div>
-      <div className="mb-1 flex items-center justify-between text-xs">
-        <span className="text-slate-600 dark:text-slate-300">{label}</span>
-        <span className="font-semibold text-slate-800 dark:text-slate-100">{value}</span>
-      </div>
-      <div className="h-2 w-full overflow-hidden rounded-full bg-slate-200/80 dark:bg-slate-700/60">
-        <div className="h-full rounded-full transition-all" style={{ width: `${pct}%`, backgroundColor: color }} />
-      </div>
-    </div>
-  );
-}
-
-const ACTIVITY_ICON = {
-  meeting: NotebookPen,
-  project: FolderKanban,
-  objective: ListChecks,
-  assessment: Crosshair,
-} as const;
+const ACTIVITY_ICON = { meeting: NotebookPen, project: Megaphone, objective: Target, assessment: Crosshair } as const;
 
 function ActivityRow({ activity, now }: { activity: ActivityItem; now: Date }) {
   const Icon = ACTIVITY_ICON[activity.kind];
@@ -259,7 +228,7 @@ function ActivityRow({ activity, now }: { activity: ActivityItem; now: Date }) {
       </span>
       <div className="min-w-0 flex-1">
         <p className="text-sm text-slate-700 dark:text-slate-200">{activity.title}</p>
-        <p className="text-[11px] text-muted">{relativeDays(activity.date, now)} · {formatDate(activity.date)}</p>
+        <p className="text-[11px] text-muted">{relativeDays(activity.date, now)}</p>
       </div>
     </li>
   );

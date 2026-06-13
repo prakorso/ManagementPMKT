@@ -1,4 +1,4 @@
-import type { ActionItem, Assessment, CampaignAssignment, Objective, Project, TeamMember } from '@/types';
+import type { ActionItem, Assessment, CampaignAssignment, Objective, OneOnOneSession, Project, TeamMember } from '@/types';
 import { pushSync } from './sync';
 
 /**
@@ -106,6 +106,14 @@ export const saveLocalAssessments = (items: Assessment[]): void => saveOverlay(A
 const ACTIONITEMS_KEY = 'mdd-local-actionitems';
 export const loadLocalActionItems = (): ActionItem[] => loadOverlay<ActionItem>(ACTIONITEMS_KEY);
 export const saveLocalActionItems = (items: ActionItem[]): void => saveOverlay(ACTIONITEMS_KEY, items);
+
+// --- One-on-one sessions overlay (Phase B) ----------------------------------
+const ONEONONES_KEY = 'mdd-oneonones';
+export const loadOneOnOnes = (): OneOnOneSession[] => loadOverlay<OneOnOneSession>(ONEONONES_KEY);
+export const saveOneOnOnes = (items: OneOnOneSession[]): void => saveOverlay(ONEONONES_KEY, items);
+export function newOneOnOneId(memberId: string): string {
+  return `1on1-${memberId}-${Date.now().toString(36)}`;
+}
 
 // --- Soft-delete overlay: ids hidden from the UI (works for seed/sheet rows too) ---
 export interface RemovedIds {

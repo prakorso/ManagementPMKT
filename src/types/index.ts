@@ -337,6 +337,37 @@ export interface CampaignAssignment {
 }
 
 // -----------------------------------------------------------------------------
+// One-on-One system (Phase B) — structured 1:1 sessions kept in a local overlay
+// -----------------------------------------------------------------------------
+
+export interface OneOnOneActionItem {
+  id: string;
+  text: string;
+  done: boolean;
+  dueDate?: string;
+}
+
+/** A structured 1:1 session between the manager and a report. */
+export interface OneOnOneSession {
+  id: string;
+  memberId: string;
+  /** ISO date of the 1:1. */
+  date: string;
+  wins?: string;
+  challenges?: string;
+  blockers?: string;
+  supportNeeded?: string;
+  actionPlan?: string;
+  nextWeekTarget?: string;
+  /** Manager flag: this report needs escalation / leadership attention. */
+  escalate?: boolean;
+  escalationReason?: string;
+  /** Action items captured during the 1:1. */
+  actions?: OneOnOneActionItem[];
+  author?: string;
+}
+
+// -----------------------------------------------------------------------------
 // Batch 2 (planned) — multi-project support.
 //
 // These optional types let the schema grow toward per-project objective/

@@ -93,8 +93,11 @@ plus Spam & Unqualified (from `contact_status` / `last_result`). Headline econom
 - ✅ **Performance Score** per specialist — Campaign Health 45% · Task 25% · Weekly
   Update 15% · Meeting Action 15% (Objective component dropped with the Objective
   Tracker). Drives both the Team Dashboard and the home Team Ranking.
-- 🔵 **One-on-One System:** dedicated 1:1 (Wins, Challenges, Blockers, Support Needed,
-  Action Plan, Next-Week Target) with history, action-item tracking, escalation.
+- ✅ **One-on-One System** (in Member detail): structured 1:1 — Wins, Challenges,
+  Blockers, Support Needed, Action Plan, Next-Week Target — with full history,
+  per-session **action items** (checkable) and an **escalation** flag that surfaces
+  on the member header and the home Action Required center. Stored in a local
+  overlay (`oneOnOnes`), sync-ready for Phase D.
 - 🔵 **Task Management:** unify campaign + standalone tasks; add **Overdue** status &
   due-date roll-ups.
 

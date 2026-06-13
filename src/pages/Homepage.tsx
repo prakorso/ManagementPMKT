@@ -9,6 +9,7 @@ import {
   ListChecks,
   Megaphone,
   NotebookPen,
+  ShieldAlert,
   Target,
   TrendingUp,
   Trophy,
@@ -27,6 +28,7 @@ import { ProgressBar } from '@/components/ui/ProgressBar';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { SegmentedDonut } from '@/components/charts/SegmentedDonut';
 import {
+  escalatedMembers,
   lgpPortfolio,
   overdueTasks,
   pendingUpdateMembers,
@@ -42,7 +44,7 @@ import type { Tone } from '@/components/ui/Badge';
 const COLORS = { onTrack: '#10b981', atRisk: '#f59e0b', offTrack: '#f43f5e' };
 
 export function Homepage() {
-  const { data, loading, error, assignments } = useData();
+  const { data, loading, error, assignments, oneOnOnes } = useData();
   if (loading) return <LoadingScreen />;
   if (error || !data) return <ErrorState message={error ?? 'No data available.'} />;
 
@@ -57,12 +59,14 @@ export function Homepage() {
   const activities = recentActivities(data);
   const overdue = overdueTasks(assignments, teamMembers, now);
   const upcoming = upcomingOneOnOnes(teamMembers, now);
+  const escalated = escalatedMembers(oneOnOnes, teamMembers);
 
   const alerts = [
     { id: 'a1', count: p.offTrack, label: 'Campaigns off track', tone: 'danger' as Tone, to: '/campaigns', icon: Megaphone },
     { id: 'a2', count: p.atRisk, label: 'Campaigns at risk', tone: 'warning' as Tone, to: '/campaigns', icon: AlertTriangle },
     { id: 'a3', count: unassigned, label: 'Campaigns unassigned', tone: 'info' as Tone, to: '/campaigns', icon: UserX },
     { id: 'a4', count: pending.length, label: 'Members missing weekly update', tone: 'warning' as Tone, to: '/team', icon: Users },
+    { id: 'a5', count: escalated.length, label: 'Members flagged for escalation', tone: 'danger' as Tone, to: '/team', icon: ShieldAlert },
   ].filter((a) => a.count > 0);
 
   return (

@@ -11,6 +11,7 @@ import {
   Mail,
   Megaphone,
   MessageSquareQuote,
+  ShieldAlert,
   Sparkles,
   Trash2,
 } from 'lucide-react';
@@ -25,15 +26,17 @@ import { ProgressBar } from '@/components/ui/ProgressBar';
 import { Button } from '@/components/ui/Button';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { AssignedCampaignCard } from '@/components/projects/AssignedCampaignCard';
+import { OneOnOnePanel } from '@/components/team/OneOnOnePanel';
 import { formatDate, relativeDays } from '@/utils/format';
 import { actionStatusLabel, actionStatusTone, healthLabel, healthTone, meetingCategoryLabel, meetingCategoryTone } from '@/utils/labels';
 
 export function MemberDetail() {
   const { memberId } = useParams();
   const navigate = useNavigate();
-  const { data, loading, error, assignments, removeTeamMember } = useData();
+  const { data, loading, error, assignments, removeTeamMember, oneOnOnes, addOneOnOne, updateOneOnOne, removeOneOnOne } = useData();
   const { session } = useSession();
   const isManager = session?.role === 'manager';
+  const canEdit = session?.role === 'manager' || session?.role === 'team-lead';
 
   if (loading) return <LoadingScreen />;
   if (error || !data) return <ErrorState message={error ?? 'No data available.'} />;
@@ -56,6 +59,9 @@ export function MemberDetail() {
   const meetings = data.meetings.filter((m) => m.teamMemberId === member.id).sort((a, b) => b.date.localeCompare(a.date));
   const actionItems = data.actionItems.filter((i) => i.teamMemberId === member.id);
   const openItems = actionItems.filter((i) => i.status !== 'done');
+  const memberSessions = oneOnOnes.filter((s) => s.memberId === member.id).sort((a, b) => b.date.localeCompare(a.date));
+  const latestSession = memberSessions[0];
+  const lastOneOnOneDate = latestSession?.date ?? member.lastOneOnOne;
 
   return (
     <div className="space-y-6">
@@ -84,6 +90,11 @@ export function MemberDetail() {
               <div className="flex flex-wrap items-center gap-2">
                 <h1 className="text-xl font-bold tracking-tight text-slate-900 dark:text-white">{member.name}</h1>
                 <Badge tone={healthTone[member.health]}>{healthLabel[member.health]}</Badge>
+                {latestSession?.escalate && (
+                  <Badge tone="danger">
+                    <ShieldAlert size={11} /> Escalation
+                  </Badge>
+                )}
                 {member.local && <Badge tone="info">Local</Badge>}
               </div>
               <p className="text-sm text-muted">{member.role}</p>
@@ -105,7 +116,7 @@ export function MemberDetail() {
 
         {/* 1:1 schedule + links */}
         <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-          <MiniStat icon={<CalendarCheck size={12} />} label="Last 1:1" value={formatDate(member.lastOneOnOne)} sub={relativeDays(member.lastOneOnOne, now)} />
+          <MiniStat icon={<CalendarCheck size={12} />} label="Last 1:1" value={formatDate(lastOneOnOneDate)} sub={relativeDays(lastOneOnOneDate, now)} />
           <MiniStat icon={<CalendarClock size={12} />} label="Next 1:1" value={formatDate(member.nextOneOnOne)} sub={relativeDays(member.nextOneOnOne, now)} />
           {member.reportingUrl && (
             <LinkTile href={member.reportingUrl} icon={<FileSpreadsheet size={14} />} label="Reporting Sheet" />
@@ -161,6 +172,18 @@ export function MemberDetail() {
           )}
         </div>
       </Card>
+
+      {/* One-on-one system */}
+      <OneOnOnePanel
+        memberId={member.id}
+        memberName={member.name}
+        sessions={memberSessions}
+        canEdit={canEdit}
+        author={session?.name ?? 'Manager'}
+        onAdd={addOneOnOne}
+        onUpdate={updateOneOnOne}
+        onRemove={removeOneOnOne}
+      />
 
       {/* Meetings + action items */}
       <div className="grid gap-4 lg:grid-cols-2">

@@ -8,7 +8,7 @@ import {
   useState,
   type ReactNode,
 } from 'react';
-import type { ActionItem, CampaignAssignment, DashboardData, Objective, Project, TeamMember } from '@/types';
+import type { ActionItem, CampaignAssignment, DashboardData, Objective, OneOnOneSession, Project, TeamMember } from '@/types';
 import { createDataSource } from '@/data';
 import { SeedDataSource } from '@/data/SeedDataSource';
 import { config } from '@/config';
@@ -18,12 +18,14 @@ import {
   loadLocalMembers,
   loadLocalObjectives,
   loadLocalProjects,
+  loadOneOnOnes,
   loadRemoved,
   saveAssignments,
   saveLocalActionItems,
   saveLocalMembers,
   saveLocalObjectives,
   saveLocalProjects,
+  saveOneOnOnes,
   saveRemoved,
   type RemovedIds,
 } from '@/data/localStore';
@@ -61,6 +63,14 @@ interface DataContextValue {
   assignments: Record<string, CampaignAssignment>;
   /** Merge-patches a campaign's assignment (owner, tasks, updates, notes…). */
   updateAssignment: (campaignName: string, patch: Partial<CampaignAssignment>) => void;
+  /** One-on-one sessions overlay (Phase B). */
+  oneOnOnes: OneOnOneSession[];
+  /** Logs a new 1:1 session. */
+  addOneOnOne: (session: OneOnOneSession) => void;
+  /** Patches a 1:1 session. */
+  updateOneOnOne: (id: string, patch: Partial<OneOnOneSession>) => void;
+  /** Deletes a 1:1 session. */
+  removeOneOnOne: (id: string) => void;
   /** True when an Apps Script write-back URL is configured. */
   writeEnabled: boolean;
   /** Saves/clears the write-back URL (persisted in this browser). */
@@ -87,6 +97,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
   const [localActionItems, setLocalActionItems] = useState<ActionItem[]>(() => loadLocalActionItems());
   const [removed, setRemovedState] = useState<RemovedIds>(() => loadRemoved());
   const [assignments, setAssignments] = useState<Record<string, CampaignAssignment>>(() => loadAssignments());
+  const [oneOnOnes, setOneOnOnes] = useState<OneOnOneSession[]>(() => loadOneOnOnes());
   const [loading, setLoading] = useState(true);
   const [warning, setWarning] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -141,6 +152,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
       setLocalActionItems(loadLocalActionItems());
       setRemovedState(loadRemoved());
       setAssignments(loadAssignments());
+      setOneOnOnes(loadOneOnOnes());
     };
     window.addEventListener('pmos-sync', rehydrate);
     return () => window.removeEventListener('pmos-sync', rehydrate);
@@ -166,6 +178,30 @@ export function DataProvider({ children }: { children: ReactNode }) {
       const current = prev[campaignName] ?? { campaignName };
       const next = { ...prev, [campaignName]: { ...current, ...patch, campaignName } };
       saveAssignments(next);
+      return next;
+    });
+  }, []);
+
+  const addOneOnOne = useCallback((session: OneOnOneSession) => {
+    setOneOnOnes((prev) => {
+      const next = [session, ...prev];
+      saveOneOnOnes(next);
+      return next;
+    });
+  }, []);
+
+  const updateOneOnOne = useCallback((id: string, patch: Partial<OneOnOneSession>) => {
+    setOneOnOnes((prev) => {
+      const next = prev.map((s) => (s.id === id ? { ...s, ...patch } : s));
+      saveOneOnOnes(next);
+      return next;
+    });
+  }, []);
+
+  const removeOneOnOne = useCallback((id: string) => {
+    setOneOnOnes((prev) => {
+      const next = prev.filter((s) => s.id !== id);
+      saveOneOnOnes(next);
       return next;
     });
   }, []);
@@ -338,6 +374,10 @@ export function DataProvider({ children }: { children: ReactNode }) {
       updateActionItem,
       assignments,
       updateAssignment,
+      oneOnOnes,
+      addOneOnOne,
+      updateOneOnOne,
+      removeOneOnOne,
       writeEnabled: !!writeUrl,
       configureWriteUrl,
       writeUrl,
@@ -360,6 +400,10 @@ export function DataProvider({ children }: { children: ReactNode }) {
       updateActionItem,
       assignments,
       updateAssignment,
+      oneOnOnes,
+      addOneOnOne,
+      updateOneOnOne,
+      removeOneOnOne,
       writeUrl,
       configureWriteUrl,
     ],

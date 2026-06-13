@@ -8,6 +8,7 @@ import type {
   LgpCampaign,
   MonthNumber,
   Objective,
+  OneOnOneSession,
   PerformanceSnapshot,
   Project,
   ReadinessArea,
@@ -157,6 +158,14 @@ export interface UpcomingOneOnOne {
   member: TeamMember;
   date: string;
   inDays: number;
+}
+
+/** Members whose most recent 1:1 session is flagged for escalation. */
+export function escalatedMembers(sessions: OneOnOneSession[], members: TeamMember[]): TeamMember[] {
+  return members.filter((m) => {
+    const latest = sessions.filter((s) => s.memberId === m.id).sort((a, b) => b.date.localeCompare(a.date))[0];
+    return !!latest?.escalate;
+  });
 }
 
 /** Members with a next 1:1 scheduled from today onward, soonest first. */

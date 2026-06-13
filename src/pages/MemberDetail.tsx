@@ -1,4 +1,4 @@
-import { useState, type ReactNode } from 'react';
+import type { ReactNode } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import {
   ArrowLeft,
@@ -7,12 +7,10 @@ import {
   ClipboardList,
   FileSpreadsheet,
   FileText,
-  FolderKanban,
   Lightbulb,
   Mail,
   Megaphone,
   MessageSquareQuote,
-  Plus,
   Sparkles,
   Trash2,
 } from 'lucide-react';
@@ -26,22 +24,16 @@ import { Avatar } from '@/components/ui/Avatar';
 import { ProgressBar } from '@/components/ui/ProgressBar';
 import { Button } from '@/components/ui/Button';
 import { EmptyState } from '@/components/ui/EmptyState';
-import { CampaignCard } from '@/components/projects/CampaignCard';
-import { AddCampaignModal } from '@/components/projects/AddCampaignModal';
-import { ProjectCard } from '@/components/projects/ProjectCard';
-import { ProjectDetailModal } from '@/components/projects/ProjectDetailModal';
-import { campaignsOf, memberProjects, projectsForMember } from '@/utils/calculations';
+import { AssignedCampaignCard } from '@/components/projects/AssignedCampaignCard';
 import { formatDate, relativeDays } from '@/utils/format';
 import { actionStatusLabel, actionStatusTone, healthLabel, healthTone, meetingCategoryLabel, meetingCategoryTone } from '@/utils/labels';
 
 export function MemberDetail() {
   const { memberId } = useParams();
   const navigate = useNavigate();
-  const { data, loading, error, addProject, updateProject, removeProject, removeTeamMember } = useData();
+  const { data, loading, error, assignments, removeTeamMember } = useData();
   const { session } = useSession();
   const isManager = session?.role === 'manager';
-  const [campaignModal, setCampaignModal] = useState(false);
-  const [selectedProjId, setSelectedProjId] = useState<string | null>(null);
 
   if (loading) return <LoadingScreen />;
   if (error || !data) return <ErrorState message={error ?? 'No data available.'} />;
@@ -57,9 +49,10 @@ export function MemberDetail() {
   }
 
   const now = new Date();
-  const campaigns = campaignsOf(projectsForMember(data.projects, member.id));
-  const memberProjectsList = memberProjects(data.projects, member.id);
-  const selectedProj = selectedProjId ? data.projects.find((p) => p.id === selectedProjId) ?? null : null;
+  const assignedCampaigns = data.lgpCampaigns.filter((c) => {
+    const a = assignments[c.name];
+    return !!a && (a.ownerId === member.id || (a.supportingIds ?? []).includes(member.id));
+  });
   const meetings = data.meetings.filter((m) => m.teamMemberId === member.id).sort((a, b) => b.date.localeCompare(a.date));
   const actionItems = data.actionItems.filter((i) => i.teamMemberId === member.id);
   const openItems = actionItems.filter((i) => i.status !== 'done');
@@ -143,46 +136,31 @@ export function MemberDetail() {
         </div>
       )}
 
-      {/* Campaigns handled */}
+      {/* Assigned campaigns */}
       <Card padded={false}>
-        <div className="flex items-center justify-between gap-3 border-b border-slate-200/80 p-5 dark:border-slate-700/60">
-          <h3 className="flex items-center gap-2 text-sm font-semibold text-slate-900 dark:text-slate-100">
-            <Megaphone size={16} className="text-brand-500" /> Campaigns Handled
-            <span className="rounded-full bg-slate-100 px-1.5 text-[11px] font-bold text-slate-600 dark:bg-slate-700 dark:text-slate-300">
-              {campaigns.length}
-            </span>
-          </h3>
-          <Button size="sm" onClick={() => setCampaignModal(true)}>
-            <Plus size={15} /> Assign Campaign
-          </Button>
+        <div className="flex items-center gap-2 border-b border-slate-200/80 p-5 dark:border-slate-700/60">
+          <Megaphone size={16} className="text-brand-500" />
+          <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-100">Assigned Campaigns</h3>
+          <span className="rounded-full bg-slate-100 px-1.5 text-[11px] font-bold text-slate-600 dark:bg-slate-700 dark:text-slate-300">
+            {assignedCampaigns.length}
+          </span>
         </div>
         <div className="p-5">
-          {campaigns.length === 0 ? (
-            <EmptyState icon={<Megaphone size={28} />} title="No campaigns assigned" description={`Assign a campaign to ${member.name} to track its performance here.`} />
+          {assignedCampaigns.length === 0 ? (
+            <EmptyState
+              icon={<Megaphone size={28} />}
+              title="No campaigns assigned"
+              description={`Assign a campaign to ${member.name} from the Campaign Hub.`}
+            />
           ) : (
-            <div className="grid gap-4 lg:grid-cols-2">
-              {campaigns.map((project) => (
-                <CampaignCard key={project.id} project={project} members={data.teamMembers} onUpdate={updateProject} onRemove={removeProject} hideOwners canDelete={isManager} />
+            <div className="grid gap-3 lg:grid-cols-2">
+              {assignedCampaigns.map((c) => (
+                <AssignedCampaignCard key={c.name} campaign={c} owner={member.name} />
               ))}
             </div>
           )}
         </div>
       </Card>
-
-      {/* Projects */}
-      {memberProjectsList.length > 0 && (
-        <Card padded={false}>
-          <div className="flex items-center gap-2 border-b border-slate-200/80 p-5 dark:border-slate-700/60">
-            <FolderKanban size={16} className="text-brand-500" />
-            <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-100">Project Assignment</h3>
-          </div>
-          <div className="grid gap-3 p-5 lg:grid-cols-2">
-            {memberProjectsList.map((p) => (
-              <ProjectCard key={p.id} project={p} members={data.teamMembers} onClick={() => setSelectedProjId(p.id)} />
-            ))}
-          </div>
-        </Card>
-      )}
 
       {/* Meetings + action items */}
       <div className="grid gap-4 lg:grid-cols-2">
@@ -236,17 +214,6 @@ export function MemberDetail() {
           </div>
         </Card>
       </div>
-
-      <AddCampaignModal
-        open={campaignModal}
-        onClose={() => setCampaignModal(false)}
-        onAdd={addProject}
-        members={data.teamMembers}
-        defaultOwnerId={member.id}
-      />
-      {selectedProj && (
-        <ProjectDetailModal key={selectedProj.id} project={selectedProj} members={data.teamMembers} onClose={() => setSelectedProjId(null)} />
-      )}
     </div>
   );
 }

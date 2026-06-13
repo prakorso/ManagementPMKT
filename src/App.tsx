@@ -14,7 +14,6 @@ const Homepage = lazy(() => import('@/pages/Homepage').then((m) => ({ default: m
 const MemberOverview = lazy(() => import('@/pages/MemberOverview').then((m) => ({ default: m.MemberOverview })));
 const TeamManagement = lazy(() => import('@/pages/TeamManagement').then((m) => ({ default: m.TeamManagement })));
 const MemberDetail = lazy(() => import('@/pages/MemberDetail').then((m) => ({ default: m.MemberDetail })));
-const ObjectiveTracker = lazy(() => import('@/pages/ObjectiveTracker').then((m) => ({ default: m.ObjectiveTracker })));
 const PerformanceReporting = lazy(() =>
   import('@/pages/PerformanceReporting').then((m) => ({ default: m.PerformanceReporting })),
 );
@@ -57,7 +56,6 @@ export default function App() {
           <Route path="campaigns" element={<Guard path="/campaigns"><CampaignHub /></Guard>} />
           <Route path="campaigns/:name" element={<Guard path="/campaigns/:name"><CampaignDetail /></Guard>} />
           <Route path="performance" element={<Guard path="/performance"><PerformanceReporting /></Guard>} />
-          <Route path="objectives" element={<Guard path="/objectives"><ObjectiveTracker /></Guard>} />
           <Route path="team" element={<Guard path="/team"><TeamManagement /></Guard>} />
           <Route path="team/:memberId" element={<Guard path="/team"><MemberDetail /></Guard>} />
           <Route path="projects" element={<Guard path="/projects"><ProjectAssignment /></Guard>} />

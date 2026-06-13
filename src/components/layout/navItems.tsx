@@ -1,7 +1,6 @@
 import {
   LayoutDashboard,
   Users,
-  ListChecks,
   TrendingUp,
   Crosshair,
   NotebookPen,
@@ -32,7 +31,6 @@ export const navSections: NavSection[] = [
     items: [
       { to: '/campaigns', label: 'Campaign Hub', icon: Megaphone },
       { to: '/performance', label: 'Campaign Performance', icon: TrendingUp },
-      { to: '/objectives', label: 'Objective Tracker', icon: ListChecks },
     ],
   },
   {

@@ -87,13 +87,15 @@ plus Spam & Unqualified (from `contact_status` / `last_result`). Headline econom
 > be pulled forward at any time.
 
 ### Phase B — Team management & 1:1  *(people layer)*
-- **Team Dashboard:** project count, revenue, booking, CPA, achievement, **workload
-  / capacity / utilization**, performance ranking, workload distribution.
-- **Performance Score** per specialist: Campaign Health 40% + Task 25% + Weekly
-  Update 15% + Meeting Action 10% + Objective 10%.
-- **One-on-One System:** dedicated 1:1 (Wins, Challenges, Blockers, Support Needed,
+- ✅ **Team Dashboard** (`/team`): per-member campaigns (active/total), bookings, CPA,
+  campaign health, **workload / capacity / utilization** (capacity 15/member), plus
+  team totals (active campaigns, avg load, over-capacity count).
+- ✅ **Performance Score** per specialist — Campaign Health 45% · Task 25% · Weekly
+  Update 15% · Meeting Action 15% (Objective component dropped with the Objective
+  Tracker). Drives both the Team Dashboard and the home Team Ranking.
+- 🔵 **One-on-One System:** dedicated 1:1 (Wins, Challenges, Blockers, Support Needed,
   Action Plan, Next-Week Target) with history, action-item tracking, escalation.
-- **Task Management:** unify campaign + standalone tasks; add **Overdue** status &
+- 🔵 **Task Management:** unify campaign + standalone tasks; add **Overdue** status &
   due-date roll-ups.
 
 ### Phase C — Knowledge Base & AI Command Center  *(intelligence)*

@@ -401,19 +401,128 @@ export function memberAssignedCampaigns(
   });
 }
 
-/** Team ranking by performance score, using assigned-campaign health. */
+/** Default campaign capacity per specialist (~80–100 campaigns / 5–6 specialists). */
+export const CAMPAIGN_CAPACITY = 15;
+
+export interface MemberWorkload {
+  activeCampaigns: number;
+  totalCampaigns: number;
+  bookings: number;
+  spend: number;
+  cpa: number;
+  conversion: number;
+  capacity: number;
+  utilizationPct: number;
+}
+
+/** Workload & capacity for one member across their assigned LGP campaigns. */
+export function memberWorkload(
+  member: TeamMember,
+  campaigns: LgpCampaign[],
+  assignments: Record<string, CampaignAssignment>,
+  now: Date = new Date(),
+  capacity = CAMPAIGN_CAPACITY,
+): MemberWorkload {
+  const mine = memberAssignedCampaigns(campaigns, assignments, member.id);
+  const isActive = (c: LgpCampaign) => {
+    if (!c.endDate) return true;
+    const d = parseISO(c.endDate);
+    return !isValid(d) || !isBefore(d, now);
+  };
+  const bookings = mine.reduce((s, c) => s + c.funnel.booking, 0);
+  const spend = mine.reduce((s, c) => s + c.ads.spend, 0);
+  const leads = mine.reduce((s, c) => s + c.funnel.raw, 0);
+  return {
+    activeCampaigns: mine.filter(isActive).length,
+    totalCampaigns: mine.length,
+    bookings,
+    spend,
+    cpa: bookings > 0 ? round(spend / bookings) : 0,
+    conversion: leads > 0 ? Number(((bookings / leads) * 100).toFixed(1)) : 0,
+    capacity,
+    utilizationPct: capacity > 0 ? round((mine.length / capacity) * 100) : 0,
+  };
+}
+
+export interface PerformanceBreakdown {
+  campaignHealth: number;
+  taskCompletion: number;
+  weeklyUpdate: number;
+  meetingAction: number;
+}
+
+export interface PerformanceScore {
+  score: number;
+  breakdown: PerformanceBreakdown;
+}
+
+const PERF_WEIGHTS = { campaignHealth: 0.45, taskCompletion: 0.25, weeklyUpdate: 0.15, meetingAction: 0.15 };
+
+/**
+ * Composite specialist performance score (0–100). PMOS PRD weighting, adapted:
+ * the Objective component was dropped together with the Objective Tracker and its
+ * weight redistributed, giving Campaign Health 45% · Task 25% · Weekly Update 15%
+ * · Meeting Action 15%. Sub-metrics with no data default to 100 (no penalty).
+ */
+export function performanceScore(
+  member: TeamMember,
+  campaigns: LgpCampaign[],
+  assignments: Record<string, CampaignAssignment>,
+  actionItems: ActionItem[],
+  now: Date = new Date(),
+): PerformanceScore {
+  const mine = memberAssignedCampaigns(campaigns, assignments, member.id);
+  const myAssignments = mine.map((c) => assignments[c.name]).filter(Boolean) as CampaignAssignment[];
+
+  // Campaign health: avg assigned-campaign health, fallback to development progress.
+  const campaignHealth = mine.length ? round(avg(mine.map((c) => c.health.score))) : member.developmentProgress;
+
+  // Task completion across the member's campaigns (their tasks + unassigned ones).
+  const tasks = myAssignments.flatMap((a) => (a.tasks ?? []).filter((t) => !t.ownerId || t.ownerId === member.id));
+  const taskCompletion = tasks.length
+    ? round((tasks.filter((t) => t.status === 'completed').length / tasks.length) * 100)
+    : 100;
+
+  // Weekly update freshness: any update in the last 7 days on the member's campaigns.
+  const weeklyUpdate = myAssignments.some((a) =>
+    (a.weeklyUpdates ?? []).some((u) => {
+      const d = parseISO(u.date);
+      return isValid(d) && differenceInCalendarDays(now, d) <= 7;
+    }),
+  )
+    ? 100
+    : 0;
+
+  // Meeting action items closed.
+  const myActions = actionItems.filter((i) => i.teamMemberId === member.id);
+  const meetingAction = myActions.length
+    ? round((myActions.filter((i) => i.status === 'done').length / myActions.length) * 100)
+    : 100;
+
+  const score = round(
+    campaignHealth * PERF_WEIGHTS.campaignHealth +
+      taskCompletion * PERF_WEIGHTS.taskCompletion +
+      weeklyUpdate * PERF_WEIGHTS.weeklyUpdate +
+      meetingAction * PERF_WEIGHTS.meetingAction,
+  );
+
+  return { score, breakdown: { campaignHealth, taskCompletion, weeklyUpdate, meetingAction } };
+}
+
+/** Team ranking by the formal performance score, using assigned-campaign data. */
 export function teamRankingLgp(
   members: TeamMember[],
   campaigns: LgpCampaign[],
   assignments: Record<string, CampaignAssignment>,
+  actionItems: ActionItem[],
+  now: Date = new Date(),
 ): RankedMember[] {
   return members
     .map((member) => {
       const mine = memberAssignedCampaigns(campaigns, assignments, member.id);
       const campaignHealth = mine.length ? round(avg(mine.map((c) => c.health.score))) : null;
-      const performanceScore =
-        campaignHealth === null ? member.developmentProgress : round(0.5 * member.developmentProgress + 0.5 * campaignHealth);
-      return { member, performanceScore, campaignHealth, campaignCount: mine.length };
+      const { score } = performanceScore(member, campaigns, assignments, actionItems, now);
+      return { member, performanceScore: score, campaignHealth, campaignCount: mine.length };
     })
     .sort((a, b) => b.performanceScore - a.performanceScore);
 }

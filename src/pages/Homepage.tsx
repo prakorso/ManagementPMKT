@@ -46,12 +46,12 @@ export function Homepage() {
   if (loading) return <LoadingScreen />;
   if (error || !data) return <ErrorState message={error ?? 'No data available.'} />;
 
-  const { teamMembers, lgpCampaigns } = data;
+  const { teamMembers, lgpCampaigns, actionItems } = data;
   const now = new Date();
 
   const p = lgpPortfolio(lgpCampaigns);
   const team = teamHealthSnapshot(teamMembers);
-  const ranking = teamRankingLgp(teamMembers, lgpCampaigns, assignments);
+  const ranking = teamRankingLgp(teamMembers, lgpCampaigns, assignments, actionItems, now);
   const pending = pendingUpdateMembers(teamMembers, now);
   const unassigned = lgpCampaigns.filter((c) => !assignments[c.name]?.ownerId).length;
   const activities = recentActivities(data);

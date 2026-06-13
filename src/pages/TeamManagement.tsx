@@ -8,6 +8,7 @@ import {
   ExternalLink,
   FileSpreadsheet,
   FileText,
+  Gauge,
   Lightbulb,
   MessageSquareQuote,
   Plus,
@@ -32,14 +33,18 @@ import { SheetSyncModal } from '@/components/team/SheetSyncModal';
 import {
   actionItemCompletionRate,
   averageDevelopmentProgress,
+  CAMPAIGN_CAPACITY,
+  memberWorkload,
+  performanceScore,
   weeklyOneOnOneCompletion,
 } from '@/utils/calculations';
-import { formatDate, formatPercent, relativeDays } from '@/utils/format';
+import { formatDate, formatIDRCompact, formatNumber, formatPercent, relativeDays } from '@/utils/format';
 import { healthLabel, healthTone } from '@/utils/labels';
-import type { ActionItem, Meeting, TeamMember } from '@/types';
+import type { Tone } from '@/components/ui/Badge';
+import type { ActionItem, CampaignAssignment, LgpCampaign, Meeting, TeamMember } from '@/types';
 
 export function TeamManagement() {
-  const { data, loading, error, addTeamMember, removeTeamMember, writeEnabled } = useData();
+  const { data, loading, error, assignments, addTeamMember, removeTeamMember, writeEnabled } = useData();
   const { session } = useSession();
   const isManager = session?.role === 'manager';
   const [modalOpen, setModalOpen] = useState(false);
@@ -48,7 +53,7 @@ export function TeamManagement() {
   if (loading) return <LoadingScreen />;
   if (error || !data) return <ErrorState message={error ?? 'No data available.'} />;
 
-  const { teamMembers, actionItems, meetings } = data;
+  const { teamMembers, actionItems, meetings, lgpCampaigns } = data;
   const now = new Date();
 
   const oneOnOneCompletion = weeklyOneOnOneCompletion(teamMembers, now);
@@ -97,6 +102,15 @@ export function TeamManagement() {
           footer={<ProgressBar value={avgDevelopment} autoTone size="sm" />}
         />
       </div>
+
+      {/* Team Dashboard — workload, capacity & performance */}
+      <TeamDashboard
+        members={teamMembers}
+        campaigns={lgpCampaigns}
+        assignments={assignments}
+        actionItems={actionItems}
+        now={now}
+      />
 
       {/* Member cards */}
       <div className="grid gap-4 xl:grid-cols-2">
@@ -351,5 +365,119 @@ function LinkPill({ href, icon, label }: { href: string; icon: ReactNode; label:
       {label}
       <ExternalLink size={11} className="text-slate-400" />
     </a>
+  );
+}
+
+const utilTone = (pct: number): Tone => (pct > 100 ? 'danger' : pct >= 80 ? 'warning' : pct >= 50 ? 'success' : 'neutral');
+
+/** Workload / capacity / utilization + performance score across the team. */
+function TeamDashboard({
+  members,
+  campaigns,
+  assignments,
+  actionItems,
+  now,
+}: {
+  members: TeamMember[];
+  campaigns: LgpCampaign[];
+  assignments: Record<string, CampaignAssignment>;
+  actionItems: ActionItem[];
+  now: Date;
+}) {
+  const rows = members
+    .map((member) => ({
+      member,
+      workload: memberWorkload(member, campaigns, assignments, now),
+      perf: performanceScore(member, campaigns, assignments, actionItems, now),
+    }))
+    .sort((a, b) => b.perf.score - a.perf.score);
+
+  const totalActive = rows.reduce((s, r) => s + r.workload.activeCampaigns, 0);
+  const avgUtil = rows.length ? Math.round(rows.reduce((s, r) => s + r.workload.utilizationPct, 0) / rows.length) : 0;
+  const overCapacity = rows.filter((r) => r.workload.utilizationPct > 100).length;
+
+  return (
+    <Card padded={false}>
+      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-200/80 p-5 dark:border-slate-700/60">
+        <h3 className="flex items-center gap-2 text-sm font-semibold text-slate-900 dark:text-slate-100">
+          <Gauge size={16} className="text-brand-500" /> Team Dashboard · Workload &amp; Performance
+        </h3>
+        <div className="flex items-center gap-2 text-xs text-muted">
+          <span className="tabular-nums">{totalActive} active campaigns</span>
+          <span>·</span>
+          <span className="tabular-nums">avg {avgUtil}% load</span>
+          {overCapacity > 0 && <Badge tone="danger">{overCapacity} over capacity</Badge>}
+        </div>
+      </div>
+      <div className="overflow-x-auto">
+        <table className="w-full min-w-[760px] text-sm">
+          <thead>
+            <tr className="border-b border-slate-200/80 text-left text-xs uppercase tracking-wide text-muted dark:border-slate-700/60">
+              <th className="px-5 py-3 font-medium">Member</th>
+              <th className="px-3 py-3 font-medium">Campaigns</th>
+              <th className="px-3 py-3 font-medium">Utilization</th>
+              <th className="px-3 py-3 font-medium">Bookings</th>
+              <th className="px-3 py-3 font-medium">CPA</th>
+              <th className="px-3 py-3 font-medium">Campaign Health</th>
+              <th className="px-5 py-3 font-medium">Performance</th>
+            </tr>
+          </thead>
+          <tbody>
+            {rows.map(({ member, workload, perf }) => (
+              <tr
+                key={member.id}
+                className="border-b border-slate-100 last:border-0 hover:bg-slate-50/60 dark:border-slate-700/40 dark:hover:bg-slate-700/20"
+              >
+                <td className="px-5 py-3">
+                  <Link to={`/team/${member.id}`} className="flex items-center gap-2.5 hover:text-brand-600 dark:hover:text-brand-300">
+                    <Avatar name={member.name} size="sm" />
+                    <div className="min-w-0">
+                      <p className="truncate font-medium text-slate-800 dark:text-slate-100">{member.name}</p>
+                      <p className="truncate text-xs text-muted">{member.role}</p>
+                    </div>
+                  </Link>
+                </td>
+                <td className="px-3 py-3 tabular-nums text-slate-600 dark:text-slate-300">
+                  {workload.activeCampaigns}
+                  <span className="text-muted"> / {workload.totalCampaigns}</span>
+                </td>
+                <td className="px-3 py-3">
+                  <div className="flex items-center gap-2">
+                    <ProgressBar value={workload.utilizationPct} tone={utilTone(workload.utilizationPct)} size="sm" className="w-16" />
+                    <span
+                      className={`tabular-nums font-medium ${
+                        workload.utilizationPct > 100 ? 'text-rose-600 dark:text-rose-400' : 'text-slate-600 dark:text-slate-300'
+                      }`}
+                    >
+                      {workload.utilizationPct}%
+                    </span>
+                  </div>
+                </td>
+                <td className="px-3 py-3 tabular-nums text-slate-600 dark:text-slate-300">{formatNumber(workload.bookings)}</td>
+                <td className="px-3 py-3 tabular-nums text-slate-600 dark:text-slate-300">
+                  {workload.cpa > 0 ? formatIDRCompact(workload.cpa) : '—'}
+                </td>
+                <td className="px-3 py-3">
+                  {workload.totalCampaigns ? (
+                    <span className="tabular-nums font-medium text-slate-700 dark:text-slate-200">{perf.breakdown.campaignHealth}</span>
+                  ) : (
+                    <span className="text-xs text-muted">—</span>
+                  )}
+                </td>
+                <td className="px-5 py-3">
+                  <div className="flex items-center gap-2">
+                    <ProgressBar value={perf.score} autoTone size="sm" className="w-16" />
+                    <span className="tabular-nums font-semibold text-slate-700 dark:text-slate-200">{perf.score}</span>
+                  </div>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      <p className="border-t border-slate-200/80 px-5 py-3 text-[11px] text-muted dark:border-slate-700/60">
+        Performance = Campaign Health 45% · Tasks 25% · Weekly Update 15% · Meeting Actions 15%. Capacity {CAMPAIGN_CAPACITY} campaigns/member.
+      </p>
+    </Card>
   );
 }

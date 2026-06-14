@@ -8,7 +8,7 @@ import {
   useState,
   type ReactNode,
 } from 'react';
-import type { ActionItem, CampaignAssignment, CampaignTask, DashboardData, Objective, OneOnOneSession, Project, TeamMember } from '@/types';
+import type { ActionItem, CampaignAssignment, CampaignTask, DashboardData, KnowledgeEntry, Objective, OneOnOneSession, Project, TeamMember } from '@/types';
 import { createDataSource } from '@/data';
 import { SeedDataSource } from '@/data/SeedDataSource';
 import { config } from '@/config';
@@ -18,10 +18,12 @@ import {
   loadLocalMembers,
   loadLocalObjectives,
   loadLocalProjects,
+  loadKnowledge,
   loadOneOnOnes,
   loadRemoved,
   loadStandaloneTasks,
   saveAssignments,
+  saveKnowledge,
   saveLocalActionItems,
   saveLocalMembers,
   saveLocalObjectives,
@@ -81,6 +83,10 @@ interface DataContextValue {
   updateStandaloneTask: (id: string, patch: Partial<CampaignTask>) => void;
   /** Deletes a standalone task. */
   removeStandaloneTask: (id: string) => void;
+  /** Knowledge Base overlay, keyed by campaign name. */
+  knowledge: Record<string, KnowledgeEntry>;
+  /** Merge-patches a campaign's knowledge entry. */
+  updateKnowledge: (campaignName: string, patch: Partial<KnowledgeEntry>) => void;
   /** True when an Apps Script write-back URL is configured. */
   writeEnabled: boolean;
   /** Saves/clears the write-back URL (persisted in this browser). */
@@ -109,6 +115,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
   const [assignments, setAssignments] = useState<Record<string, CampaignAssignment>>(() => loadAssignments());
   const [oneOnOnes, setOneOnOnes] = useState<OneOnOneSession[]>(() => loadOneOnOnes());
   const [standaloneTasks, setStandaloneTasks] = useState<CampaignTask[]>(() => loadStandaloneTasks());
+  const [knowledge, setKnowledge] = useState<Record<string, KnowledgeEntry>>(() => loadKnowledge());
   const [loading, setLoading] = useState(true);
   const [warning, setWarning] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -165,6 +172,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
       setAssignments(loadAssignments());
       setOneOnOnes(loadOneOnOnes());
       setStandaloneTasks(loadStandaloneTasks());
+      setKnowledge(loadKnowledge());
     };
     window.addEventListener('pmos-sync', rehydrate);
     return () => window.removeEventListener('pmos-sync', rehydrate);
@@ -238,6 +246,15 @@ export function DataProvider({ children }: { children: ReactNode }) {
     setStandaloneTasks((prev) => {
       const next = prev.filter((t) => t.id !== id);
       saveStandaloneTasks(next);
+      return next;
+    });
+  }, []);
+
+  const updateKnowledge = useCallback((campaignName: string, patch: Partial<KnowledgeEntry>) => {
+    setKnowledge((prev) => {
+      const current = prev[campaignName] ?? { campaignName };
+      const next = { ...prev, [campaignName]: { ...current, ...patch, campaignName, updatedAt: new Date().toISOString() } };
+      saveKnowledge(next);
       return next;
     });
   }, []);
@@ -418,6 +435,8 @@ export function DataProvider({ children }: { children: ReactNode }) {
       addStandaloneTask,
       updateStandaloneTask,
       removeStandaloneTask,
+      knowledge,
+      updateKnowledge,
       writeEnabled: !!writeUrl,
       configureWriteUrl,
       writeUrl,
@@ -448,6 +467,8 @@ export function DataProvider({ children }: { children: ReactNode }) {
       addStandaloneTask,
       updateStandaloneTask,
       removeStandaloneTask,
+      knowledge,
+      updateKnowledge,
       writeUrl,
       configureWriteUrl,
     ],

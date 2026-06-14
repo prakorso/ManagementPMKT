@@ -1,4 +1,4 @@
-import type { ActionItem, Assessment, CampaignAssignment, CampaignTask, Objective, OneOnOneSession, Project, TeamMember } from '@/types';
+import type { ActionItem, Assessment, CampaignAssignment, CampaignTask, KnowledgeEntry, Objective, OneOnOneSession, Project, TeamMember } from '@/types';
 import { pushSync } from './sync';
 
 /**
@@ -171,6 +171,28 @@ export function loadAssignments(): Record<string, CampaignAssignment> {
 export function saveAssignments(map: Record<string, CampaignAssignment>): void {
   try {
     localStorage.setItem(ASSIGN_KEY, JSON.stringify(map));
+  } catch {
+    /* ignore */
+  }
+  pushSync();
+}
+
+// --- Knowledge Base overlay (keyed by campaign name) ------------------------
+const KNOWLEDGE_KEY = 'mdd-knowledge';
+
+export function loadKnowledge(): Record<string, KnowledgeEntry> {
+  try {
+    const raw = localStorage.getItem(KNOWLEDGE_KEY);
+    const parsed = raw ? JSON.parse(raw) : {};
+    return parsed && typeof parsed === 'object' ? parsed : {};
+  } catch {
+    return {};
+  }
+}
+
+export function saveKnowledge(map: Record<string, KnowledgeEntry>): void {
+  try {
+    localStorage.setItem(KNOWLEDGE_KEY, JSON.stringify(map));
   } catch {
     /* ignore */
   }

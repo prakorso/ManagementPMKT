@@ -9,6 +9,7 @@ import {
   ListChecks,
   Megaphone,
   BrainCircuit,
+  BookOpen,
   Settings,
   type LucideIcon,
 } from 'lucide-react';
@@ -34,6 +35,7 @@ export const navSections: NavSection[] = [
       { to: '/campaigns', label: 'Campaign Hub', icon: Megaphone },
       { to: '/performance', label: 'Campaign Performance', icon: TrendingUp },
       { to: '/insights', label: 'AI Command Center', icon: BrainCircuit },
+      { to: '/knowledge', label: 'Knowledge Base', icon: BookOpen },
     ],
   },
   {

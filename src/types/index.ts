@@ -373,6 +373,20 @@ export interface OneOnOneSession {
 }
 
 // -----------------------------------------------------------------------------
+// Knowledge Base (Phase C) — per-campaign learnings kept in a local overlay
+// -----------------------------------------------------------------------------
+
+/** Retained knowledge for one campaign (survives team changes — keyed by name). */
+export interface KnowledgeEntry {
+  campaignName: string;
+  winningCreative?: string;
+  winningAudience?: string;
+  learnings?: string;
+  recommendations?: string;
+  updatedAt?: string;
+}
+
+// -----------------------------------------------------------------------------
 // Batch 2 (planned) — multi-project support.
 //
 // These optional types let the schema grow toward per-project objective/

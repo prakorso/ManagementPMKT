@@ -112,9 +112,14 @@ plus Spam & Unqualified (from `contact_status` / `last_result`). Headline econom
   spend ↑20% & results ↓20%) + **CPA above portfolio average**. Ranks
   Critical / Warning / Opportunity, with severity filters.
 - ✅ Surfaced in **Homepage "AI Priority"** panel + per-campaign **Insights** section.
-- 🔵 **Knowledge Base** per project: Winning Creative/Audience, Best CPA/CPL,
-  Learnings, Recommendations — searchable, survives team changes.
-- 🔵 **Alerts & notifications**; simple **trend forecasting**.
+- ✅ **Knowledge Base** (`/knowledge`): per-campaign Winning Creative/Audience,
+  Learnings, Recommendations (editable overlay) + auto metrics (Best CPL, CPA,
+  Conversion, Bookings). Full-text search, keyed by campaign so it survives team
+  changes; "documented" coverage counter.
+- 🔵 **Alerts & notifications**; simple **trend forecasting** (carried to a later pass).
+
+> **Phase C structure complete** (AI Command Center + Knowledge Base). Alerts/
+> notifications & forecasting fold into the final polish pass.
 
 ### Phase D — Supabase backend  *(persistence & real multi-user)*
 - Supabase **Auth** (replaces the interim profile login) + **Postgres** + **RLS**.

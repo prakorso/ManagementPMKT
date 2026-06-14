@@ -1,5 +1,6 @@
 import { differenceInCalendarDays, isValid, parseISO } from 'date-fns';
-import type { LgpCampaign } from '@/types';
+import { formatIDRCompact } from '@/utils/format';
+import type { LgpCampaign, LgpPeriod } from '@/types';
 
 export type InsightSeverity = 'critical' | 'warning' | 'opportunity' | 'good';
 
@@ -93,4 +94,93 @@ export function campaignInsights(c: LgpCampaign, now: Date = new Date()): Insigh
     });
   }
   return out;
+}
+
+// -----------------------------------------------------------------------------
+// AI Command Center — portfolio-wide aggregation (Phase C)
+// -----------------------------------------------------------------------------
+
+export const SEVERITY_RANK: Record<InsightSeverity, number> = { critical: 0, warning: 1, opportunity: 2, good: 3 };
+
+export interface PortfolioInsight extends Insight {
+  campaignName: string;
+  health: number;
+}
+
+function pctChange(curr: number, prev: number): number | null {
+  if (prev <= 0) return null;
+  return ((curr - prev) / prev) * 100;
+}
+
+/** Trend rules across the two most recent periods (weekly preferred, monthly fallback). */
+function trendInsights(c: LgpCampaign): Insight[] {
+  const out: Insight[] = [];
+  const periods: LgpPeriod[] = c.weekly && c.weekly.length >= 2 ? c.weekly : c.monthly ?? [];
+  if (periods.length < 2) return out;
+  const last = periods[periods.length - 1];
+  const prev = periods[periods.length - 2];
+
+  const leadChange = pctChange(last.raw, prev.raw);
+  if (leadChange !== null && leadChange <= -30) {
+    out.push({
+      id: 'lead-drop',
+      severity: 'warning',
+      title: 'Lead turun tajam',
+      detail: `Lead ${Math.round(leadChange)}% vs periode sebelumnya (${prev.raw} → ${last.raw}). Cek budget pacing / creative fatigue.`,
+    });
+  }
+
+  const spendChange = pctChange(last.spend, prev.spend);
+  const svdChange = pctChange(last.svd, prev.svd);
+  if (spendChange !== null && spendChange >= 20 && svdChange !== null && svdChange <= -20) {
+    out.push({
+      id: 'spend-up-results-down',
+      severity: 'critical',
+      title: 'Spend naik, hasil turun',
+      detail: `Spend +${Math.round(spendChange)}% tapi SPD ${Math.round(svdChange)}% vs periode lalu. Efisiensi memburuk.`,
+    });
+  }
+  return out;
+}
+
+/**
+ * Portfolio-wide AI Command Center insights: per-campaign rules + trend rules +
+ * a portfolio-relative CPA check, flattened and ranked by severity then health.
+ */
+export function portfolioInsights(campaigns: LgpCampaign[], now: Date = new Date()): PortfolioInsight[] {
+  const cpas = campaigns.map((c) => c.finance.cpa).filter((v) => v > 0);
+  const avgCpa = cpas.length ? cpas.reduce((a, b) => a + b, 0) / cpas.length : 0;
+
+  const out: PortfolioInsight[] = [];
+  for (const c of campaigns) {
+    const base = campaignInsights(c, now).filter((i) => i.severity !== 'good');
+    const extra: Insight[] = [...trendInsights(c)];
+    if (avgCpa > 0 && c.funnel.booking > 0 && c.finance.cpa > avgCpa * 1.5) {
+      extra.push({
+        id: 'cpa-high',
+        severity: 'warning',
+        title: 'CPA di atas rata-rata',
+        detail: `CPA ${formatIDRCompact(c.finance.cpa)} jauh di atas rata-rata portfolio (${formatIDRCompact(Math.round(avgCpa))}).`,
+      });
+    }
+    for (const ins of [...base, ...extra]) {
+      out.push({ ...ins, campaignName: c.name, health: c.health.score });
+    }
+  }
+  out.sort((a, b) => SEVERITY_RANK[a.severity] - SEVERITY_RANK[b.severity] || a.health - b.health);
+  return out;
+}
+
+export interface InsightCounts {
+  critical: number;
+  warning: number;
+  opportunity: number;
+}
+
+export function insightCounts(items: PortfolioInsight[]): InsightCounts {
+  return {
+    critical: items.filter((i) => i.severity === 'critical').length,
+    warning: items.filter((i) => i.severity === 'warning').length,
+    opportunity: items.filter((i) => i.severity === 'opportunity').length,
+  };
 }

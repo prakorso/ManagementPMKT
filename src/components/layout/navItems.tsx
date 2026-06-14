@@ -8,6 +8,7 @@ import {
   FolderKanban,
   ListChecks,
   Megaphone,
+  BrainCircuit,
   Settings,
   type LucideIcon,
 } from 'lucide-react';
@@ -32,6 +33,7 @@ export const navSections: NavSection[] = [
     items: [
       { to: '/campaigns', label: 'Campaign Hub', icon: Megaphone },
       { to: '/performance', label: 'Campaign Performance', icon: TrendingUp },
+      { to: '/insights', label: 'AI Command Center', icon: BrainCircuit },
     ],
   },
   {

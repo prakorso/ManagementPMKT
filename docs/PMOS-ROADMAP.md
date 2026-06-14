@@ -106,13 +106,15 @@ plus Spam & Unqualified (from `contact_status` / `last_result`). Headline econom
 > **Phase B complete.**
 
 ### Phase C — Knowledge Base & AI Command Center  *(intelligence)*
-- **Knowledge Base** per project: Winning Creative/Audience, Best CPA/CPL,
+- ✅ **AI Command Center** (`/insights`): portfolio-wide rule engine
+  (`portfolioInsights`) — per-campaign rules (no booking, stale leads, low
+  conversion, high spam, off-track, scale-up) + **trend rules** (lead drop >30%,
+  spend ↑20% & results ↓20%) + **CPA above portfolio average**. Ranks
+  Critical / Warning / Opportunity, with severity filters.
+- ✅ Surfaced in **Homepage "AI Priority"** panel + per-campaign **Insights** section.
+- 🔵 **Knowledge Base** per project: Winning Creative/Audience, Best CPA/CPL,
   Learnings, Recommendations — searchable, survives team changes.
-- **AI Command Center (rule engine):** Booking = 0 for 14 days → Critical · CPA
-  over target → Warning · Lead drop > 30% → Warning · Spend ↑20% & Booking ↓20% →
-  Critical. Outputs Critical / Warning / Opportunity insights.
-- Surface insights in **Homepage AI Priority** + each **Project AI section**.
-- **Alerts & notifications**; simple **trend forecasting**.
+- 🔵 **Alerts & notifications**; simple **trend forecasting**.
 
 ### Phase D — Supabase backend  *(persistence & real multi-user)*
 - Supabase **Auth** (replaces the interim profile login) + **Postgres** + **RLS**.

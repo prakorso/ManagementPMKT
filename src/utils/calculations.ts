@@ -13,7 +13,9 @@ import type {
   Project,
   ReadinessArea,
   ReadinessMetric,
+  TaskStatus,
   TeamMember,
+  UnifiedTask,
 } from '@/types';
 
 export type MonthKey = 'month1' | 'month2' | 'month3';
@@ -646,6 +648,51 @@ export function pendingUpdateMembers(members: TeamMember[], now: Date = new Date
     const d = parseISO(m.lastOneOnOne);
     return !isValid(d) || differenceInCalendarDays(now, d) > 7;
   });
+}
+
+/** A task is overdue when it has a past due date and isn't completed/cancelled. */
+export function isTaskOverdue(task: { dueDate?: string; status: TaskStatus }, now: Date = new Date()): boolean {
+  if (task.status === 'completed' || task.status === 'cancelled' || !task.dueDate) return false;
+  const d = parseISO(task.dueDate);
+  return isValid(d) && isBefore(d, now);
+}
+
+/** All tasks across the platform: campaign tasks (campaignName set) + standalone. */
+export function unifiedTasks(
+  assignments: Record<string, CampaignAssignment>,
+  standalone: CampaignTask[],
+): UnifiedTask[] {
+  const fromCampaigns: UnifiedTask[] = Object.values(assignments).flatMap((a) =>
+    (a.tasks ?? []).map((t) => ({ ...t, campaignName: a.campaignName })),
+  );
+  return [...fromCampaigns, ...standalone.map((t) => ({ ...t }))];
+}
+
+export interface TaskRollup {
+  total: number;
+  open: number;
+  overdue: number;
+  dueThisWeek: number;
+  completed: number;
+}
+
+/** Due-date roll-up across a set of tasks. */
+export function taskRollup(tasks: UnifiedTask[], now: Date = new Date()): TaskRollup {
+  const active = (t: UnifiedTask) => t.status !== 'completed' && t.status !== 'cancelled';
+  const dueWithin = (t: UnifiedTask, days: number) => {
+    if (!active(t) || !t.dueDate) return false;
+    const d = parseISO(t.dueDate);
+    if (!isValid(d)) return false;
+    const diff = differenceInCalendarDays(d, now);
+    return diff >= 0 && diff <= days;
+  };
+  return {
+    total: tasks.length,
+    open: tasks.filter(active).length,
+    overdue: tasks.filter((t) => isTaskOverdue(t, now)).length,
+    dueThisWeek: tasks.filter((t) => dueWithin(t, 7)).length,
+    completed: tasks.filter((t) => t.status === 'completed').length,
+  };
 }
 
 export interface OverdueTaskItem {

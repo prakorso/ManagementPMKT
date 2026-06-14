@@ -6,6 +6,7 @@ import {
   NotebookPen,
   Gauge,
   FolderKanban,
+  ListChecks,
   Megaphone,
   Settings,
   type LucideIcon,
@@ -38,6 +39,7 @@ export const navSections: NavSection[] = [
     items: [
       { to: '/team', label: 'Member Directory', icon: Users },
       { to: '/projects', label: 'Project Assignment', icon: FolderKanban },
+      { to: '/tasks', label: 'Tasks', icon: ListChecks },
     ],
   },
   {

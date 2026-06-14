@@ -98,8 +98,12 @@ plus Spam & Unqualified (from `contact_status` / `last_result`). Headline econom
   per-session **action items** (checkable) and an **escalation** flag that surfaces
   on the member header and the home Action Required center. Stored in a local
   overlay (`oneOnOnes`), sync-ready for Phase D.
-- 🔵 **Task Management:** unify campaign + standalone tasks; add **Overdue** status &
-  due-date roll-ups.
+- ✅ **Task Management** (`/tasks`): unified view of campaign tasks + standalone
+  tasks, with **Overdue** detection (past due-date), due-date **roll-ups** (Open /
+  Overdue / Due This Week / Completed), status filters and inline status editing.
+  Members see only their own tasks; manager/team-lead manage all.
+
+> **Phase B complete.**
 
 ### Phase C — Knowledge Base & AI Command Center  *(intelligence)*
 - **Knowledge Base** per project: Winning Creative/Audience, Best CPA/CPL,

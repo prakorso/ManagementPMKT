@@ -1,4 +1,4 @@
-import type { ActionItem, Assessment, CampaignAssignment, Objective, OneOnOneSession, Project, TeamMember } from '@/types';
+import type { ActionItem, Assessment, CampaignAssignment, CampaignTask, Objective, OneOnOneSession, Project, TeamMember } from '@/types';
 import { pushSync } from './sync';
 
 /**
@@ -106,6 +106,14 @@ export const saveLocalAssessments = (items: Assessment[]): void => saveOverlay(A
 const ACTIONITEMS_KEY = 'mdd-local-actionitems';
 export const loadLocalActionItems = (): ActionItem[] => loadOverlay<ActionItem>(ACTIONITEMS_KEY);
 export const saveLocalActionItems = (items: ActionItem[]): void => saveOverlay(ACTIONITEMS_KEY, items);
+
+// --- Standalone tasks overlay (Phase B — tasks not tied to a campaign) -------
+const STANDALONE_TASKS_KEY = 'mdd-standalone-tasks';
+export const loadStandaloneTasks = (): CampaignTask[] => loadOverlay<CampaignTask>(STANDALONE_TASKS_KEY);
+export const saveStandaloneTasks = (items: CampaignTask[]): void => saveOverlay(STANDALONE_TASKS_KEY, items);
+export function newTaskId(): string {
+  return `task-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 6)}`;
+}
 
 // --- One-on-one sessions overlay (Phase B) ----------------------------------
 const ONEONONES_KEY = 'mdd-oneonones';

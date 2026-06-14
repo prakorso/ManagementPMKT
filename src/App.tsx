@@ -18,6 +18,7 @@ const PerformanceReporting = lazy(() =>
   import('@/pages/PerformanceReporting').then((m) => ({ default: m.PerformanceReporting })),
 );
 const ProjectAssignment = lazy(() => import('@/pages/ProjectAssignment').then((m) => ({ default: m.ProjectAssignment })));
+const TaskManagement = lazy(() => import('@/pages/TaskManagement').then((m) => ({ default: m.TaskManagement })));
 const CampaignHub = lazy(() => import('@/pages/CampaignHub').then((m) => ({ default: m.CampaignHub })));
 const CampaignDetail = lazy(() => import('@/pages/CampaignDetail').then((m) => ({ default: m.CampaignDetail })));
 const AssessmentTracker = lazy(() => import('@/pages/AssessmentTracker').then((m) => ({ default: m.AssessmentTracker })));
@@ -57,6 +58,7 @@ export default function App() {
           <Route path="team" element={<Guard path="/team"><TeamManagement /></Guard>} />
           <Route path="team/:memberId" element={<Guard path="/team"><MemberDetail /></Guard>} />
           <Route path="projects" element={<Guard path="/projects"><ProjectAssignment /></Guard>} />
+          <Route path="tasks" element={<Guard path="/tasks"><TaskManagement /></Guard>} />
           <Route path="notes" element={<Guard path="/notes"><MeetingNotes /></Guard>} />
           <Route path="assessments" element={<Guard path="/assessments"><AssessmentTracker /></Guard>} />
           <Route path="readiness" element={<Guard path="/readiness"><ManagerReadiness /></Guard>} />

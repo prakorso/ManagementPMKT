@@ -336,6 +336,11 @@ export interface CampaignAssignment {
   comments?: CampaignComment[];
 }
 
+/** A task from any source: a campaign task (campaignName set) or a standalone one. */
+export interface UnifiedTask extends CampaignTask {
+  campaignName?: string;
+}
+
 // -----------------------------------------------------------------------------
 // One-on-One system (Phase B) — structured 1:1 sessions kept in a local overlay
 // -----------------------------------------------------------------------------

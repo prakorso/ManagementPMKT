@@ -8,7 +8,7 @@ import {
   useState,
   type ReactNode,
 } from 'react';
-import type { ActionItem, CampaignAssignment, DashboardData, Objective, OneOnOneSession, Project, TeamMember } from '@/types';
+import type { ActionItem, CampaignAssignment, CampaignTask, DashboardData, Objective, OneOnOneSession, Project, TeamMember } from '@/types';
 import { createDataSource } from '@/data';
 import { SeedDataSource } from '@/data/SeedDataSource';
 import { config } from '@/config';
@@ -20,6 +20,7 @@ import {
   loadLocalProjects,
   loadOneOnOnes,
   loadRemoved,
+  loadStandaloneTasks,
   saveAssignments,
   saveLocalActionItems,
   saveLocalMembers,
@@ -27,6 +28,7 @@ import {
   saveLocalProjects,
   saveOneOnOnes,
   saveRemoved,
+  saveStandaloneTasks,
   type RemovedIds,
 } from '@/data/localStore';
 import { initSync } from '@/data/sync';
@@ -71,6 +73,14 @@ interface DataContextValue {
   updateOneOnOne: (id: string, patch: Partial<OneOnOneSession>) => void;
   /** Deletes a 1:1 session. */
   removeOneOnOne: (id: string) => void;
+  /** Standalone tasks overlay (tasks not tied to a campaign). */
+  standaloneTasks: CampaignTask[];
+  /** Creates a standalone task. */
+  addStandaloneTask: (task: CampaignTask) => void;
+  /** Patches a standalone task. */
+  updateStandaloneTask: (id: string, patch: Partial<CampaignTask>) => void;
+  /** Deletes a standalone task. */
+  removeStandaloneTask: (id: string) => void;
   /** True when an Apps Script write-back URL is configured. */
   writeEnabled: boolean;
   /** Saves/clears the write-back URL (persisted in this browser). */
@@ -98,6 +108,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
   const [removed, setRemovedState] = useState<RemovedIds>(() => loadRemoved());
   const [assignments, setAssignments] = useState<Record<string, CampaignAssignment>>(() => loadAssignments());
   const [oneOnOnes, setOneOnOnes] = useState<OneOnOneSession[]>(() => loadOneOnOnes());
+  const [standaloneTasks, setStandaloneTasks] = useState<CampaignTask[]>(() => loadStandaloneTasks());
   const [loading, setLoading] = useState(true);
   const [warning, setWarning] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -153,6 +164,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
       setRemovedState(loadRemoved());
       setAssignments(loadAssignments());
       setOneOnOnes(loadOneOnOnes());
+      setStandaloneTasks(loadStandaloneTasks());
     };
     window.addEventListener('pmos-sync', rehydrate);
     return () => window.removeEventListener('pmos-sync', rehydrate);
@@ -202,6 +214,30 @@ export function DataProvider({ children }: { children: ReactNode }) {
     setOneOnOnes((prev) => {
       const next = prev.filter((s) => s.id !== id);
       saveOneOnOnes(next);
+      return next;
+    });
+  }, []);
+
+  const addStandaloneTask = useCallback((task: CampaignTask) => {
+    setStandaloneTasks((prev) => {
+      const next = [task, ...prev];
+      saveStandaloneTasks(next);
+      return next;
+    });
+  }, []);
+
+  const updateStandaloneTask = useCallback((id: string, patch: Partial<CampaignTask>) => {
+    setStandaloneTasks((prev) => {
+      const next = prev.map((t) => (t.id === id ? { ...t, ...patch } : t));
+      saveStandaloneTasks(next);
+      return next;
+    });
+  }, []);
+
+  const removeStandaloneTask = useCallback((id: string) => {
+    setStandaloneTasks((prev) => {
+      const next = prev.filter((t) => t.id !== id);
+      saveStandaloneTasks(next);
       return next;
     });
   }, []);
@@ -378,6 +414,10 @@ export function DataProvider({ children }: { children: ReactNode }) {
       addOneOnOne,
       updateOneOnOne,
       removeOneOnOne,
+      standaloneTasks,
+      addStandaloneTask,
+      updateStandaloneTask,
+      removeStandaloneTask,
       writeEnabled: !!writeUrl,
       configureWriteUrl,
       writeUrl,
@@ -404,6 +444,10 @@ export function DataProvider({ children }: { children: ReactNode }) {
       addOneOnOne,
       updateOneOnOne,
       removeOneOnOne,
+      standaloneTasks,
+      addStandaloneTask,
+      updateStandaloneTask,
+      removeStandaloneTask,
       writeUrl,
       configureWriteUrl,
     ],

@@ -364,7 +364,9 @@ export interface OneOnOneSession {
   supportNeeded?: string;
   actionPlan?: string;
   nextWeekTarget?: string;
-  /** Manager flag: this report needs escalation / leadership attention. */
+  /** Findings / learnings worth keeping as a team benchmark (feeds Knowledge Base). */
+  findings?: string;
+  /** The member flags this needs escalation / leadership attention. */
   escalate?: boolean;
   escalationReason?: string;
   /** Action items captured during the 1:1. */

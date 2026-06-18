@@ -1,5 +1,4 @@
-import { useState } from 'react';
-import { CalendarClock, ClipboardList, Megaphone, TrendingUp } from 'lucide-react';
+import { Megaphone } from 'lucide-react';
 import { useData } from '@/context/DataContext';
 import { useSession } from '@/context/SessionContext';
 import { LoadingScreen } from '@/components/ui/LoadingScreen';
@@ -7,25 +6,15 @@ import { ErrorState } from '@/components/ui/ErrorState';
 import { Card, CardHeader } from '@/components/ui/Card';
 import { StatCard } from '@/components/ui/StatCard';
 import { Badge } from '@/components/ui/Badge';
-import { ProgressBar } from '@/components/ui/ProgressBar';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { AssignedCampaignCard } from '@/components/projects/AssignedCampaignCard';
-import { ObjectiveDetailModal } from '@/components/objectives/ObjectiveDetailModal';
-import { lgpHealthSummary } from '@/utils/calculations';
+import { OneOnOnePanel } from '@/components/team/OneOnOnePanel';
 import { formatDate, formatPercent, relativeDays } from '@/utils/format';
-import {
-  actionStatusLabel,
-  actionStatusTone,
-  meetingCategoryLabel,
-  meetingCategoryTone,
-  objectiveStatusLabel,
-  objectiveStatusTone,
-} from '@/utils/labels';
+import { meetingCategoryLabel, meetingCategoryTone } from '@/utils/labels';
 
 export function MemberOverview() {
-  const { data, loading, error, updateActionItem, assignments } = useData();
+  const { data, loading, error, assignments, oneOnOnes, addOneOnOne, updateOneOnOne, removeOneOnOne } = useData();
   const { session } = useSession();
-  const [selectedObjId, setSelectedObjId] = useState<string | null>(null);
 
   if (loading) return <LoadingScreen />;
   if (error || !data) return <ErrorState message={error ?? 'No data available.'} />;
@@ -40,51 +29,21 @@ export function MemberOverview() {
     const a = assignments[c.name];
     return !!a && (a.ownerId === member.id || (a.supportingIds ?? []).includes(member.id));
   });
-  const campaignSummary = lgpHealthSummary(myCampaigns);
-  const actionItems = data.actionItems.filter((i) => i.teamMemberId === member.id);
-  const openTasks = actionItems.filter((i) => i.status !== 'done');
   const meetings = data.meetings.filter((m) => m.teamMemberId === member.id).sort((a, b) => b.date.localeCompare(a.date));
-  const myObjectives = data.objectives.filter((o) => o.ownerId === member.id && !o.archived);
-  const selectedObj = selectedObjId ? data.objectives.find((o) => o.id === selectedObjId) ?? null : null;
+  const mySessions = oneOnOnes.filter((s) => s.memberId === member.id).sort((a, b) => b.date.localeCompare(a.date));
 
   return (
     <div className="space-y-6">
       <div>
         <h1 className="text-xl font-bold tracking-tight text-slate-900 dark:text-white sm:text-2xl">Your Overview</h1>
-        <p className="mt-1 text-sm text-muted">Your campaigns, objectives and tasks at a glance.</p>
+        <p className="mt-1 text-sm text-muted">Your campaigns, 1:1 reports and meeting schedule.</p>
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <StatCard label="My Performance" value={formatPercent(member.developmentProgress)} icon={<TrendingUp size={18} />} iconTone="brand" hint="Development progress" />
-        <StatCard label="My Campaigns" value={myCampaigns.length} icon={<Megaphone size={18} />} iconTone="info" hint={`${campaignSummary.onTrack} on track · ${campaignSummary.offTrack} off track`} />
-        <StatCard label="Pending Tasks" value={openTasks.length} icon={<ClipboardList size={18} />} iconTone="warning" hint={`${actionItems.length - openTasks.length} done`} />
-        <StatCard label="Next 1:1" value={member.nextOneOnOne ? relativeDays(member.nextOneOnOne, now) : '—'} icon={<CalendarClock size={18} />} iconTone="success" hint={member.nextOneOnOne ? formatDate(member.nextOneOnOne) : 'Not scheduled'} />
+      <div className="grid grid-cols-2 gap-3 lg:grid-cols-3">
+        <StatCard label="My Performance" value={formatPercent(member.developmentProgress)} />
+        <StatCard label="My Campaigns" value={myCampaigns.length} />
+        <StatCard label="Next 1:1" value={member.nextOneOnOne ? relativeDays(member.nextOneOnOne, now) : '—'} />
       </div>
-
-      {/* My objectives */}
-      <Card>
-        <CardHeader title="My Objectives" subtitle={`${myObjectives.length} active`} />
-        {myObjectives.length === 0 ? (
-          <p className="text-sm text-muted">No objectives assigned yet.</p>
-        ) : (
-          <ul className="space-y-3">
-            {myObjectives.map((o) => (
-              <li key={o.id}>
-                <button type="button" onClick={() => setSelectedObjId(o.id)} className="w-full rounded-xl border border-slate-200/70 p-3 text-left transition-colors hover:border-slate-300 dark:border-slate-700/60 dark:hover:border-slate-600">
-                  <div className="flex items-center justify-between gap-2">
-                    <span className="text-sm font-medium text-slate-800 dark:text-slate-100">{o.title}</span>
-                    <Badge tone={objectiveStatusTone[o.status]}>{objectiveStatusLabel[o.status]}</Badge>
-                  </div>
-                  <div className="mt-2 flex items-center gap-3">
-                    <ProgressBar value={o.progress} autoTone size="sm" className="flex-1" />
-                    <span className="w-9 flex-none text-right text-xs font-semibold text-slate-700 dark:text-slate-200">{o.progress}%</span>
-                  </div>
-                </button>
-              </li>
-            ))}
-          </ul>
-        )}
-      </Card>
 
       {/* My campaigns */}
       <Card padded={false}>
@@ -106,54 +65,37 @@ export function MemberOverview() {
         </div>
       </Card>
 
-      <div className="grid gap-4 lg:grid-cols-2">
-        {/* Tasks */}
-        <Card>
-          <CardHeader title="My Tasks" icon={<ClipboardList size={16} />} subtitle={`${openTasks.length} pending`} />
-          {actionItems.length === 0 ? (
-            <p className="text-sm text-muted">No tasks assigned.</p>
-          ) : (
-            <ul className="space-y-2.5">
-              {actionItems.map((item) => (
-                <li key={item.id} className="flex items-center justify-between gap-2 text-sm">
-                  <label className="flex min-w-0 cursor-pointer items-center gap-2">
-                    <input type="checkbox" className="accent-brand-600" checked={item.status === 'done'} onChange={() => updateActionItem(item.id, { status: item.status === 'done' ? 'open' : 'done' })} />
-                    <span className={`truncate ${item.status === 'done' ? 'text-muted line-through' : 'text-slate-700 dark:text-slate-200'}`}>{item.title}</span>
-                  </label>
-                  <div className="flex flex-none items-center gap-2">
-                    {item.dueDate && <span className="text-[11px] text-muted">{relativeDays(item.dueDate, now)}</span>}
-                    <Badge tone={actionStatusTone[item.status]}>{actionStatusLabel[item.status]}</Badge>
-                  </div>
-                </li>
-              ))}
-            </ul>
-          )}
-        </Card>
+      {/* My 1:1 — the member writes their own report; the manager reviews it. */}
+      <OneOnOnePanel
+        memberId={member.id}
+        memberName={member.name}
+        sessions={mySessions}
+        canEdit
+        author={session?.name ?? member.name}
+        onAdd={addOneOnOne}
+        onUpdate={updateOneOnOne}
+        onRemove={removeOneOnOne}
+      />
 
-        {/* Meetings */}
-        <Card>
-          <CardHeader title="My Meeting Updates" subtitle="Most recent first" />
-          {meetings.length === 0 ? (
-            <p className="text-sm text-muted">No meeting updates yet.</p>
-          ) : (
-            <ul className="space-y-3">
-              {meetings.slice(0, 5).map((m) => (
-                <li key={m.id} className="border-b border-slate-100 pb-3 last:border-0 last:pb-0 dark:border-slate-700/40">
-                  <div className="flex items-center justify-between gap-2">
-                    <Badge tone={meetingCategoryTone[m.category]}>{meetingCategoryLabel[m.category]}</Badge>
-                    <span className="text-xs text-muted">{formatDate(m.date)}</span>
-                  </div>
-                  <p className="mt-1.5 text-sm text-slate-700 dark:text-slate-200">{m.summary}</p>
-                </li>
-              ))}
-            </ul>
-          )}
-        </Card>
-      </div>
-
-      {selectedObj && (
-        <ObjectiveDetailModal key={selectedObj.id} objective={selectedObj} members={data.teamMembers} onClose={() => setSelectedObjId(null)} />
-      )}
+      {/* My meetings */}
+      <Card>
+        <CardHeader title="My Meetings" subtitle="Schedule & updates" />
+        {meetings.length === 0 ? (
+          <p className="text-sm text-muted">No meetings yet.</p>
+        ) : (
+          <ul className="space-y-3">
+            {meetings.slice(0, 6).map((m) => (
+              <li key={m.id} className="border-b border-slate-100 pb-3 last:border-0 last:pb-0 dark:border-slate-700/40">
+                <div className="flex items-center justify-between gap-2">
+                  <Badge tone={meetingCategoryTone[m.category]}>{meetingCategoryLabel[m.category]}</Badge>
+                  <span className="text-xs text-muted">{formatDate(m.date)}</span>
+                </div>
+                <p className="mt-1.5 text-sm text-slate-700 dark:text-slate-200">{m.summary}</p>
+              </li>
+            ))}
+          </ul>
+        )}
+      </Card>
     </div>
   );
 }

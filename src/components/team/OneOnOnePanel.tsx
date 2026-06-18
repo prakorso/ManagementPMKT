@@ -23,6 +23,7 @@ interface FormState {
   supportNeeded: string;
   actionPlan: string;
   nextWeekTarget: string;
+  findings: string;
   escalate: boolean;
   escalationReason: string;
   actions: OneOnOneActionItem[];
@@ -36,6 +37,7 @@ const emptyForm = (): FormState => ({
   supportNeeded: '',
   actionPlan: '',
   nextWeekTarget: '',
+  findings: '',
   escalate: false,
   escalationReason: '',
   actions: [],
@@ -49,6 +51,7 @@ const formFrom = (s: OneOnOneSession): FormState => ({
   supportNeeded: s.supportNeeded ?? '',
   actionPlan: s.actionPlan ?? '',
   nextWeekTarget: s.nextWeekTarget ?? '',
+  findings: s.findings ?? '',
   escalate: !!s.escalate,
   escalationReason: s.escalationReason ?? '',
   actions: (s.actions ?? []).map((a) => ({ ...a })),
@@ -153,6 +156,7 @@ export function OneOnOnePanel({
                 <SessionField label="Support Needed" value={s.supportNeeded} />
                 <SessionField label="Action Plan" value={s.actionPlan} />
                 <SessionField label="Next-Week Target" value={s.nextWeekTarget} />
+                <SessionField label="Findings / Benchmark" value={s.findings} />
               </dl>
 
               {s.escalate && s.escalationReason && (
@@ -204,6 +208,7 @@ export function OneOnOnePanel({
               supportNeeded: form.supportNeeded.trim() || undefined,
               actionPlan: form.actionPlan.trim() || undefined,
               nextWeekTarget: form.nextWeekTarget.trim() || undefined,
+              findings: form.findings.trim() || undefined,
               escalate: form.escalate,
               escalationReason: form.escalate ? form.escalationReason.trim() || undefined : undefined,
               actions: form.actions.filter((a) => a.text.trim()).map((a) => ({ ...a, text: a.text.trim() })),
@@ -294,6 +299,15 @@ function SessionModal({
             />
           </Field>
         </div>
+
+        <Field label="Findings / Benchmark">
+          <textarea
+            className={`${inputClass} min-h-[52px] resize-y`}
+            value={f.findings}
+            onChange={(e) => set({ findings: e.target.value })}
+            placeholder="Hal yang kamu temukan & layak jadi pelajaran tim…"
+          />
+        </Field>
 
         {/* Action items */}
         <div>

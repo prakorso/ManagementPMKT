@@ -36,7 +36,6 @@ export function MemberDetail() {
   const { data, loading, error, assignments, removeTeamMember, oneOnOnes, addOneOnOne, updateOneOnOne, removeOneOnOne } = useData();
   const { session } = useSession();
   const isManager = session?.role === 'manager';
-  const canEdit = session?.role === 'manager' || session?.role === 'team-lead';
 
   if (loading) return <LoadingScreen />;
   if (error || !data) return <ErrorState message={error ?? 'No data available.'} />;
@@ -125,6 +124,18 @@ export function MemberDetail() {
         </div>
       </Card>
 
+      {/* One-on-one — the member writes these; the manager reviews (read-only here). */}
+      <OneOnOnePanel
+        memberId={member.id}
+        memberName={member.name}
+        sessions={memberSessions}
+        canEdit={false}
+        author={session?.name ?? 'Manager'}
+        onAdd={addOneOnOne}
+        onUpdate={updateOneOnOne}
+        onRemove={removeOneOnOne}
+      />
+
       {/* Strengths / development / coaching */}
       {(member.strengths.length > 0 || member.developmentAreas.length > 0 || member.coachingFocus) && (
         <div className="grid gap-4 lg:grid-cols-3">
@@ -172,18 +183,6 @@ export function MemberDetail() {
           )}
         </div>
       </Card>
-
-      {/* One-on-one system */}
-      <OneOnOnePanel
-        memberId={member.id}
-        memberName={member.name}
-        sessions={memberSessions}
-        canEdit={canEdit}
-        author={session?.name ?? 'Manager'}
-        onAdd={addOneOnOne}
-        onUpdate={updateOneOnOne}
-        onRemove={removeOneOnOne}
-      />
 
       {/* Meetings + action items */}
       <div className="grid gap-4 lg:grid-cols-2">

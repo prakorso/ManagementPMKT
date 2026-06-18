@@ -2,7 +2,6 @@ import { Link } from 'react-router-dom';
 import {
   Activity,
   AlertTriangle,
-  Banknote,
   BrainCircuit,
   CalendarClock,
   CheckCircle2,
@@ -12,11 +11,8 @@ import {
   NotebookPen,
   ShieldAlert,
   Target,
-  TrendingUp,
-  Trophy,
   UserX,
   Users,
-  Wallet,
 } from 'lucide-react';
 import { useData } from '@/context/DataContext';
 import { LoadingScreen } from '@/components/ui/LoadingScreen';
@@ -25,7 +21,6 @@ import { Card, CardHeader } from '@/components/ui/Card';
 import { StatCard } from '@/components/ui/StatCard';
 import { Badge } from '@/components/ui/Badge';
 import { Avatar } from '@/components/ui/Avatar';
-import { ProgressBar } from '@/components/ui/ProgressBar';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { SegmentedDonut } from '@/components/charts/SegmentedDonut';
 import {
@@ -35,7 +30,6 @@ import {
   pendingUpdateMembers,
   recentActivities,
   teamHealthSnapshot,
-  teamRankingLgp,
   upcomingOneOnOnes,
   type ActivityItem,
 } from '@/utils/calculations';
@@ -56,12 +50,11 @@ export function Homepage() {
   if (loading) return <LoadingScreen />;
   if (error || !data) return <ErrorState message={error ?? 'No data available.'} />;
 
-  const { teamMembers, lgpCampaigns, actionItems } = data;
+  const { teamMembers, lgpCampaigns } = data;
   const now = new Date();
 
   const p = lgpPortfolio(lgpCampaigns);
   const team = teamHealthSnapshot(teamMembers);
-  const ranking = teamRankingLgp(teamMembers, lgpCampaigns, assignments, actionItems, now);
   const pending = pendingUpdateMembers(teamMembers, now);
   const unassigned = lgpCampaigns.filter((c) => !assignments[c.name]?.ownerId).length;
   const activities = recentActivities(data);
@@ -85,14 +78,14 @@ export function Homepage() {
         <p className="mt-1 text-sm text-muted">Business health and what needs attention across {p.count} campaigns.</p>
       </div>
 
-      {/* Business KPIs */}
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
-        <StatCard label="Spend" value={formatIDRCompact(p.spend)} icon={<Wallet size={18} />} iconTone="brand" />
-        <StatCard label="Leads" value={formatNumber(p.leads)} icon={<Megaphone size={18} />} iconTone="info" to="/campaigns" />
-        <StatCard label="Bookings" value={formatNumber(p.booking)} icon={<Target size={18} />} iconTone="success" />
-        <StatCard label="CPA" value={formatIDRCompact(p.cpa)} icon={<Banknote size={18} />} iconTone="warning" />
-        <StatCard label="Conversion" value={formatPercent(p.conversion, 1)} icon={<TrendingUp size={18} />} iconTone="success" />
-        <StatCard label="Campaigns" value={formatNumber(p.count)} icon={<Crosshair size={18} />} iconTone="neutral" to="/campaigns" />
+      {/* Business KPIs — clean, no icons, roomy on laptops (6-across only on very wide screens) */}
+      <div className="grid grid-cols-2 gap-3 lg:grid-cols-3 2xl:grid-cols-6">
+        <StatCard label="Spend" value={formatIDRCompact(p.spend)} />
+        <StatCard label="Leads" value={formatNumber(p.leads)} to="/campaigns" />
+        <StatCard label="Bookings" value={formatNumber(p.booking)} />
+        <StatCard label="CPA" value={formatIDRCompact(p.cpa)} />
+        <StatCard label="Conversion" value={formatPercent(p.conversion, 1)} />
+        <StatCard label="Campaigns" value={formatNumber(p.count)} to="/campaigns" />
       </div>
 
       {/* Health + alerts */}
@@ -252,71 +245,19 @@ export function Homepage() {
         </Card>
       </div>
 
-      {/* Ranking + activity */}
-      <div className="grid gap-4 lg:grid-cols-3">
-        <Card padded={false} className="lg:col-span-2">
-          <div className="flex items-center gap-2 border-b border-slate-200/80 p-5 dark:border-slate-700/60">
-            <Trophy size={16} className="text-brand-500" />
-            <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-100">Team Ranking</h3>
-          </div>
-          <div className="overflow-x-auto">
-            <table className="w-full min-w-[520px] text-sm">
-              <thead>
-                <tr className="border-b border-slate-200/80 text-left text-xs uppercase tracking-wide text-muted dark:border-slate-700/60">
-                  <th className="px-5 py-3 font-medium">#</th>
-                  <th className="px-3 py-3 font-medium">Member</th>
-                  <th className="px-3 py-3 font-medium">Performance</th>
-                  <th className="px-3 py-3 font-medium">Campaigns</th>
-                  <th className="px-5 py-3 font-medium">Campaign Health</th>
-                </tr>
-              </thead>
-              <tbody>
-                {ranking.map((r, i) => (
-                  <tr key={r.member.id} className="border-b border-slate-100 last:border-0 hover:bg-slate-50/60 dark:border-slate-700/40 dark:hover:bg-slate-700/20">
-                    <td className="px-5 py-3 font-semibold text-slate-400">{i + 1}</td>
-                    <td className="px-3 py-3">
-                      <Link to={`/team/${r.member.id}`} className="flex items-center gap-2.5 hover:text-brand-600 dark:hover:text-brand-300">
-                        <Avatar name={r.member.name} size="sm" />
-                        <div className="min-w-0">
-                          <p className="truncate font-medium text-slate-800 dark:text-slate-100">{r.member.name}</p>
-                          <p className="truncate text-xs text-muted">{r.member.role}</p>
-                        </div>
-                      </Link>
-                    </td>
-                    <td className="px-3 py-3">
-                      <div className="flex items-center gap-2">
-                        <ProgressBar value={r.performanceScore} autoTone size="sm" className="w-16" />
-                        <span className="font-semibold tabular-nums text-slate-700 dark:text-slate-200">{r.performanceScore}</span>
-                      </div>
-                    </td>
-                    <td className="px-3 py-3 tabular-nums text-slate-600 dark:text-slate-300">{r.campaignCount}</td>
-                    <td className="px-5 py-3">
-                      {r.campaignHealth === null ? (
-                        <span className="text-xs text-muted">—</span>
-                      ) : (
-                        <span className="font-semibold tabular-nums text-slate-700 dark:text-slate-200">{r.campaignHealth}</span>
-                      )}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </Card>
-
-        <Card>
-          <CardHeader title="Recent Activities" icon={<Activity size={16} />} />
-          {activities.length === 0 ? (
-            <p className="text-sm text-muted">No recent activity.</p>
-          ) : (
-            <ul className="space-y-3">
-              {activities.map((act) => (
-                <ActivityRow key={act.id} activity={act} now={now} />
-              ))}
-            </ul>
-          )}
-        </Card>
-      </div>
+      {/* Recent activity */}
+      <Card>
+        <CardHeader title="Recent Activities" icon={<Activity size={16} />} />
+        {activities.length === 0 ? (
+          <p className="text-sm text-muted">No recent activity.</p>
+        ) : (
+          <ul className="space-y-3">
+            {activities.map((act) => (
+              <ActivityRow key={act.id} activity={act} now={now} />
+            ))}
+          </ul>
+        )}
+      </Card>
     </div>
   );
 }

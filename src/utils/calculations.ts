@@ -400,6 +400,61 @@ export function lgpPortfolio(campaigns: LgpCampaign[]) {
   };
 }
 
+/** Funnel totals summed across all campaigns (Overall Business Performance). */
+export function portfolioFunnel(campaigns: LgpCampaign[]) {
+  const s = (fn: (c: LgpCampaign) => number) => campaigns.reduce((sum, c) => sum + fn(c), 0);
+  return {
+    raw: s((c) => c.funnel.raw),
+    spam: s((c) => c.funnel.spam),
+    unqualified: s((c) => c.funnel.unqualified),
+    submitted: s((c) => c.funnel.submitted),
+    interest: s((c) => c.funnel.interest),
+    svs: s((c) => c.funnel.svs),
+    svd: s((c) => c.funnel.svd),
+    booking: s((c) => c.funnel.booking),
+  };
+}
+
+/** Lead contribution by channel, summed across all campaigns. */
+export function portfolioContribution(campaigns: LgpCampaign[]) {
+  const s = (fn: (c: LgpCampaign) => number) => campaigns.reduce((sum, c) => sum + fn(c), 0);
+  return {
+    pmkt: s((c) => c.contribution.pmkt),
+    organic: s((c) => c.contribution.organic),
+    socmed: s((c) => c.contribution.socmed),
+    other: s((c) => c.contribution.other),
+  };
+}
+
+export interface PortfolioPeriod {
+  period: string;
+  raw: number;
+  submitted: number;
+  interest: number;
+  svd: number;
+  spend: number;
+  cpl: number;
+}
+
+/** Monthly periods aggregated across all campaigns, oldest→newest. */
+export function portfolioMonthly(campaigns: LgpCampaign[]): PortfolioPeriod[] {
+  const map = new Map<string, { raw: number; submitted: number; interest: number; svd: number; spend: number }>();
+  for (const c of campaigns) {
+    for (const p of c.monthly ?? []) {
+      const e = map.get(p.period) ?? { raw: 0, submitted: 0, interest: 0, svd: 0, spend: 0 };
+      e.raw += p.raw;
+      e.submitted += p.submitted;
+      e.interest += p.interest;
+      e.svd += p.svd;
+      e.spend += p.spend;
+      map.set(p.period, e);
+    }
+  }
+  return [...map.entries()]
+    .sort((a, b) => a[0].localeCompare(b[0]))
+    .map(([period, e]) => ({ period, ...e, cpl: e.raw > 0 ? round(e.spend / e.raw) : 0 }));
+}
+
 /** Campaigns a member owns or supports (by assignment). */
 export function memberAssignedCampaigns(
   campaigns: LgpCampaign[],

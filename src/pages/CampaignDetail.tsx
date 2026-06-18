@@ -67,7 +67,7 @@ export function CampaignDetail() {
   const canExecute = canManage || isOwner;
 
   // Members can only open campaigns assigned to them.
-  if (session?.role === 'member' && !isOwner) return <Navigate to="/projects" replace />;
+  if (session?.role === 'member' && !isOwner) return <Navigate to="/" replace />;
 
   const patch = (p: Partial<CampaignAssignment>) => updateAssignment(campaign.name, p);
 

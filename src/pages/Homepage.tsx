@@ -2,7 +2,6 @@ import { Link } from 'react-router-dom';
 import {
   Activity,
   AlertTriangle,
-  BrainCircuit,
   CalendarClock,
   CheckCircle2,
   Crosshair,
@@ -33,17 +32,10 @@ import {
   upcomingOneOnOnes,
   type ActivityItem,
 } from '@/utils/calculations';
-import { portfolioInsights, type InsightSeverity } from '@/utils/insights';
 import { formatDate, formatIDRCompact, formatNumber, formatPercent, relativeDays } from '@/utils/format';
 import type { Tone } from '@/components/ui/Badge';
 
 const COLORS = { onTrack: '#10b981', atRisk: '#f59e0b', offTrack: '#f43f5e' };
-const SEVERITY_COLOR: Record<InsightSeverity, string> = {
-  critical: '#f43f5e',
-  warning: '#f59e0b',
-  opportunity: '#0ea5e9',
-  good: '#10b981',
-};
 
 export function Homepage() {
   const { data, loading, error, assignments, oneOnOnes } = useData();
@@ -61,7 +53,6 @@ export function Homepage() {
   const overdue = overdueTasks(assignments, teamMembers, now);
   const upcoming = upcomingOneOnOnes(teamMembers, now);
   const escalated = escalatedMembers(oneOnOnes, teamMembers);
-  const aiPriority = portfolioInsights(lgpCampaigns, now).slice(0, 5);
 
   const alerts = [
     { id: 'a1', count: p.offTrack, label: 'Campaigns off track', tone: 'danger' as Tone, to: '/campaigns', icon: Megaphone },
@@ -149,36 +140,6 @@ export function Homepage() {
           )}
         </Card>
       </div>
-
-      {/* AI Priority */}
-      <Card padded={false}>
-        <div className="flex items-center justify-between gap-2 border-b border-slate-200/80 p-5 dark:border-slate-700/60">
-          <h3 className="flex items-center gap-2 text-sm font-semibold text-slate-900 dark:text-slate-100">
-            <BrainCircuit size={16} className="text-brand-500" /> AI Priority
-          </h3>
-          <Link to="/insights" className="text-xs font-medium text-brand-600 hover:underline dark:text-brand-300">
-            View all →
-          </Link>
-        </div>
-        {aiPriority.length === 0 ? (
-          <p className="p-5 text-sm text-muted">No critical signals right now.</p>
-        ) : (
-          <ul className="divide-y divide-slate-100 dark:divide-slate-700/40">
-            {aiPriority.map((ins) => (
-              <li key={`${ins.campaignName}-${ins.id}`} className="flex items-center gap-3 px-5 py-3">
-                <span className="h-2.5 w-2.5 flex-none rounded-full" style={{ backgroundColor: SEVERITY_COLOR[ins.severity] }} />
-                <div className="min-w-0 flex-1">
-                  <p className="truncate text-sm font-medium text-slate-800 dark:text-slate-100">{ins.title}</p>
-                  <Link to={`/campaigns/${encodeURIComponent(ins.campaignName)}`} className="truncate text-xs text-muted hover:text-brand-600 dark:hover:text-brand-300">
-                    {ins.campaignName}
-                  </Link>
-                </div>
-                <span className="flex-none text-xs text-muted">{ins.detail.length > 60 ? `${ins.detail.slice(0, 60)}…` : ins.detail}</span>
-              </li>
-            ))}
-          </ul>
-        )}
-      </Card>
 
       {/* Overdue tasks + upcoming 1:1 */}
       <div className="grid gap-4 lg:grid-cols-2">

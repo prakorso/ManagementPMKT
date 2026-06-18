@@ -17,13 +17,9 @@ const MemberDetail = lazy(() => import('@/pages/MemberDetail').then((m) => ({ de
 const PerformanceReporting = lazy(() =>
   import('@/pages/PerformanceReporting').then((m) => ({ default: m.PerformanceReporting })),
 );
-const ProjectAssignment = lazy(() => import('@/pages/ProjectAssignment').then((m) => ({ default: m.ProjectAssignment })));
 const TaskManagement = lazy(() => import('@/pages/TaskManagement').then((m) => ({ default: m.TaskManagement })));
-const AICommandCenter = lazy(() => import('@/pages/AICommandCenter').then((m) => ({ default: m.AICommandCenter })));
-const KnowledgeBase = lazy(() => import('@/pages/KnowledgeBase').then((m) => ({ default: m.KnowledgeBase })));
 const CampaignHub = lazy(() => import('@/pages/CampaignHub').then((m) => ({ default: m.CampaignHub })));
 const CampaignDetail = lazy(() => import('@/pages/CampaignDetail').then((m) => ({ default: m.CampaignDetail })));
-const AssessmentTracker = lazy(() => import('@/pages/AssessmentTracker').then((m) => ({ default: m.AssessmentTracker })));
 const MeetingNotes = lazy(() => import('@/pages/MeetingNotes').then((m) => ({ default: m.MeetingNotes })));
 const ManagerReadiness = lazy(() => import('@/pages/ManagerReadiness').then((m) => ({ default: m.ManagerReadiness })));
 const Settings = lazy(() => import('@/pages/Settings').then((m) => ({ default: m.Settings })));
@@ -57,14 +53,10 @@ export default function App() {
           <Route path="campaigns" element={<Guard path="/campaigns"><CampaignHub /></Guard>} />
           <Route path="campaigns/:name" element={<Guard path="/campaigns/:name"><CampaignDetail /></Guard>} />
           <Route path="performance" element={<Guard path="/performance"><PerformanceReporting /></Guard>} />
-          <Route path="insights" element={<Guard path="/insights"><AICommandCenter /></Guard>} />
-          <Route path="knowledge" element={<Guard path="/knowledge"><KnowledgeBase /></Guard>} />
           <Route path="team" element={<Guard path="/team"><TeamManagement /></Guard>} />
           <Route path="team/:memberId" element={<Guard path="/team"><MemberDetail /></Guard>} />
-          <Route path="projects" element={<Guard path="/projects"><ProjectAssignment /></Guard>} />
           <Route path="tasks" element={<Guard path="/tasks"><TaskManagement /></Guard>} />
           <Route path="notes" element={<Guard path="/notes"><MeetingNotes /></Guard>} />
-          <Route path="assessments" element={<Guard path="/assessments"><AssessmentTracker /></Guard>} />
           <Route path="readiness" element={<Guard path="/readiness"><ManagerReadiness /></Guard>} />
           <Route path="settings" element={<Guard path="/settings"><Settings /></Guard>} />
           <Route path="*" element={<Navigate to="/" replace />} />

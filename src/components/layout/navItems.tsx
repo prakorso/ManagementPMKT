@@ -2,14 +2,10 @@ import {
   LayoutDashboard,
   Users,
   TrendingUp,
-  Crosshair,
   NotebookPen,
   Gauge,
-  FolderKanban,
   ListChecks,
   Megaphone,
-  BrainCircuit,
-  BookOpen,
   Settings,
   type LucideIcon,
 } from 'lucide-react';
@@ -33,23 +29,15 @@ export const navSections: NavSection[] = [
     title: 'Performance',
     items: [
       { to: '/campaigns', label: 'Campaign Hub', icon: Megaphone },
-      { to: '/performance', label: 'Campaign Performance', icon: TrendingUp },
-      { to: '/insights', label: 'AI Command Center', icon: BrainCircuit },
-      { to: '/knowledge', label: 'Knowledge Base', icon: BookOpen },
+      { to: '/performance', label: 'Business Performance', icon: TrendingUp },
     ],
   },
   {
     title: 'Team',
     items: [
       { to: '/team', label: 'Member Directory', icon: Users },
-      { to: '/projects', label: 'Project Assignment', icon: FolderKanban },
       { to: '/tasks', label: 'Tasks', icon: ListChecks },
-    ],
-  },
-  {
-    items: [
-      { to: '/notes', label: 'Meetings Update', icon: NotebookPen },
-      { to: '/assessments', label: 'Assessment', icon: Crosshair },
+      { to: '/notes', label: 'Meetings', icon: NotebookPen },
     ],
   },
   {

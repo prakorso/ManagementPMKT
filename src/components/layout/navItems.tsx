@@ -6,6 +6,7 @@ import {
   Gauge,
   ListChecks,
   Megaphone,
+  BookOpen,
   Settings,
   type LucideIcon,
 } from 'lucide-react';
@@ -38,6 +39,7 @@ export const navSections: NavSection[] = [
       { to: '/team', label: 'Member Directory', icon: Users },
       { to: '/tasks', label: 'Tasks', icon: ListChecks },
       { to: '/notes', label: 'Meetings', icon: NotebookPen },
+      { to: '/knowledge', label: 'Knowledge Base', icon: BookOpen },
     ],
   },
   {

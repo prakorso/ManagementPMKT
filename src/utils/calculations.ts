@@ -162,6 +162,23 @@ export interface UpcomingOneOnOne {
   inDays: number;
 }
 
+export interface FindingEntry {
+  id: string;
+  memberId: string;
+  memberName: string;
+  date: string;
+  finding: string;
+}
+
+/** Team benchmark: learnings/findings collected automatically from 1:1 sessions. */
+export function teamFindings(sessions: OneOnOneSession[], members: TeamMember[]): FindingEntry[] {
+  const nameOf = (id: string) => members.find((m) => m.id === id)?.name ?? 'Unknown';
+  return sessions
+    .filter((s) => s.findings && s.findings.trim())
+    .map((s) => ({ id: s.id, memberId: s.memberId, memberName: nameOf(s.memberId), date: s.date, finding: (s.findings ?? '').trim() }))
+    .sort((a, b) => b.date.localeCompare(a.date));
+}
+
 /** Members whose most recent 1:1 session is flagged for escalation. */
 export function escalatedMembers(sessions: OneOnOneSession[], members: TeamMember[]): TeamMember[] {
   return members.filter((m) => {

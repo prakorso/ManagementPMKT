@@ -62,8 +62,10 @@ function resolveDataSource(): DataSourceKind {
 export const config: AppConfig = {
   dataSource: resolveDataSource(),
   supabase: {
-    url: ((env.VITE_SUPABASE_URL ?? DEFAULT_SUPABASE_URL) as string).toString().trim(),
-    anonKey: ((env.VITE_SUPABASE_ANON_KEY ?? DEFAULT_SUPABASE_ANON_KEY) as string).toString().trim(),
+    // NB: the deploy passes empty strings for unset secrets, so fall back with
+    // `|| DEFAULT` (|| catches '' ; ?? would keep the empty string).
+    url: ((env.VITE_SUPABASE_URL ?? '') as string).toString().trim() || DEFAULT_SUPABASE_URL,
+    anonKey: ((env.VITE_SUPABASE_ANON_KEY ?? '') as string).toString().trim() || DEFAULT_SUPABASE_ANON_KEY,
   },
   googleSheets: {
     sheetId: resolveSheetId(),

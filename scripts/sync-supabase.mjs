@@ -135,5 +135,5 @@ const campaigns = projects
   .sort((a, b) => a.name.localeCompare(b.name));
 
 const outPath = resolve(dirname(fileURLToPath(import.meta.url)), '../src/data/lgpCampaigns.json');
-writeFileSync(outPath, JSON.stringify(campaigns, null, 2) + '\n');
+writeFileSync(outPath, JSON.stringify({ campaigns }, null, 2) + '\n');
 console.log(`✓ Wrote ${campaigns.length} campaigns (${perf.length} performance rows, ${byProject.size} with data) → ${outPath}`);

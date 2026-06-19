@@ -10,6 +10,11 @@ export type DataSourceKind = 'seed' | 'google-sheets';
 
 interface AppConfig {
   dataSource: DataSourceKind;
+  /** Live LGP campaign source (read-only). When set, overrides lgpCampaigns. */
+  supabase: {
+    url: string;
+    anonKey: string;
+  };
   googleSheets: {
     sheetId: string;
     /** Optional Apps Script Web App URL for write-back (append rows). */
@@ -32,6 +37,15 @@ const env = import.meta.env;
 /** The connected Google Sheet ("Management PMKT"). Override with VITE_GOOGLE_SHEET_ID. */
 const DEFAULT_SHEET_ID = '1pNTvOYJ__opmJGUaiVe-fAFRzZwyt2jeqfBDfXha5-Y';
 
+/**
+ * LGP "control center" Supabase (project "PMKT | Rumah123"), read-only. The anon
+ * key is public by design (safe in client bundles); Row-Level Security is the
+ * real boundary. Override with VITE_SUPABASE_URL / VITE_SUPABASE_ANON_KEY.
+ */
+const DEFAULT_SUPABASE_URL = 'https://sspfsbcgrzfknhxscvco.supabase.co';
+const DEFAULT_SUPABASE_ANON_KEY =
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNzcGZzYmNncnpma25oeHNjdmNvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODExODk2MDYsImV4cCI6MjA5Njc2NTYwNn0.0gCtX3aCjPar95HYuQZZqe_AM-6eAYdiijIBwaKB2t8';
+
 function resolveSheetId(): string {
   return (env.VITE_GOOGLE_SHEET_ID ?? '').toString().trim() || DEFAULT_SHEET_ID;
 }
@@ -46,6 +60,10 @@ function resolveDataSource(): DataSourceKind {
 
 export const config: AppConfig = {
   dataSource: resolveDataSource(),
+  supabase: {
+    url: ((env.VITE_SUPABASE_URL ?? DEFAULT_SUPABASE_URL) as string).toString().trim(),
+    anonKey: ((env.VITE_SUPABASE_ANON_KEY ?? DEFAULT_SUPABASE_ANON_KEY) as string).toString().trim(),
+  },
   googleSheets: {
     sheetId: resolveSheetId(),
     writeUrl: (env.VITE_SHEETS_WRITE_URL ?? '').toString().trim(),

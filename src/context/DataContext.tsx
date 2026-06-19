@@ -134,7 +134,10 @@ export function DataProvider({ children }: { children: ReactNode }) {
       setBaseData(result);
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Unknown error';
-      if (config.dataSource !== 'seed') {
+      // Fall back to bundled seed whenever the primary source isn't already seed
+      // (e.g. Supabase blocked by RLS) so the app degrades to a warning, not a
+      // fatal screen.
+      if (!(source instanceof SeedDataSource)) {
         try {
           const fallback = new SeedDataSource();
           const result = await fallback.fetchAll();

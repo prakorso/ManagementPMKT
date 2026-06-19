@@ -1,4 +1,8 @@
-import type { DashboardData, LgpCampaign, LgpPeriod, CampaignTrack } from '@/types';
+import type {
+  DashboardData, LgpCampaign, LgpPeriod, CampaignTrack,
+  ProgramInfo, TeamMember, Objective, ActionItem, Meeting,
+  PerformanceSnapshot, Assessment, ReadinessMetric, Project,
+} from '@/types';
 import type { DataSource } from './DataSource';
 
 /** Rows we read from Supabase (read-only). */
@@ -115,9 +119,11 @@ function toCampaigns(projects: ProjectRow[], perf: PerfRow[]): LgpCampaign[] {
 }
 
 /**
- * Reads LGP campaigns live from the Supabase control center (read-only) and
- * overlays them onto a base dataset from the inner source (Google Sheets/seed),
- * which still supplies team members, meetings, etc. The source is never mutated.
+ * Reads everything live from Supabase (read-only): LGP campaigns from the
+ * control center (projects + performance_data) and the baseline (team members,
+ * objectives, meetings, …) from the `pmos_*` tables. Any table that is absent or
+ * blocked falls back to the bundled dataset (`inner`), so the SQL migration can
+ * be applied gradually and the app never breaks. The inner source is never mutated.
  */
 export class SupabaseDataSource implements DataSource {
   readonly name: string;
@@ -129,12 +135,31 @@ export class SupabaseDataSource implements DataSource {
     this.name = 'Supabase (PMKT | Rumah123)';
   }
 
+  private headers() {
+    return { apikey: this.cfg.anonKey, Authorization: `Bearer ${this.cfg.anonKey}` };
+  }
+
   private async select<T>(table: string, columns: string): Promise<T[]> {
-    const res = await fetch(`${this.cfg.url}/rest/v1/${table}?select=${columns}&limit=2000`, {
-      headers: { apikey: this.cfg.anonKey, Authorization: `Bearer ${this.cfg.anonKey}` },
-    });
+    const res = await fetch(`${this.cfg.url}/rest/v1/${table}?select=${columns}&limit=2000`, { headers: this.headers() });
     if (!res.ok) throw new Error(`Supabase ${table}: HTTP ${res.status}`);
     return (await res.json()) as T[];
+  }
+
+  /**
+   * Reads a baseline `pmos_*` table (one JSONB entity per row). Returns null when
+   * the table is absent/blocked, so each collection independently falls back to
+   * the bundled baseline — the migration can be applied gradually.
+   */
+  private async trySelectData<T>(table: string, ordered = true): Promise<T[] | null> {
+    try {
+      const order = ordered ? '&order=ord.asc' : '';
+      const res = await fetch(`${this.cfg.url}/rest/v1/${table}?select=data${order}&limit=2000`, { headers: this.headers() });
+      if (!res.ok) return null;
+      const rows = (await res.json()) as Array<{ data: T }>;
+      return rows.map((r) => r.data);
+    } catch {
+      return null;
+    }
   }
 
   async fetchAll(): Promise<DashboardData> {
@@ -148,6 +173,33 @@ export class SupabaseDataSource implements DataSource {
     if (projects.length === 0) {
       throw new Error('Supabase returned 0 projects — add a SELECT policy for the anon role on projects/performance_data (RLS).');
     }
-    return { ...base, lgpCampaigns: toCampaigns(projects, perf) };
+    const lgpCampaigns = toCampaigns(projects, perf);
+
+    // Live baseline from the pmos_* tables (each falls back to the bundle).
+    const [tm, obj, ai, mt, pf, asmt, rdy, proj, prog] = await Promise.all([
+      this.trySelectData<TeamMember>('pmos_team_members'),
+      this.trySelectData<Objective>('pmos_objectives'),
+      this.trySelectData<ActionItem>('pmos_action_items'),
+      this.trySelectData<Meeting>('pmos_meetings'),
+      this.trySelectData<PerformanceSnapshot>('pmos_performance'),
+      this.trySelectData<Assessment>('pmos_assessments'),
+      this.trySelectData<ReadinessMetric>('pmos_readiness'),
+      this.trySelectData<Project>('pmos_projects'),
+      this.trySelectData<ProgramInfo>('pmos_program', false),
+    ]);
+    const pick = <T>(rows: T[] | null, fallback: T[]) => (rows && rows.length ? rows : fallback);
+
+    return {
+      program: prog && prog.length ? prog[0] : base.program,
+      teamMembers: pick(tm, base.teamMembers),
+      objectives: pick(obj, base.objectives),
+      actionItems: pick(ai, base.actionItems),
+      meetings: pick(mt, base.meetings),
+      performance: pick(pf, base.performance),
+      assessments: pick(asmt, base.assessments),
+      readiness: pick(rdy, base.readiness),
+      projects: pick(proj, base.projects),
+      lgpCampaigns,
+    };
   }
 }

@@ -126,7 +126,7 @@ export class SupabaseDataSource implements DataSource {
     private readonly inner: DataSource,
     private readonly cfg: { url: string; anonKey: string },
   ) {
-    this.name = `Supabase LGP + ${inner.name}`;
+    this.name = 'Supabase (PMKT | Rumah123)';
   }
 
   private async select<T>(table: string, columns: string): Promise<T[]> {
@@ -143,8 +143,11 @@ export class SupabaseDataSource implements DataSource {
       this.select<ProjectRow>('projects', 'id,name,developer_name,status,start_date,end_date,kpi_leads,kpi_visit,kpi_booking,kpi_booking_value'),
       this.select<PerfRow>('performance_data', 'project_id,date,spend,leads,submit,spam,unqualified,interest,sva,spd,booking'),
     ]);
-    const lgpCampaigns = toCampaigns(projects, perf);
-    // If Supabase returned nothing (e.g. RLS blocks anon), keep the base campaigns.
-    return lgpCampaigns.length > 0 ? { ...base, lgpCampaigns } : base;
+    // No rows almost always means RLS blocks the anon role. Surface it (the
+    // DataContext shows a warning + falls back) instead of silently faking data.
+    if (projects.length === 0) {
+      throw new Error('Supabase returned 0 projects — add a SELECT policy for the anon role on projects/performance_data (RLS).');
+    }
+    return { ...base, lgpCampaigns: toCampaigns(projects, perf) };
   }
 }

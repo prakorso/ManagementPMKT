@@ -52,10 +52,11 @@ function resolveSheetId(): string {
 
 function resolveDataSource(): DataSourceKind {
   const raw = (env.VITE_DATA_SOURCE ?? '').toString().toLowerCase().trim();
-  if (raw === 'seed') return 'seed';
+  // Google Sheets is opt-in only now. By default the app reads its baseline
+  // (team, objectives, meetings…) from the bundled dataset and overlays live
+  // LGP campaigns from Supabase — no Google Sheets involved.
   if (raw === 'google-sheets') return 'google-sheets';
-  // No explicit choice: use Google Sheets whenever a sheet id is available.
-  return resolveSheetId() ? 'google-sheets' : 'seed';
+  return 'seed';
 }
 
 export const config: AppConfig = {
